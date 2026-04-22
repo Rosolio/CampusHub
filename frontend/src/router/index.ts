@@ -15,7 +15,10 @@ import LanguageSettings from '../pages/settings/LanguageSettings.vue'
 import AboutCampusAid from '../pages/settings/AboutCampusAid.vue'
 import PrivacyPolicy from '../pages/settings/PrivacyPolicy.vue'
 import UserAgreement from '../pages/settings/UserAgreement.vue'
-import AdminDashboard from '../pages/AdminDashboard.vue'
+import AdminLayout from '../pages/admin/AdminLayout.vue'
+import AdminOverviewPage from '../pages/admin/AdminOverviewPage.vue'
+import AdminUsersPage from '../pages/admin/AdminUsersPage.vue'
+import AdminModerationPage from '../pages/admin/AdminModerationPage.vue'
 import { hasValidAuthToken, isAdminUser } from '../utils/auth'
 
 const router = createRouter({
@@ -33,7 +36,17 @@ const router = createRouter({
     { path: '/tasks', name: 'tasks', component: Profile, props: { initialTab: 'requests' }, meta: { requiresAuth: true } },
     { path: '/messages', name: 'messages', component: Messages, meta: { requiresAuth: true } },
     { path: '/publish', name: 'publish', component: Publish, meta: { requiresAuth: true } },
-    { path: '/admin', name: 'admin', component: AdminDashboard, meta: { requiresAuth: true, requiresAdmin: true } },
+    {
+      path: '/admin',
+      component: AdminLayout,
+      meta: { requiresAuth: true, requiresAdmin: true },
+      children: [
+        { path: '', redirect: '/admin/overview' },
+        { path: 'overview', name: 'adminOverview', component: AdminOverviewPage, meta: { requiresAuth: true, requiresAdmin: true } },
+        { path: 'users', name: 'adminUsers', component: AdminUsersPage, meta: { requiresAuth: true, requiresAdmin: true } },
+        { path: 'moderation', name: 'adminModeration', component: AdminModerationPage, meta: { requiresAuth: true, requiresAdmin: true } },
+      ]
+    },
     { path: '/auth', name: 'auth', component: Auth },
     { path: '/login', redirect: '/auth?tab=login' },
     { path: '/register', redirect: '/auth?tab=register' },
