@@ -21,6 +21,7 @@ BACKEND_LOG="$LOG_DIR/backend.log"
 FRONTEND_LOG="$LOG_DIR/frontend.log"
 BACKEND_PORT=8080
 FRONTEND_PORT=5173
+FRONTEND_HOST="0.0.0.0"
 BACKEND_URL="http://127.0.0.1:${BACKEND_PORT}/api/tasks"
 FRONTEND_URL="http://127.0.0.1:${FRONTEND_PORT}"
 
@@ -137,6 +138,25 @@ wait_for_http_ready() {
     return 1
 }
 
+get_primary_lan_ip() {
+    if command -v ipconfig >/dev/null 2>&1; then
+        local ip
+        ip="$(ipconfig getifaddr en0 2>/dev/null || true)"
+        if [ -n "$ip" ]; then
+            echo "$ip"
+            return 0
+        fi
+
+        ip="$(ipconfig getifaddr en1 2>/dev/null || true)"
+        if [ -n "$ip" ]; then
+            echo "$ip"
+            return 0
+        fi
+    fi
+
+    hostname -I 2>/dev/null | awk '{print $1}'
+}
+
 start_mysql() {
     echo -e "${YELLOW}[1/4] 检查 MySQL 服务...${NC}"
 
@@ -227,7 +247,7 @@ start_frontend() {
     : > "$FRONTEND_LOG"
 
     echo "正在启动 Vite 开发服务器..."
-    nohup npm run dev -- --host 127.0.0.1 --port "$FRONTEND_PORT" --strictPort > "$FRONTEND_LOG" 2>&1 &
+    nohup npm run dev -- --host "$FRONTEND_HOST" --port "$FRONTEND_PORT" --strictPort > "$FRONTEND_LOG" 2>&1 &
     local frontend_pid=$!
     echo "$frontend_pid" > "$FRONTEND_PID_FILE"
 
@@ -239,6 +259,9 @@ start_frontend() {
 }
 
 show_status() {
+    local lan_ip
+    lan_ip="$(get_primary_lan_ip)"
+
     echo ""
     echo -e "${BLUE}========================================${NC}"
     echo -e "${GREEN}所有服务已启动！${NC}"
@@ -247,6 +270,9 @@ show_status() {
     echo -e "${YELLOW}服务信息:${NC}"
     echo "  📦 后端 API:  http://localhost:${BACKEND_PORT}/api"
     echo "  🌐 前端页面:  http://localhost:${FRONTEND_PORT}"
+    if [ -n "$lan_ip" ]; then
+        echo "  📱 手机访问:  http://${lan_ip}:${FRONTEND_PORT}"
+    fi
     echo "  💾 MySQL:     localhost:3306"
     echo "  🔴 Redis:     localhost:6379"
     echo ""
