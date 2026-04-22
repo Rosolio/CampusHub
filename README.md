@@ -7,6 +7,7 @@
 - `frontend`：前端工程
 - `backend`：后端工程
 - `start.sh` / `stop.sh` / `restart.sh`：本地联调脚本
+- `deploy.sh`：服务器部署脚本
 
 ## 本地开发
 
@@ -127,6 +128,23 @@ sudo nginx -t
 sudo systemctl reload nginx
 sudo systemctl status nginx
 ```
+
+### 推荐部署方式
+
+服务器上推荐直接使用仓库根目录脚本：
+
+```bash
+cd /home/ubuntu/apps/SECII-CampusAid
+./deploy.sh frontend
+```
+
+可选目标：
+
+- `./deploy.sh frontend`：同步仓库、构建前端并发布到 `/var/www/campusaid`
+- `./deploy.sh backend`：同步仓库、构建后端并重启 `campusaid-backend`
+- `./deploy.sh all`：前后端一起部署
+
+脚本会先备份服务器当前工作区差异到 `~/deploy-backups/`，再将仓库强制对齐到 `origin/dev`，以避免服务器上的临时改动阻塞后续发布。前端部署使用 `npm ci`，减少 `package-lock.json` 漂移。
 
 ## 测试账号
 
