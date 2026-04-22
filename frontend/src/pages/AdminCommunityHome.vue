@@ -1,8 +1,8 @@
 <template>
   <div class="min-h-screen bg-surface font-body text-on-surface pb-16">
-    <AppTopNav :show-avatar="false" />
+    <AdminModeHeader />
 
-    <main class="mx-auto max-w-7xl px-6 pb-12 pt-24">
+    <main class="mx-auto max-w-7xl px-6 pb-12 pt-8">
       <section class="overflow-hidden rounded-[2.2rem] bg-[linear-gradient(135deg,#102a33_0%,#12555f_48%,#cf8428_100%)] p-7 text-white shadow-[0_24px_80px_rgba(15,23,42,0.14)] md:p-8">
         <div class="grid gap-8 xl:grid-cols-[1.05fr_0.95fr]">
           <div>
@@ -137,14 +137,16 @@
                 <p class="text-[11px] font-extrabold uppercase tracking-[0.24em] text-teal-700/65">Community Pulse</p>
                 <h2 class="mt-2 text-2xl font-extrabold text-teal-950">最新社区动态</h2>
               </div>
-              <span class="rounded-full bg-cyan-50 px-4 py-2 text-sm font-bold text-teal-900">只读观察</span>
+              <RouterLink to="/admin/community" class="inline-flex items-center gap-2 rounded-full bg-cyan-50 px-4 py-2 text-sm font-bold text-teal-900 transition hover:bg-cyan-100">
+                进入独立页面
+                <span class="material-symbols-outlined text-base">arrow_forward</span>
+              </RouterLink>
             </div>
 
             <div class="mt-5 grid gap-4 md:grid-cols-2">
-              <RouterLink
+              <article
                 v-for="item in latestContent"
                 :key="item.id"
-                :to="`/detail/${item.id}`"
                 class="rounded-[1.5rem] border border-outline-variant/12 bg-surface-container-low p-4 transition hover:-translate-y-0.5 hover:bg-cyan-50/70"
               >
                 <div class="flex flex-wrap items-center gap-2">
@@ -157,7 +159,7 @@
                   <span>{{ item.requesterName || '社区用户' }}</span>
                   <span>{{ formatTime(item.createdAt) }}</span>
                 </div>
-              </RouterLink>
+              </article>
             </div>
           </section>
         </section>
@@ -241,7 +243,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import AppBottomNav from '../components/AppBottomNav.vue'
-import AppTopNav from '../components/AppTopNav.vue'
+import AdminModeHeader from '../components/AdminModeHeader.vue'
 import { adminApi, taskApi } from '../services/api'
 
 const error = ref('')
@@ -271,6 +273,7 @@ const latestContent = computed(() => communityContent.value.slice(0, 6))
 
 const quickLinks = [
   { to: '/admin/overview', label: '运营总览', description: '查看日活、订单量和结构分布。', icon: 'monitoring' },
+  { to: '/admin/community', label: '社区动态', description: '进入独立页面查看最新社区内容。', icon: 'newspaper' },
   { to: '/admin/users', label: '用户治理', description: '处理账号状态和用户搜索。', icon: 'manage_accounts' },
   { to: '/admin/moderation', label: '内容审核', description: '管理待审核内容与驳回通知。', icon: 'gavel' },
   { to: '/admin/profile', label: '个人中心', description: '查看管理员身份信息与后台工作入口。', icon: 'badge' }

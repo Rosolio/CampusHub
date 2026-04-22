@@ -1,68 +1,6 @@
 <template>
   <div class="min-h-screen bg-[#f3f1ea] font-body text-slate-900">
-    <header class="sticky top-0 z-50 border-b border-white/70 bg-[rgba(247,244,237,0.88)] backdrop-blur-xl">
-      <div class="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8">
-        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div class="flex items-start gap-4">
-            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#102a33] text-white shadow-[0_14px_30px_rgba(16,42,51,0.22)]">
-              <span class="material-symbols-outlined text-[26px]">shield_person</span>
-            </div>
-            <div>
-              <p class="text-[11px] font-extrabold uppercase tracking-[0.28em] text-slate-500">Admin Console</p>
-              <h1 class="mt-2 text-2xl font-extrabold tracking-[-0.04em] text-slate-950">CampusAid 管理模式</h1>
-              <p class="mt-1 text-sm text-slate-600">后台视图已与社区浏览解耦，社区内容只保留一个独立入口。</p>
-            </div>
-          </div>
-
-          <div class="flex flex-wrap items-center gap-3">
-            <RouterLink
-              to="/home"
-              class="inline-flex items-center gap-2 rounded-full border border-[#d9d1c3] bg-white px-4 py-2.5 text-sm font-extrabold text-slate-800 transition hover:bg-[#f6f1e7]"
-            >
-              <span class="material-symbols-outlined text-lg">storefront</span>
-              社区入口
-            </RouterLink>
-            <RouterLink
-              to="/messages"
-              class="inline-flex items-center gap-2 rounded-full border border-[#d9d1c3] bg-white px-4 py-2.5 text-sm font-extrabold text-slate-800 transition hover:bg-[#f6f1e7]"
-            >
-              <span class="material-symbols-outlined text-lg">notifications</span>
-              系统消息
-            </RouterLink>
-            <RouterLink
-              to="/admin/profile"
-              class="inline-flex items-center gap-2 rounded-full bg-[#102a33] px-4 py-2.5 text-sm font-extrabold text-white transition hover:bg-[#163a46]"
-            >
-              <span class="material-symbols-outlined text-lg">badge</span>
-              {{ displayName }}
-            </RouterLink>
-            <button
-              type="button"
-              class="inline-flex items-center gap-2 rounded-full bg-[#d96b2b] px-4 py-2.5 text-sm font-extrabold text-white transition hover:bg-[#be5a21]"
-              @click="logout"
-            >
-              <span class="material-symbols-outlined text-lg">logout</span>
-              退出登录
-            </button>
-          </div>
-        </div>
-
-        <div class="flex flex-wrap gap-2">
-          <RouterLink
-            v-for="item in navItems"
-            :key="item.to"
-            :to="item.to"
-            class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-extrabold transition"
-            :class="isActive(item.to)
-              ? 'bg-[#102a33] text-white'
-              : 'bg-white text-slate-700 hover:bg-[#efe8d7]'"
-          >
-            <span class="material-symbols-outlined text-base">{{ item.icon }}</span>
-            {{ item.label }}
-          </RouterLink>
-        </div>
-      </div>
-    </header>
+    <AdminModeHeader />
 
     <main class="relative overflow-hidden px-4 pb-14 pt-6 sm:px-6 lg:px-8">
       <div class="pointer-events-none absolute inset-x-0 top-0 h-90 bg-[radial-gradient(circle_at_top_left,rgba(11,61,73,0.16),transparent_32%),radial-gradient(circle_at_80%_18%,rgba(202,138,4,0.18),transparent_24%),linear-gradient(180deg,rgba(255,251,235,0.92),rgba(243,241,234,0))]"></div>
@@ -170,36 +108,7 @@
           </div>
         </section>
 
-        <div class="mt-8 grid gap-6 xl:grid-cols-[14rem_minmax(0,1fr)]">
-          <aside class="xl:sticky xl:top-24 xl:self-start">
-            <div class="rounded-[1.8rem] border border-[#d8d2c6] bg-[#fffaf0] p-4 shadow-[0_16px_48px_rgba(15,23,42,0.06)]">
-              <p class="px-2 text-[11px] font-extrabold uppercase tracking-[0.28em] text-slate-500">Workspace</p>
-              <nav class="mt-4 space-y-2">
-                <RouterLink
-                  v-for="item in navItems"
-                  :key="item.to"
-                  :to="item.to"
-                  class="flex items-center justify-between rounded-[1.1rem] px-3 py-3 text-sm font-bold transition"
-                  :class="isActive(item.to)
-                    ? 'bg-[#102a33] text-white'
-                    : 'text-slate-700 hover:bg-[#efe8d7]'"
-                >
-                  <span>{{ item.label }}</span>
-                  <span class="material-symbols-outlined text-base" :class="isActive(item.to) ? 'text-white/72' : 'text-slate-400'">
-                    {{ item.icon }}
-                  </span>
-                </RouterLink>
-              </nav>
-
-              <div class="mt-5 rounded-[1.3rem] bg-[#102a33] p-4 text-white">
-                <p class="text-xs font-extrabold uppercase tracking-[0.22em] text-white/55">工作建议</p>
-                <p class="mt-3 text-sm leading-7 text-white/78">
-                  先在总览页观察异常，再进入用户管理或内容审核进行处置，避免盲目操作。
-                </p>
-              </div>
-            </div>
-          </aside>
-
+        <div class="mt-8">
           <RouterView />
         </div>
       </div>
@@ -209,13 +118,19 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
-import { clearAuthStorage, getStoredUser } from '../../utils/auth'
+import { RouterLink, RouterView, useRoute } from 'vue-router'
+import AdminModeHeader from '../../components/AdminModeHeader.vue'
 
 const route = useRoute()
-const router = useRouter()
 
 const navItems = [
+  {
+    to: '/admin/community',
+    label: '社区动态',
+    eyebrow: 'Community',
+    icon: 'newspaper',
+    description: '独立查看当前社区最新内容，不跳出管理员模式。'
+  },
   {
     to: '/admin/overview',
     label: '总览',
@@ -246,12 +161,13 @@ const navItems = [
   }
 ]
 
-const displayName = computed(() => getStoredUser()?.name || '管理员')
 const activeNavItem = computed(() => navItems.find((item) => item.to === route.path) || navItems[0])
 const secondaryNavItems = computed(() => navItems.filter((item) => item.to !== activeNavItem.value.to))
 
 const currentPageTitle = computed(() => {
   switch (route.path) {
+    case '/admin/community':
+      return '管理员模式下独立观察社区动态'
     case '/admin/users':
       return '纯净管理模式下的用户治理面板'
     case '/admin/moderation':
@@ -271,6 +187,8 @@ const heroSignals = computed(() => [
 
 const focusLine = computed(() => {
   switch (route.path) {
+    case '/admin/community':
+      return '在不跳出管理员模式的前提下观察最新社区内容。'
     case '/admin/users':
       return '优先检查异常账号与禁用状态变更。'
     case '/admin/moderation':
@@ -284,6 +202,8 @@ const focusLine = computed(() => {
 
 const currentPageDescription = computed(() => {
   switch (route.path) {
+    case '/admin/community':
+      return '社区动态单独拆成页面，管理员可持续使用统一顶部导航浏览内容变化，而不会跳回普通社区页。'
     case '/admin/users':
       return '用户管理只保留治理相关动作，社区流量入口已收敛，避免后台操作被内容浏览打断。'
     case '/admin/moderation':
@@ -295,10 +215,4 @@ const currentPageDescription = computed(() => {
   }
 })
 
-const isActive = (path: string) => route.path === path
-
-const logout = async () => {
-  clearAuthStorage()
-  await router.push('/auth?tab=login')
-}
 </script>

@@ -21,6 +21,7 @@ import AdminOverviewPage from '../pages/admin/AdminOverviewPage.vue'
 import AdminUsersPage from '../pages/admin/AdminUsersPage.vue'
 import AdminModerationPage from '../pages/admin/AdminModerationPage.vue'
 import AdminProfilePage from '../pages/admin/AdminProfilePage.vue'
+import AdminCommunityFeedPage from '../pages/admin/AdminCommunityFeedPage.vue'
 import { hasValidAuthToken, isAdminUser } from '../utils/auth'
 
 const router = createRouter({
@@ -45,6 +46,7 @@ const router = createRouter({
       meta: { requiresAuth: true, requiresAdmin: true },
       children: [
         { path: '', redirect: '/admin/overview' },
+        { path: 'community', name: 'adminCommunity', component: AdminCommunityFeedPage, meta: { requiresAuth: true, requiresAdmin: true } },
         { path: 'overview', name: 'adminOverview', component: AdminOverviewPage, meta: { requiresAuth: true, requiresAdmin: true } },
         { path: 'users', name: 'adminUsers', component: AdminUsersPage, meta: { requiresAuth: true, requiresAdmin: true } },
         { path: 'moderation', name: 'adminModeration', component: AdminModerationPage, meta: { requiresAuth: true, requiresAdmin: true } },
