@@ -5,7 +5,9 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface UserMapper {
@@ -13,9 +15,13 @@ public interface UserMapper {
     User selectByStudentId(String studentId);
     User selectByEmail(String email);
     List<User> selectAll();
+    List<User> selectAdminUsers();
+    List<Map<String, Object>> countUsersByStatus();
     int insert(User user);
     int update(User user);
     int incrementPoints(@Param("id") Long id, @Param("points") int points);
     int updateScore(@Param("id") Long id, @Param("score") BigDecimal score);
+    int updateUserStatus(@Param("id") Long id, @Param("status") String status, @Param("disabledReason") String disabledReason);
+    int updateLastLoginAt(@Param("id") Long id, @Param("lastLoginAt") LocalDateTime lastLoginAt);
     int delete(Long id);
 }

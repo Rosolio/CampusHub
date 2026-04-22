@@ -118,6 +118,10 @@ public class TaskService {
         task.setImpactText(request.getImpactText());
         task.setMapImageUrl(request.getMapImageUrl());
         task.setContactInfo(request.getContactInfo());
+        task.setReviewStatus("approved");
+        task.setReviewNote(null);
+        task.setReviewedBy(null);
+        task.setReviewedAt(null);
         task.setStatus("pending");
         task.setLikeCount(0);
         task.setExpiresAt(resolveExpiresAt(request));
@@ -470,6 +474,9 @@ public class TaskService {
     private boolean isVisibleToUser(Task task, Long currentUserId) {
         if (task == null) {
             return false;
+        }
+        if (!"approved".equalsIgnoreCase(task.getReviewStatus())) {
+            return currentUserId != null && currentUserId.equals(task.getRequesterId());
         }
         if (!isExpiredTopic(task)) {
             return true;

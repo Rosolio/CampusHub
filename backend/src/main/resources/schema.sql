@@ -6,8 +6,12 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(255) NOT NULL,
     avatar_url VARCHAR(500) NULL,
     major VARCHAR(100) NULL,
+    role VARCHAR(32) NOT NULL DEFAULT 'USER',
+    status VARCHAR(32) NOT NULL DEFAULT 'ACTIVE',
+    disabled_reason VARCHAR(255) NULL,
     score DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     points INT NOT NULL DEFAULT 0,
+    last_login_at DATETIME NULL,
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL,
     PRIMARY KEY (id),
@@ -58,6 +62,10 @@ CREATE TABLE IF NOT EXISTS tasks (
     impact_text VARCHAR(255) NULL,
     map_image_url VARCHAR(500) NULL,
     contact_info VARCHAR(255) NULL,
+    review_status VARCHAR(32) NOT NULL DEFAULT 'approved',
+    review_note VARCHAR(255) NULL,
+    reviewed_by BIGINT NULL,
+    reviewed_at DATETIME NULL,
     status VARCHAR(32) NOT NULL,
     like_count INT NOT NULL DEFAULT 0,
     expires_at DATETIME NULL,
@@ -69,8 +77,61 @@ CREATE TABLE IF NOT EXISTS tasks (
     PRIMARY KEY (id),
     KEY idx_tasks_requester_id (requester_id),
     KEY idx_tasks_status (status),
-    KEY idx_tasks_task_mode (task_mode)
+    KEY idx_tasks_task_mode (task_mode),
+    KEY idx_tasks_review_status (review_status)
 );
+
+SET @add_users_role = IF(
+    EXISTS (
+        SELECT 1 FROM information_schema.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'role'
+    ),
+    'SELECT 1',
+    'ALTER TABLE users ADD COLUMN role VARCHAR(32) NOT NULL DEFAULT ''USER'' AFTER major'
+);
+PREPARE stmt FROM @add_users_role;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @add_users_status = IF(
+    EXISTS (
+        SELECT 1 FROM information_schema.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'status'
+    ),
+    'SELECT 1',
+    'ALTER TABLE users ADD COLUMN status VARCHAR(32) NOT NULL DEFAULT ''ACTIVE'' AFTER role'
+);
+PREPARE stmt FROM @add_users_status;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @add_users_disabled_reason = IF(
+    EXISTS (
+        SELECT 1 FROM information_schema.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'disabled_reason'
+    ),
+    'SELECT 1',
+    'ALTER TABLE users ADD COLUMN disabled_reason VARCHAR(255) NULL AFTER status'
+);
+PREPARE stmt FROM @add_users_disabled_reason;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @add_users_last_login_at = IF(
+    EXISTS (
+        SELECT 1 FROM information_schema.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'last_login_at'
+    ),
+    'SELECT 1',
+    'ALTER TABLE users ADD COLUMN last_login_at DATETIME NULL AFTER points'
+);
+PREPARE stmt FROM @add_users_last_login_at;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+UPDATE users
+SET role = COALESCE(NULLIF(role, ''), 'USER'),
+    status = COALESCE(NULLIF(status, ''), 'ACTIVE');
 
 SET @add_tasks_category = IF(
     EXISTS (
@@ -134,6 +195,69 @@ SET @add_tasks_contact_info = IF(
 PREPARE stmt FROM @add_tasks_contact_info;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
+
+SET @add_tasks_review_status = IF(
+    EXISTS (
+        SELECT 1
+        FROM information_schema.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = 'tasks'
+          AND COLUMN_NAME = 'review_status'
+    ),
+    'SELECT 1',
+    'ALTER TABLE tasks ADD COLUMN review_status VARCHAR(32) NOT NULL DEFAULT ''approved'' AFTER contact_info'
+);
+PREPARE stmt FROM @add_tasks_review_status;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @add_tasks_review_note = IF(
+    EXISTS (
+        SELECT 1
+        FROM information_schema.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = 'tasks'
+          AND COLUMN_NAME = 'review_note'
+    ),
+    'SELECT 1',
+    'ALTER TABLE tasks ADD COLUMN review_note VARCHAR(255) NULL AFTER review_status'
+);
+PREPARE stmt FROM @add_tasks_review_note;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @add_tasks_reviewed_by = IF(
+    EXISTS (
+        SELECT 1
+        FROM information_schema.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = 'tasks'
+          AND COLUMN_NAME = 'reviewed_by'
+    ),
+    'SELECT 1',
+    'ALTER TABLE tasks ADD COLUMN reviewed_by BIGINT NULL AFTER review_note'
+);
+PREPARE stmt FROM @add_tasks_reviewed_by;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @add_tasks_reviewed_at = IF(
+    EXISTS (
+        SELECT 1
+        FROM information_schema.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = 'tasks'
+          AND COLUMN_NAME = 'reviewed_at'
+    ),
+    'SELECT 1',
+    'ALTER TABLE tasks ADD COLUMN reviewed_at DATETIME NULL AFTER reviewed_by'
+);
+PREPARE stmt FROM @add_tasks_reviewed_at;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+UPDATE tasks
+SET review_status = COALESCE(NULLIF(review_status, ''), 'approved');
 
 SET @add_tasks_like_count = IF(
     EXISTS (
@@ -236,6 +360,16 @@ CREATE TABLE IF NOT EXISTS messages (
     KEY idx_messages_sender_id (sender_id),
     KEY idx_messages_task_id (task_id),
     KEY idx_messages_status (status)
+);
+
+CREATE TABLE IF NOT EXISTS user_login_logs (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    login_type VARCHAR(32) NOT NULL,
+    created_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    KEY idx_user_login_logs_user_id (user_id),
+    KEY idx_user_login_logs_created_at (created_at)
 );
 
 CREATE TABLE IF NOT EXISTS task_comments (

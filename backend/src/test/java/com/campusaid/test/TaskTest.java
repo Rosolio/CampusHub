@@ -73,7 +73,7 @@ public class TaskTest {
 
         Task task = taskService.createTask(request, 1L);
         assertNotNull(task);
-        assertEquals("微信 campus-aid", taskService.getTaskById(task.getId()).getContactInfo());
+        assertEquals("微信 campus-aid", taskService.getTaskById(task.getId(), 1L).getContactInfo());
     }
 
     @Test
@@ -96,7 +96,7 @@ public class TaskTest {
 
         assertNotNull(task);
         assertNull(task.getExpiresAt());
-        assertEquals("长期有效", taskService.getTaskById(task.getId()).getTimeText());
+        assertEquals("长期有效", taskService.getTaskById(task.getId(), 1L).getTimeText());
     }
 
     @Test
@@ -124,7 +124,7 @@ public class TaskTest {
         Long taskId = createdTask.getId();
 
         // 测试获取任务详情
-        Task task = taskService.getTaskById(taskId);
+        Task task = taskService.getTaskById(taskId, 1L);
         assertNotNull(task);
         assertEquals(taskId, task.getId());
     }

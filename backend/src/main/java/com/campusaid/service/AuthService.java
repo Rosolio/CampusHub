@@ -4,7 +4,9 @@ import com.campusaid.dto.LoginRequest;
 import com.campusaid.dto.RegisterRequest;
 import com.campusaid.dto.ThirdPartyLoginRequest;
 import com.campusaid.entity.User;
+import com.campusaid.entity.UserLoginLog;
 import com.campusaid.entity.UserSetting;
+import com.campusaid.mapper.UserLoginLogMapper;
 import com.campusaid.mapper.UserMapper;
 import com.campusaid.mapper.UserSettingMapper;
 import com.campusaid.util.JwtUtil;
@@ -24,12 +26,20 @@ import java.util.Map;
 public class AuthService {
 
     private final UserMapper userMapper;
+    private final UserLoginLogMapper userLoginLogMapper;
     private final UserSettingMapper userSettingMapper;
     private final PasswordUtil passwordUtil;
     private final JwtUtil jwtUtil;
 
-    public AuthService(UserMapper userMapper, UserSettingMapper userSettingMapper, PasswordUtil passwordUtil, JwtUtil jwtUtil) {
+    public AuthService(
+        UserMapper userMapper,
+        UserLoginLogMapper userLoginLogMapper,
+        UserSettingMapper userSettingMapper,
+        PasswordUtil passwordUtil,
+        JwtUtil jwtUtil
+    ) {
         this.userMapper = userMapper;
+        this.userLoginLogMapper = userLoginLogMapper;
         this.userSettingMapper = userSettingMapper;
         this.passwordUtil = passwordUtil;
         this.jwtUtil = jwtUtil;
@@ -40,9 +50,11 @@ public class AuthService {
         if (user == null || !passwordUtil.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("学号或密码错误");
         }
+        ensureUserEnabled(user);
 
         String token = jwtUtil.generateToken(user.getId());
         String refreshToken = jwtUtil.generateRefreshToken(user.getId());
+        recordLogin(user.getId(), "PASSWORD");
 
         Map<String, Object> result = new HashMap<>();
         result.put("token", token);
@@ -82,8 +94,12 @@ public class AuthService {
         user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setPassword(passwordUtil.encryptPassword(request.getPassword()));
+        user.setRole("USER");
+        user.setStatus("ACTIVE");
+        user.setDisabledReason(null);
         user.setScore(BigDecimal.ZERO);
         user.setPoints(0);
+        user.setLastLoginAt(LocalDateTime.now());
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
         userMapper.insert(user);
@@ -99,6 +115,7 @@ public class AuthService {
 
         String token = jwtUtil.generateToken(user.getId());
         String refreshToken = jwtUtil.generateRefreshToken(user.getId());
+        recordLogin(user.getId(), "REGISTER");
 
         Map<String, Object> result = new HashMap<>();
         result.put("token", token);
@@ -140,8 +157,12 @@ public class AuthService {
             user.setName(resolveThirdPartyDisplayName(provider, providerUserId, request.getDisplayName()));
             user.setEmail(syntheticEmail);
             user.setPassword(passwordUtil.encryptPassword(buildSyntheticPassword(provider, providerUserId)));
+            user.setRole("USER");
+            user.setStatus("ACTIVE");
+            user.setDisabledReason(null);
             user.setScore(BigDecimal.ZERO);
             user.setPoints(0);
+            user.setLastLoginAt(LocalDateTime.now());
             user.setCreatedAt(LocalDateTime.now());
             user.setUpdatedAt(LocalDateTime.now());
             userMapper.insert(user);
@@ -154,6 +175,7 @@ public class AuthService {
             userSetting.setUpdatedAt(LocalDateTime.now());
             userSettingMapper.insert(userSetting);
         } else {
+            ensureUserEnabled(user);
             boolean changed = false;
             String nextName = safeTrim(request.getDisplayName());
             if (!nextName.isEmpty() && !nextName.equals(user.getName())) {
@@ -173,6 +195,7 @@ public class AuthService {
 
         String token = jwtUtil.generateToken(user.getId());
         String refreshToken = jwtUtil.generateRefreshToken(user.getId());
+        recordLogin(user.getId(), provider);
 
         Map<String, Object> result = new HashMap<>();
         result.put("token", token);
@@ -223,6 +246,24 @@ public class AuthService {
             .withoutPadding()
             .encodeToString(value.getBytes(StandardCharsets.UTF_8));
         return encoded.length() > 16 ? encoded.substring(0, 16) : encoded;
+    }
+
+    private void ensureUserEnabled(User user) {
+        if (!"ACTIVE".equalsIgnoreCase(user.getStatus())) {
+            String reason = safeTrim(user.getDisabledReason());
+            throw new RuntimeException(reason.isEmpty() ? "账号已被禁用，请联系管理员" : "账号已被禁用: " + reason);
+        }
+    }
+
+    private void recordLogin(Long userId, String loginType) {
+        LocalDateTime now = LocalDateTime.now();
+        userMapper.updateLastLoginAt(userId, now);
+
+        UserLoginLog log = new UserLoginLog();
+        log.setUserId(userId);
+        log.setLoginType(loginType);
+        log.setCreatedAt(now);
+        userLoginLogMapper.insert(log);
     }
 
 }

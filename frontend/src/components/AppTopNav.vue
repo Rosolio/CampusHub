@@ -24,6 +24,13 @@
 
       <div class="flex items-center gap-2">
         <RouterLink
+          v-if="isAdmin"
+          to="/admin"
+          class="rounded-full px-3 py-2 text-sm font-bold text-teal-900/72 transition-all hover:bg-white hover:text-teal-950"
+        >
+          管理后台
+        </RouterLink>
+        <RouterLink
           to="/messages"
           class="relative rounded-full p-2 text-teal-900/72 transition-all hover:bg-white hover:text-teal-950"
           :aria-label="t('navNotifications')"
@@ -61,7 +68,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { usePreferences } from '../composables/usePreferences'
 import { messageApi } from '../services/api'
-import { hasValidAuthToken } from '../utils/auth'
+import { getStoredUser, hasValidAuthToken } from '../utils/auth'
 
 const props = withDefaults(defineProps<{
   avatarUrl?: string
@@ -88,15 +95,11 @@ const desktopItems = [
 const resolvedAvatarUrl = computed(() => {
   if (props.avatarUrl) return props.avatarUrl
 
-  try {
-    const raw = localStorage.getItem('user')
-    if (!raw) return defaultAvatarUrl
-    const user = JSON.parse(raw)
-    return user?.avatarUrl || defaultAvatarUrl
-  } catch {
-    return defaultAvatarUrl
-  }
+  const user = getStoredUser()
+  return user?.avatarUrl || defaultAvatarUrl
 })
+
+const isAdmin = computed(() => String(getStoredUser()?.role || '').toUpperCase() === 'ADMIN')
 
 const isActive = (path: string) => {
   if (path === '/') {

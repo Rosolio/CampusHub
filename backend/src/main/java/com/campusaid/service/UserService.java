@@ -48,6 +48,11 @@ public class UserService {
         return user;
     }
 
+    public boolean isAdmin(Long id) {
+        User user = getUserById(id);
+        return user != null && "ADMIN".equalsIgnoreCase(user.getRole());
+    }
+
     public User updateUser(Long id, User user) {
         User existingUser = userMapper.selectById(id);
         if (existingUser == null) {

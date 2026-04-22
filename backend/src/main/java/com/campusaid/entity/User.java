@@ -11,8 +11,12 @@ public class User {
     private String password;
     private String avatarUrl;
     private String major;
+    private String role;
+    private String status;
+    private String disabledReason;
     private BigDecimal score;
     private Integer points;
+    private LocalDateTime lastLoginAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -72,6 +76,30 @@ public class User {
         this.major = major;
     }
 
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getDisabledReason() {
+        return disabledReason;
+    }
+
+    public void setDisabledReason(String disabledReason) {
+        this.disabledReason = disabledReason;
+    }
+
     public BigDecimal getScore() {
         return score;
     }
@@ -86,6 +114,14 @@ public class User {
 
     public void setPoints(Integer points) {
         this.points = points;
+    }
+
+    public LocalDateTime getLastLoginAt() {
+        return lastLoginAt;
+    }
+
+    public void setLastLoginAt(LocalDateTime lastLoginAt) {
+        this.lastLoginAt = lastLoginAt;
     }
 
     public LocalDateTime getCreatedAt() {

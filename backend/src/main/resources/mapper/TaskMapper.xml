@@ -20,6 +20,10 @@
         <result property="impactText" column="impact_text"/>
         <result property="mapImageUrl" column="map_image_url"/>
         <result property="contactInfo" column="contact_info"/>
+        <result property="reviewStatus" column="review_status"/>
+        <result property="reviewNote" column="review_note"/>
+        <result property="reviewedBy" column="reviewed_by"/>
+        <result property="reviewedAt" column="reviewed_at"/>
         <result property="requesterName" column="requester_name"/>
         <result property="requesterMajor" column="requester_major"/>
         <result property="requesterAvatarUrl" column="requester_avatar_url"/>
@@ -169,6 +173,37 @@
         ORDER BY t.created_at DESC
     </select>
 
+    <select id="selectAdminTasks" resultMap="TaskResultMap">
+        SELECT t.*,
+               u.name AS requester_name,
+               u.major AS requester_major,
+               u.avatar_url AS requester_avatar_url,
+               helper.id AS helper_id,
+               helper.name AS helper_name,
+               helper.major AS helper_major,
+               helper.avatar_url AS helper_avatar_url,
+               COALESCE(tc.comment_count, 0) AS comment_count
+        FROM tasks t
+        LEFT JOIN users u ON t.requester_id = u.id
+        LEFT JOIN task_participants helper_tp
+               ON helper_tp.task_id = t.id
+              AND helper_tp.role = 'helper'
+              AND helper_tp.status != 'canceled'
+        LEFT JOIN users helper ON helper_tp.participant_id = helper.id
+        LEFT JOIN (
+            SELECT task_id, COUNT(*) AS comment_count
+            FROM task_comments
+            GROUP BY task_id
+        ) tc ON tc.task_id = t.id
+        ORDER BY
+            CASE t.review_status
+                WHEN 'pending_review' THEN 0
+                WHEN 'rejected' THEN 1
+                ELSE 2
+            END,
+            t.created_at DESC
+    </select>
+
     <select id="sumTopicLikesByRequesterId" resultType="java.lang.Integer">
         SELECT COALESCE(SUM(like_count), 0)
         FROM tasks
@@ -176,14 +211,40 @@
           AND task_mode = 'topic'
     </select>
 
+    <select id="countTasksByReviewStatus" resultType="map">
+        SELECT review_status AS label, COUNT(*) AS value
+        FROM tasks
+        GROUP BY review_status
+    </select>
+
+    <select id="countTasksByCategory" resultType="map">
+        SELECT COALESCE(category, '未分类') AS label, COUNT(*) AS value
+        FROM tasks
+        WHERE review_status = 'approved'
+        GROUP BY category
+        ORDER BY value DESC, label ASC
+    </select>
+
+    <select id="countCompletedTasksByDateRange" resultType="map">
+        SELECT DATE_FORMAT(completed_at, '%Y-%m-%d') AS label, COUNT(*) AS value
+        FROM tasks
+        WHERE completed_at IS NOT NULL
+          AND completed_at <![CDATA[>=]]> #{start}
+          AND completed_at <![CDATA[<]]> #{end}
+        GROUP BY DATE_FORMAT(completed_at, '%Y-%m-%d')
+        ORDER BY label ASC
+    </select>
+
     <insert id="insert" parameterType="com.campusaid.entity.Task" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO tasks (requester_id, title, description, category, task_mode, badge_primary, badge_secondary,
                           location_text, time_text, reward_title, reward_text, impact_title, impact_text,
-                          map_image_url, contact_info, status, like_count, expires_at, requester_completed_at, helper_completed_at, completed_at,
+                          map_image_url, contact_info, review_status, review_note, reviewed_by, reviewed_at,
+                          status, like_count, expires_at, requester_completed_at, helper_completed_at, completed_at,
                           created_at, updated_at)
         VALUES (#{requesterId}, #{title}, #{description}, #{category}, #{taskMode}, #{badgePrimary}, #{badgeSecondary},
                 #{locationText}, #{timeText}, #{rewardTitle}, #{rewardText}, #{impactTitle}, #{impactText},
-                #{mapImageUrl}, #{contactInfo}, #{status}, #{likeCount}, #{expiresAt}, #{requesterCompletedAt}, #{helperCompletedAt},
+                #{mapImageUrl}, #{contactInfo}, #{reviewStatus}, #{reviewNote}, #{reviewedBy}, #{reviewedAt},
+                #{status}, #{likeCount}, #{expiresAt}, #{requesterCompletedAt}, #{helperCompletedAt},
                 #{completedAt}, #{createdAt}, #{updatedAt})
     </insert>
 
@@ -196,6 +257,8 @@
             reward_title = #{rewardTitle}, reward_text = #{rewardText},
             impact_title = #{impactTitle}, impact_text = #{impactText},
             map_image_url = #{mapImageUrl}, contact_info = #{contactInfo},
+            review_status = #{reviewStatus}, review_note = #{reviewNote},
+            reviewed_by = #{reviewedBy}, reviewed_at = #{reviewedAt},
             status = #{status}, like_count = #{likeCount}, expires_at = #{expiresAt},
             requester_completed_at = #{requesterCompletedAt}, helper_completed_at = #{helperCompletedAt},
             completed_at = #{completedAt}, updated_at = #{updatedAt}

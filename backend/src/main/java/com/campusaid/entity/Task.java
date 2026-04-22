@@ -19,6 +19,10 @@ public class Task {
     private String impactText;
     private String mapImageUrl;
     private String contactInfo;
+    private String reviewStatus;
+    private String reviewNote;
+    private Long reviewedBy;
+    private LocalDateTime reviewedAt;
     private String requesterName;
     private String requesterMajor;
     private String requesterAvatarUrl;
@@ -163,6 +167,38 @@ public class Task {
 
     public void setContactInfo(String contactInfo) {
         this.contactInfo = contactInfo;
+    }
+
+    public String getReviewStatus() {
+        return reviewStatus;
+    }
+
+    public void setReviewStatus(String reviewStatus) {
+        this.reviewStatus = reviewStatus;
+    }
+
+    public String getReviewNote() {
+        return reviewNote;
+    }
+
+    public void setReviewNote(String reviewNote) {
+        this.reviewNote = reviewNote;
+    }
+
+    public Long getReviewedBy() {
+        return reviewedBy;
+    }
+
+    public void setReviewedBy(Long reviewedBy) {
+        this.reviewedBy = reviewedBy;
+    }
+
+    public LocalDateTime getReviewedAt() {
+        return reviewedAt;
+    }
+
+    public void setReviewedAt(LocalDateTime reviewedAt) {
+        this.reviewedAt = reviewedAt;
     }
 
     public String getRequesterName() {

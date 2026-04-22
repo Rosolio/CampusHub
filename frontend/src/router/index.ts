@@ -15,7 +15,8 @@ import LanguageSettings from '../pages/settings/LanguageSettings.vue'
 import AboutCampusAid from '../pages/settings/AboutCampusAid.vue'
 import PrivacyPolicy from '../pages/settings/PrivacyPolicy.vue'
 import UserAgreement from '../pages/settings/UserAgreement.vue'
-import { hasValidAuthToken } from '../utils/auth'
+import AdminDashboard from '../pages/AdminDashboard.vue'
+import { hasValidAuthToken, isAdminUser } from '../utils/auth'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -32,6 +33,7 @@ const router = createRouter({
     { path: '/tasks', name: 'tasks', component: Profile, props: { initialTab: 'requests' }, meta: { requiresAuth: true } },
     { path: '/messages', name: 'messages', component: Messages, meta: { requiresAuth: true } },
     { path: '/publish', name: 'publish', component: Publish, meta: { requiresAuth: true } },
+    { path: '/admin', name: 'admin', component: AdminDashboard, meta: { requiresAuth: true, requiresAdmin: true } },
     { path: '/auth', name: 'auth', component: Auth },
     { path: '/login', redirect: '/auth?tab=login' },
     { path: '/register', redirect: '/auth?tab=register' },
@@ -52,6 +54,10 @@ router.beforeEach((to) => {
 
   if (to.meta.requiresAuth && !authenticated) {
     return '/auth?tab=login'
+  }
+
+  if (to.meta.requiresAdmin && !isAdminUser()) {
+    return '/home'
   }
 
   if (isAuthRoute && authenticated) {

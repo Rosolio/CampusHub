@@ -252,6 +252,28 @@ export const userApi = {
   }
 }
 
+export const adminApi = {
+  getDashboard: () => {
+    return api.get('/admin/dashboard')
+  },
+
+  getUsers: () => {
+    return api.get('/admin/users')
+  },
+
+  updateUserStatus: (userId: number, data: { status: 'ACTIVE' | 'DISABLED'; disabledReason?: string }) => {
+    return api.put(`/admin/users/${userId}/status`, data)
+  },
+
+  getTasks: () => {
+    return api.get('/admin/tasks')
+  },
+
+  reviewTask: (taskId: number, data: { reviewStatus: 'approved' | 'rejected' | 'pending_review'; reviewNote?: string }) => {
+    return api.put(`/admin/tasks/${taskId}/review`, data)
+  }
+}
+
 // 消息相关API
 export const messageApi = {
   // 获取消息列表

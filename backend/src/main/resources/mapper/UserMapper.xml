@@ -11,8 +11,12 @@
         <result property="password" column="password"/>
         <result property="avatarUrl" column="avatar_url"/>
         <result property="major" column="major"/>
+        <result property="role" column="role"/>
+        <result property="status" column="status"/>
+        <result property="disabledReason" column="disabled_reason"/>
         <result property="score" column="score"/>
         <result property="points" column="points"/>
+        <result property="lastLoginAt" column="last_login_at"/>
         <result property="createdAt" column="created_at"/>
         <result property="updatedAt" column="updated_at"/>
     </resultMap>
@@ -33,15 +37,29 @@
         SELECT * FROM users
     </select>
 
+    <select id="selectAdminUsers" resultMap="UserResultMap">
+        SELECT *
+        FROM users
+        ORDER BY created_at DESC
+    </select>
+
+    <select id="countUsersByStatus" resultType="map">
+        SELECT status AS label, COUNT(*) AS value
+        FROM users
+        GROUP BY status
+    </select>
+
     <insert id="insert" parameterType="com.campusaid.entity.User" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO users (student_id, name, email, password, avatar_url, major, score, points, created_at, updated_at)
-        VALUES (#{studentId}, #{name}, #{email}, #{password}, #{avatarUrl}, #{major}, #{score}, #{points}, #{createdAt}, #{updatedAt})
+        INSERT INTO users (student_id, name, email, password, avatar_url, major, role, status, disabled_reason, score, points, last_login_at, created_at, updated_at)
+        VALUES (#{studentId}, #{name}, #{email}, #{password}, #{avatarUrl}, #{major}, #{role}, #{status}, #{disabledReason}, #{score}, #{points}, #{lastLoginAt}, #{createdAt}, #{updatedAt})
     </insert>
 
     <update id="update" parameterType="com.campusaid.entity.User">
         UPDATE users
         SET student_id = #{studentId}, name = #{name}, email = #{email}, password = #{password}, 
-            avatar_url = #{avatarUrl}, major = #{major}, score = #{score}, points = #{points}, 
+            avatar_url = #{avatarUrl}, major = #{major}, role = #{role}, status = #{status},
+            disabled_reason = #{disabledReason}, score = #{score}, points = #{points},
+            last_login_at = #{lastLoginAt},
             updated_at = #{updatedAt}
         WHERE id = #{id}
     </update>
@@ -56,6 +74,21 @@
     <update id="updateScore">
         UPDATE users
         SET score = #{score},
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateUserStatus">
+        UPDATE users
+        SET status = #{status},
+            disabled_reason = #{disabledReason},
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateLastLoginAt">
+        UPDATE users
+        SET last_login_at = #{lastLoginAt},
             updated_at = NOW()
         WHERE id = #{id}
     </update>

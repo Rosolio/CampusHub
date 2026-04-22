@@ -23,6 +23,20 @@ export const clearAuthStorage = () => {
 
 export const getStoredToken = () => localStorage.getItem(TOKEN_KEY)
 
+export const getStoredUser = () => {
+  try {
+    const raw = localStorage.getItem(USER_KEY)
+    return raw ? JSON.parse(raw) : null
+  } catch {
+    return null
+  }
+}
+
+export const isAdminUser = () => {
+  const user = getStoredUser()
+  return String(user?.role || '').toUpperCase() === 'ADMIN'
+}
+
 export const hasValidAuthToken = () => {
   const token = getStoredToken()
   if (!token) return false
