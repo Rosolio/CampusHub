@@ -1,9 +1,11 @@
 import axios from 'axios'
 import { clearAuthStorage, getStoredToken, hasValidAuthToken } from '../utils/auth'
 
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api'
+
 // 创建axios实例
 const api = axios.create({
-  baseURL: 'http://localhost:8080/api',
+  baseURL: apiBaseUrl,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json'
