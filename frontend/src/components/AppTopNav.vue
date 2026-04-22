@@ -13,7 +13,7 @@
             class="relative rounded-full px-4 py-2 text-sm font-bold tracking-tight transition-all duration-200"
             :class="isActive(item.to) ? 'bg-teal-900 text-white shadow-sm' : 'text-teal-900/65 hover:bg-teal-50 hover:text-teal-950'"
           >
-            {{ t(item.labelKey) }}
+            {{ resolveItemLabel(item) }}
             <span
               v-if="item.to === '/messages' && unreadCount > 0"
               class="absolute right-2 top-1.5 h-2.5 w-2.5 rounded-full bg-rose-500 ring-2 ring-white"
@@ -31,6 +31,7 @@
           管理后台
         </RouterLink>
         <RouterLink
+          v-if="!isAdmin"
           to="/messages"
           class="relative rounded-full p-2 text-teal-900/72 transition-all hover:bg-white hover:text-teal-950"
           :aria-label="t('navNotifications')"
@@ -50,7 +51,7 @@
         </RouterLink>
         <RouterLink
           v-if="showAvatar"
-          to="/profile"
+          :to="profileLink"
           class="block transition-transform hover:scale-105 active:scale-95"
           :aria-label="t('navProfileLabel')"
         >
@@ -85,13 +86,6 @@ let unreadTimer: number | null = null
 
 const defaultAvatarUrl = 'https://images.unsplash.com/photo-1522556189639-b150d1e7cd5f?auto=format&fit=crop&w=200&q=80'
 
-const desktopItems = [
-  { to: '/', labelKey: 'navHome' },
-  { to: '/publish', labelKey: 'navPublish' },
-  { to: '/messages', labelKey: 'navMessages' },
-  { to: '/profile', labelKey: 'navProfile' }
-]
-
 const resolvedAvatarUrl = computed(() => {
   if (props.avatarUrl) return props.avatarUrl
 
@@ -100,8 +94,31 @@ const resolvedAvatarUrl = computed(() => {
 })
 
 const isAdmin = computed(() => String(getStoredUser()?.role || '').toUpperCase() === 'ADMIN')
+const profileLink = computed(() => isAdmin.value ? '/admin/profile' : '/profile')
+const desktopItems = computed(() => (
+  isAdmin.value
+    ? [
+        { to: '/', label: '社区视角' },
+        { to: '/admin', label: '管理后台' },
+        { to: '/admin/profile', label: '个人中心' }
+      ]
+    : [
+        { to: '/', labelKey: 'navHome' },
+        { to: '/publish', labelKey: 'navPublish' },
+        { to: '/messages', labelKey: 'navMessages' },
+        { to: '/profile', labelKey: 'navProfile' }
+      ]
+))
 
 const isActive = (path: string) => {
+  if (path === '/admin') {
+    return route.path.startsWith('/admin')
+  }
+
+  if (path === '/admin/profile') {
+    return route.path === '/admin/profile'
+  }
+
   if (path === '/') {
     return route.path === '/' || route.path === '/home' || route.path === '/topics' || route.path.startsWith('/detail/')
   }
@@ -112,6 +129,8 @@ const isActive = (path: string) => {
 
   return route.path === path
 }
+
+const resolveItemLabel = (item: { label?: string; labelKey?: string }) => item.label || t(item.labelKey || '')
 
 const fetchUnreadCount = async () => {
   if (!hasValidAuthToken()) {
@@ -128,10 +147,12 @@ const fetchUnreadCount = async () => {
 }
 
 onMounted(() => {
-  fetchUnreadCount()
-  unreadTimer = window.setInterval(() => {
+  if (!isAdmin.value) {
     fetchUnreadCount()
-  }, 15000)
+    unreadTimer = window.setInterval(() => {
+      fetchUnreadCount()
+    }, 15000)
+  }
 })
 
 onBeforeUnmount(() => {

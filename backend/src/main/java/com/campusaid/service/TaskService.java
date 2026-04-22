@@ -71,7 +71,7 @@ public class TaskService {
             redisTemplate.opsForValue().set(key, tasks, 5, TimeUnit.MINUTES);
         }
         return tasks.stream()
-            .filter(task -> isVisibleToUser(task, currentUserId))
+            .filter(this::isVisibleInCommunityFeed)
             .map(TaskModeResolver::normalize)
             .peek(task -> task.setLikedByCurrentUser(isTaskLikedByUser(task, currentUserId)))
             .collect(Collectors.toList());
@@ -102,6 +102,7 @@ public class TaskService {
 
     @Transactional
     public Task createTask(TaskCreateRequest request, Long requesterId) {
+        requireCommunityUser(requesterId);
         Task task = new Task();
         task.setRequesterId(requesterId);
         task.setTitle(request.getTitle());
@@ -150,6 +151,7 @@ public class TaskService {
 
     @Transactional
     public Task acceptTask(Long taskId, Long helperId) {
+        requireCommunityUser(helperId);
         Task task = taskMapper.selectById(taskId);
         if (task == null) {
             throw new RuntimeException("任务不存在");
@@ -200,6 +202,7 @@ public class TaskService {
 
     @Transactional
     public Task unacceptTask(Long taskId, Long helperId) {
+        requireCommunityUser(helperId);
         Task task = taskMapper.selectById(taskId);
         if (task == null) {
             throw new RuntimeException("任务不存在");
@@ -232,6 +235,7 @@ public class TaskService {
 
     @Transactional
     public Task completeTask(Long taskId, Long requesterId) {
+        requireCommunityUser(requesterId);
         Task task = taskMapper.selectById(taskId);
         if (task == null) {
             throw new RuntimeException("任务不存在");
@@ -325,6 +329,7 @@ public class TaskService {
 
     @Transactional
     public Task cancelTask(Long taskId, Long requesterId) {
+        requireCommunityUser(requesterId);
         Task task = taskMapper.selectById(taskId);
         if (task == null) {
             throw new RuntimeException("任务不存在");
@@ -358,6 +363,7 @@ public class TaskService {
 
     @Transactional
     public void deleteTask(Long taskId, Long requesterId) {
+        requireCommunityUser(requesterId);
         Task task = taskMapper.selectById(taskId);
         if (task == null) {
             throw new RuntimeException("任务不存在");
@@ -381,12 +387,18 @@ public class TaskService {
     }
 
     public List<Task> getMyTasks(Long userId) {
+        if (userService.isAdmin(userId)) {
+            return List.of();
+        }
         return taskMapper.selectByRequesterId(userId).stream()
             .map(TaskModeResolver::normalize)
             .collect(Collectors.toList());
     }
 
     public List<Task> getMyAcceptedTasks(Long userId) {
+        if (userService.isAdmin(userId)) {
+            return List.of();
+        }
         return taskMapper.selectByHelperId(userId).stream()
             .map(TaskModeResolver::normalize)
             .collect(Collectors.toList());
@@ -445,9 +457,18 @@ public class TaskService {
     }
 
     public int getMyReceivedLikeCount(Long userId) {
+        if (userService.isAdmin(userId)) {
+            return 0;
+        }
         Integer taskLikes = taskMapper.sumTopicLikesByRequesterId(userId);
         Integer commentLikes = taskCommentMapper.sumLikesByAuthorId(userId);
         return (taskLikes == null ? 0 : taskLikes) + (commentLikes == null ? 0 : commentLikes);
+    }
+
+    private void requireCommunityUser(Long userId) {
+        if (userService.isAdmin(userId)) {
+            throw new RuntimeException("管理员账号不参与普通社区发布、接单和履约流程");
+        }
     }
 
     private void validateLikeableTopicTask(Task task) {
@@ -482,6 +503,10 @@ public class TaskService {
             return true;
         }
         return currentUserId != null && currentUserId.equals(task.getRequesterId());
+    }
+
+    private boolean isVisibleInCommunityFeed(Task task) {
+        return task != null && "approved".equalsIgnoreCase(task.getReviewStatus());
     }
 
     private boolean isExpiredTopic(Task task) {

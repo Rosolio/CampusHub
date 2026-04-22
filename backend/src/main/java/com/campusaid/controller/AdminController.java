@@ -1,10 +1,16 @@
 package com.campusaid.controller;
 
 import com.campusaid.dto.AdminTaskReviewRequest;
+import com.campusaid.dto.AdminAnnouncementRequest;
+import com.campusaid.dto.AdminFeedbackUpdateRequest;
 import com.campusaid.dto.AdminUserStatusUpdateRequest;
+import com.campusaid.entity.Announcement;
+import com.campusaid.entity.Feedback;
 import com.campusaid.entity.Task;
 import com.campusaid.entity.User;
 import com.campusaid.service.AdminService;
+import com.campusaid.service.AnnouncementService;
+import com.campusaid.service.FeedbackService;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,9 +22,13 @@ import java.util.Map;
 public class AdminController {
 
     private final AdminService adminService;
+    private final AnnouncementService announcementService;
+    private final FeedbackService feedbackService;
 
-    public AdminController(AdminService adminService) {
+    public AdminController(AdminService adminService, AnnouncementService announcementService, FeedbackService feedbackService) {
         this.adminService = adminService;
+        this.announcementService = announcementService;
+        this.feedbackService = feedbackService;
     }
 
     @GetMapping("/dashboard")
@@ -52,6 +62,34 @@ public class AdminController {
         Authentication authentication
     ) {
         return adminService.reviewTask(getCurrentUserId(authentication), taskId, request);
+    }
+
+    @GetMapping("/announcements")
+    public List<Announcement> getAnnouncements(Authentication authentication) {
+        adminService.requireAdmin(getCurrentUserId(authentication));
+        return announcementService.getAnnouncements();
+    }
+
+    @PostMapping("/announcements")
+    public Announcement createAnnouncement(
+        @RequestBody AdminAnnouncementRequest request,
+        Authentication authentication
+    ) {
+        return announcementService.createAnnouncement(getCurrentUserId(authentication), request);
+    }
+
+    @GetMapping("/feedback")
+    public List<Feedback> getFeedback(Authentication authentication) {
+        return feedbackService.getAdminFeedback(getCurrentUserId(authentication));
+    }
+
+    @PutMapping("/feedback/{feedbackId}")
+    public Feedback updateFeedback(
+        @PathVariable Long feedbackId,
+        @RequestBody AdminFeedbackUpdateRequest request,
+        Authentication authentication
+    ) {
+        return feedbackService.updateFeedback(getCurrentUserId(authentication), feedbackId, request);
     }
 
     private Long getCurrentUserId(Authentication authentication) {

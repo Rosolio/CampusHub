@@ -45,6 +45,36 @@ CREATE TABLE IF NOT EXISTS user_point_records (
     KEY idx_user_point_records_created_at (created_at)
 );
 
+CREATE TABLE IF NOT EXISTS announcements (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    author_id BIGINT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    pinned TINYINT(1) NOT NULL DEFAULT 1,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    KEY idx_announcements_author_id (author_id),
+    KEY idx_announcements_pinned_created_at (pinned, created_at)
+);
+
+CREATE TABLE IF NOT EXISTS feedback (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    type VARCHAR(32) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    status VARCHAR(32) NOT NULL DEFAULT 'open',
+    admin_reply TEXT NULL,
+    admin_id BIGINT NULL,
+    handled_at DATETIME NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    KEY idx_feedback_user_id (user_id),
+    KEY idx_feedback_status_created_at (status, created_at)
+);
+
 CREATE TABLE IF NOT EXISTS tasks (
     id BIGINT NOT NULL AUTO_INCREMENT,
     requester_id BIGINT NOT NULL,
@@ -258,6 +288,56 @@ DEALLOCATE PREPARE stmt;
 
 UPDATE tasks
 SET review_status = COALESCE(NULLIF(review_status, ''), 'approved');
+
+SET @create_announcements_table = IF(
+    EXISTS (
+        SELECT 1 FROM information_schema.TABLES
+        WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'announcements'
+    ),
+    'SELECT 1',
+    'CREATE TABLE announcements (
+        id BIGINT NOT NULL AUTO_INCREMENT,
+        author_id BIGINT NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        content TEXT NOT NULL,
+        pinned TINYINT(1) NOT NULL DEFAULT 1,
+        created_at DATETIME NOT NULL,
+        updated_at DATETIME NOT NULL,
+        PRIMARY KEY (id),
+        KEY idx_announcements_author_id (author_id),
+        KEY idx_announcements_pinned_created_at (pinned, created_at)
+    )'
+);
+PREPARE stmt FROM @create_announcements_table;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @create_feedback_table = IF(
+    EXISTS (
+        SELECT 1 FROM information_schema.TABLES
+        WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'feedback'
+    ),
+    'SELECT 1',
+    'CREATE TABLE feedback (
+        id BIGINT NOT NULL AUTO_INCREMENT,
+        user_id BIGINT NOT NULL,
+        type VARCHAR(32) NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        content TEXT NOT NULL,
+        status VARCHAR(32) NOT NULL DEFAULT ''open'',
+        admin_reply TEXT NULL,
+        admin_id BIGINT NULL,
+        handled_at DATETIME NULL,
+        created_at DATETIME NOT NULL,
+        updated_at DATETIME NOT NULL,
+        PRIMARY KEY (id),
+        KEY idx_feedback_user_id (user_id),
+        KEY idx_feedback_status_created_at (status, created_at)
+    )'
+);
+PREPARE stmt FROM @create_feedback_table;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
 SET @add_tasks_like_count = IF(
     EXISTS (

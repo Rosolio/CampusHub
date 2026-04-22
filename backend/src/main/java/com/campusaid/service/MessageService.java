@@ -12,9 +12,11 @@ import java.util.List;
 public class MessageService {
 
     private final MessageMapper messageMapper;
+    private final UserService userService;
 
-    public MessageService(MessageMapper messageMapper) {
+    public MessageService(MessageMapper messageMapper, UserService userService) {
         this.messageMapper = messageMapper;
+        this.userService = userService;
     }
 
     public List<Message> getMessagesByReceiverId(Long receiverId) {
@@ -26,6 +28,9 @@ public class MessageService {
     }
 
     public Message sendMessage(MessageRequest request, Long senderId) {
+        if (userService.isAdmin(senderId) || userService.isAdmin(request.getReceiverId())) {
+            throw new RuntimeException("管理员账号不参与普通用户私信沟通，请改用社区反馈或后台处理");
+        }
         Message message = new Message();
         message.setSenderId(senderId);
         message.setReceiverId(request.getReceiverId());

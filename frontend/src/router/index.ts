@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Discovery from '../pages/Discovery.vue'
+import HomeGateway from '../pages/HomeGateway.vue'
 import TopicSquare from '../pages/TopicSquare.vue'
 import RequestDetail from '../pages/RequestDetail.vue'
 import TaskReviewPage from '../pages/TaskReviewPage.vue'
@@ -8,6 +8,7 @@ import Auth from '../pages/Auth.vue'
 import Messages from '../pages/Messages.vue'
 import Settings from '../pages/Settings.vue'
 import Publish from '../pages/Publish.vue'
+import FeedbackPage from '../pages/FeedbackPage.vue'
 import ProfileSettings from '../pages/settings/ProfileSettings.vue'
 import NotificationSettings from '../pages/settings/NotificationSettings.vue'
 import ThemeSettings from '../pages/settings/ThemeSettings.vue'
@@ -29,7 +30,7 @@ const router = createRouter({
       path: '/',
       redirect: () => hasValidAuthToken() ? '/home' : '/auth?tab=login'
     },
-    { path: '/home', name: 'home', component: Discovery, meta: { requiresAuth: true } },
+    { path: '/home', name: 'home', component: HomeGateway, meta: { requiresAuth: true } },
     { path: '/topics', name: 'topics', component: TopicSquare, meta: { requiresAuth: true } },
     { path: '/detail/:id', name: 'detail', component: RequestDetail, props: true, meta: { requiresAuth: true } },
     { path: '/detail/:id/review', name: 'taskReview', component: TaskReviewPage, props: true, meta: { requiresAuth: true } },
@@ -37,6 +38,7 @@ const router = createRouter({
     { path: '/tasks', name: 'tasks', component: Profile, props: { initialTab: 'requests' }, meta: { requiresAuth: true } },
     { path: '/messages', name: 'messages', component: Messages, meta: { requiresAuth: true } },
     { path: '/publish', name: 'publish', component: Publish, meta: { requiresAuth: true } },
+    { path: '/feedback', name: 'feedback', component: FeedbackPage, meta: { requiresAuth: true } },
     {
       path: '/admin',
       component: AdminLayout,
@@ -73,6 +75,15 @@ router.beforeEach((to) => {
 
   if (to.meta.requiresAdmin && !isAdminUser()) {
     return '/home'
+  }
+
+  if (authenticated && isAdminUser()) {
+    if (to.path === '/publish' || to.path === '/messages') {
+      return '/home'
+    }
+    if (to.path === '/profile' || to.path === '/tasks') {
+      return '/admin/profile'
+    }
   }
 
   if (isAuthRoute && authenticated) {

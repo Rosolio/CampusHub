@@ -4,6 +4,8 @@ USE campusaid;
 SET FOREIGN_KEY_CHECKS = 0;
 
 DROP TABLE IF EXISTS messages;
+DROP TABLE IF EXISTS feedback;
+DROP TABLE IF EXISTS announcements;
 DROP TABLE IF EXISTS user_login_logs;
 DROP TABLE IF EXISTS user_point_records;
 DROP TABLE IF EXISTS task_comments;
@@ -121,6 +123,36 @@ CREATE TABLE messages (
     KEY idx_messages_sender_id (sender_id),
     KEY idx_messages_task_id (task_id),
     KEY idx_messages_status (status)
+);
+
+CREATE TABLE announcements (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    author_id BIGINT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    pinned TINYINT(1) NOT NULL DEFAULT 1,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    KEY idx_announcements_author_id (author_id),
+    KEY idx_announcements_pinned_created_at (pinned, created_at)
+);
+
+CREATE TABLE feedback (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    type VARCHAR(32) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    status VARCHAR(32) NOT NULL DEFAULT 'open',
+    admin_reply TEXT NULL,
+    admin_id BIGINT NULL,
+    handled_at DATETIME NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    KEY idx_feedback_user_id (user_id),
+    KEY idx_feedback_status_created_at (status, created_at)
 );
 
 CREATE TABLE user_login_logs (

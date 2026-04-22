@@ -49,6 +49,9 @@ public class UserService {
     }
 
     public boolean isAdmin(Long id) {
+        if (id == null) {
+            return false;
+        }
         User user = getUserById(id);
         return user != null && "ADMIN".equalsIgnoreCase(user.getRole());
     }

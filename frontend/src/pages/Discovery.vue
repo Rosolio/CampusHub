@@ -3,6 +3,65 @@
     <AppTopNav :show-avatar="false" />
 
     <main class="mx-auto max-w-7xl px-6 pb-32 pt-24">
+      <section class="mb-8 grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
+        <article class="overflow-hidden rounded-[2rem] bg-[linear-gradient(135deg,rgba(15,60,68,0.98),rgba(13,93,104,0.92),rgba(102,183,172,0.82))] p-6 text-white shadow-sm">
+          <div class="flex flex-wrap items-center gap-3">
+            <span class="rounded-full border border-white/16 bg-white/10 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.26em] text-white/76">Pinned Announcements</span>
+            <span class="rounded-full bg-white/12 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-white/78">管理员发布</span>
+          </div>
+          <h2 class="mt-4 text-3xl font-extrabold tracking-tight">社区公告</h2>
+          <p class="mt-3 max-w-2xl text-sm leading-7 text-white/78">
+            重要通知会固定展示在这里。系统维护、规则调整和功能变更会优先通过公告同步。
+          </p>
+
+          <div class="mt-5 space-y-3">
+            <article
+              v-for="announcement in pinnedAnnouncements"
+              :key="announcement.id"
+              class="rounded-[1.4rem] border border-white/14 bg-white/10 px-4 py-4 backdrop-blur-sm"
+            >
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <h3 class="text-lg font-extrabold text-white">{{ announcement.title }}</h3>
+                <span class="text-xs font-semibold text-white/66">{{ formatAnnouncementTime(announcement.createdAt) }}</span>
+              </div>
+              <p class="mt-2 text-sm leading-7 text-white/76">{{ announcement.content }}</p>
+            </article>
+            <div v-if="pinnedAnnouncements.length === 0" class="rounded-[1.4rem] border border-white/14 bg-white/10 px-4 py-4 text-sm text-white/72">
+              当前没有公告。
+            </div>
+          </div>
+        </article>
+
+        <article class="rounded-[2rem] bg-surface-container-lowest p-6 shadow-sm">
+          <p class="text-[11px] font-extrabold uppercase tracking-[0.24em] text-teal-700/65">Community Feedback</p>
+          <h2 class="mt-3 text-3xl font-extrabold text-teal-950">发现 bug 或有建议？</h2>
+          <p class="mt-3 text-sm leading-7 text-on-surface-variant">
+            现在支持直接向管理员提交社区反馈。这里不走普通私信，反馈会进入管理员处理队列，回复后会通过系统提醒通知你。
+          </p>
+          <div class="mt-5 grid gap-3 sm:grid-cols-3">
+            <div class="rounded-[1.3rem] bg-surface-container-low px-4 py-4">
+              <p class="text-[11px] font-extrabold uppercase tracking-[0.2em] text-on-surface-variant">问题类型</p>
+              <p class="mt-3 text-lg font-extrabold text-teal-900">Bug / 建议</p>
+            </div>
+            <div class="rounded-[1.3rem] bg-surface-container-low px-4 py-4">
+              <p class="text-[11px] font-extrabold uppercase tracking-[0.2em] text-on-surface-variant">处理方式</p>
+              <p class="mt-3 text-lg font-extrabold text-teal-900">管理员回复</p>
+            </div>
+            <div class="rounded-[1.3rem] bg-surface-container-low px-4 py-4">
+              <p class="text-[11px] font-extrabold uppercase tracking-[0.2em] text-on-surface-variant">通知渠道</p>
+              <p class="mt-3 text-lg font-extrabold text-teal-900">系统提醒</p>
+            </div>
+          </div>
+          <RouterLink
+            to="/feedback"
+            class="mt-5 inline-flex items-center gap-2 rounded-full bg-teal-900 px-5 py-3 text-sm font-extrabold text-white transition hover:bg-teal-800"
+          >
+            提交社区反馈
+            <span class="material-symbols-outlined text-base">arrow_forward</span>
+          </RouterLink>
+        </article>
+      </section>
+
       <section class="mb-8 overflow-hidden rounded-[2.4rem] bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.96),rgba(236,253,245,0.96)_36%,rgba(223,245,255,0.92)_68%,rgba(248,250,252,0.95)_100%)] p-6 shadow-sm md:p-8">
         <div class="grid gap-6 xl:grid-cols-[1.05fr_0.95fr] xl:items-start">
           <div>
@@ -236,7 +295,7 @@ import { computed, nextTick, onMounted, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import AppBottomNav from '../components/AppBottomNav.vue'
 import AppTopNav from '../components/AppTopNav.vue'
-import { taskApi } from '../services/api'
+import { announcementApi, taskApi } from '../services/api'
 
 const router = useRouter()
 const categories = ['全部任务', '跑腿代办', '学习辅导']
@@ -244,9 +303,12 @@ const topicPreviewCategories = ['二手闲置', '恋爱交友', '打听求助', 
 const activeCategory = ref('全部任务')
 const selectedTopicEntryCategory = ref('二手闲置')
 const tasks = ref<any[]>([])
+const announcements = ref<any[]>([])
 const loading = ref(false)
 const error = ref('')
 const taskSection = ref<HTMLElement | null>(null)
+
+const pinnedAnnouncements = computed(() => announcements.value.filter((item) => item.pinned).slice(0, 3))
 
 const iconForCategory = (category: string) => {
   const iconMap: Record<string, string> = {
@@ -314,6 +376,17 @@ const fetchTasks = async () => {
   }
 }
 
+const fetchAnnouncements = async () => {
+  try {
+    const response = await announcementApi.getAnnouncements() as any
+    const rows = Array.isArray(response) ? response : Array.isArray(response?.data) ? response.data : []
+    announcements.value = rows
+  } catch (err) {
+    console.error('获取公告失败:', err)
+    announcements.value = []
+  }
+}
+
 const taskCards = computed(() => (
   tasks.value.filter((card) => card.taskMode === 'task' && (card.status === 'pending' || card.status === 'accepted'))
 ))
@@ -363,5 +436,15 @@ const taskStatusBadge = (status?: string) => {
   return '待接单'
 }
 
-onMounted(fetchTasks)
+const formatAnnouncementTime = (value?: string) => {
+  if (!value) return '刚刚'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return '刚刚'
+  return `${date.getMonth() + 1}/${date.getDate()} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
+}
+
+onMounted(() => {
+  fetchTasks()
+  fetchAnnouncements()
+})
 </script>

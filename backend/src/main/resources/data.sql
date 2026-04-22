@@ -34,3 +34,15 @@ ON DUPLICATE KEY UPDATE
 
 ALTER TABLE users AUTO_INCREMENT = 5;
 ALTER TABLE user_settings AUTO_INCREMENT = 5;
+
+INSERT INTO announcements (id, author_id, title, content, pinned, created_at, updated_at)
+VALUES
+    (1, 4, 'CampusAid 社区公告', '欢迎使用校园互助平台。若你发现 bug、交互问题或有产品建议，可通过“社区反馈”功能直接提交给管理员。', 1, NOW(), NOW())
+ON DUPLICATE KEY UPDATE
+    author_id = VALUES(author_id),
+    title = VALUES(title),
+    content = VALUES(content),
+    pinned = VALUES(pinned),
+    updated_at = NOW();
+
+ALTER TABLE announcements AUTO_INCREMENT = 2;

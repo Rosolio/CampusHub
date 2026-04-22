@@ -10,26 +10,45 @@
       <span class="material-symbols-outlined mb-1" :data-weight="isActive(item.to) ? 'fill' : 'regular'">
         {{ item.icon }}
       </span>
-      <span>{{ t(item.labelKey) }}</span>
+      <span>{{ resolveItemLabel(item) }}</span>
     </RouterLink>
   </nav>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { usePreferences } from '../composables/usePreferences'
+import { isAdminUser } from '../utils/auth'
 
 const route = useRoute()
 const { t } = usePreferences()
+const isAdmin = isAdminUser()
 
-const items = [
-  { to: '/', labelKey: 'navHome', icon: 'home' },
-  { to: '/publish', labelKey: 'navPublish', icon: 'add_circle' },
-  { to: '/messages', labelKey: 'navMessages', icon: 'chat_bubble' },
-  { to: '/profile', labelKey: 'navProfile', icon: 'person' }
-]
+const items = computed(() => (
+  isAdmin
+    ? [
+        { to: '/', label: '社区', icon: 'home' },
+        { to: '/admin', label: '后台', icon: 'shield_person' },
+        { to: '/admin/profile', label: '我的', icon: 'person' }
+      ]
+    : [
+        { to: '/', labelKey: 'navHome', icon: 'home' },
+        { to: '/publish', labelKey: 'navPublish', icon: 'add_circle' },
+        { to: '/messages', labelKey: 'navMessages', icon: 'chat_bubble' },
+        { to: '/profile', labelKey: 'navProfile', icon: 'person' }
+      ]
+))
 
 const isActive = (path: string) => {
+  if (path === '/admin') {
+    return route.path.startsWith('/admin')
+  }
+
+  if (path === '/admin/profile') {
+    return route.path === '/admin/profile'
+  }
+
   if (path === '/') {
     return route.path === '/' || route.path === '/home' || route.path === '/topics' || route.path.startsWith('/detail/')
   }
@@ -40,4 +59,6 @@ const isActive = (path: string) => {
 
   return route.path === path
 }
+
+const resolveItemLabel = (item: { label?: string; labelKey?: string }) => item.label || t(item.labelKey || '')
 </script>

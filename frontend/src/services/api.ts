@@ -271,6 +271,38 @@ export const adminApi = {
 
   reviewTask: (taskId: number, data: { reviewStatus: 'approved' | 'rejected' | 'pending_review'; reviewNote?: string }) => {
     return api.put(`/admin/tasks/${taskId}/review`, data)
+  },
+
+  getAnnouncements: () => {
+    return api.get('/admin/announcements')
+  },
+
+  createAnnouncement: (data: { title: string; content: string; pinned?: boolean }) => {
+    return api.post('/admin/announcements', data)
+  },
+
+  getFeedback: () => {
+    return api.get('/admin/feedback')
+  },
+
+  updateFeedback: (feedbackId: number, data: { status: 'open' | 'in_progress' | 'resolved'; adminReply?: string }) => {
+    return api.put(`/admin/feedback/${feedbackId}`, data)
+  }
+}
+
+export const announcementApi = {
+  getAnnouncements: () => {
+    return api.get('/announcements')
+  }
+}
+
+export const feedbackApi = {
+  createFeedback: (data: { type: 'BUG' | 'SUGGESTION' | 'OTHER'; title: string; content: string }) => {
+    return api.post('/feedback', data)
+  },
+
+  getMyFeedback: () => {
+    return api.get('/feedback/my')
   }
 }
 
