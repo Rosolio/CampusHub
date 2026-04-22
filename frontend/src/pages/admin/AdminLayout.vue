@@ -1,8 +1,70 @@
 <template>
   <div class="min-h-screen bg-[#f3f1ea] font-body text-slate-900">
-    <AppTopNav :show-avatar="false" />
+    <header class="sticky top-0 z-50 border-b border-white/70 bg-[rgba(247,244,237,0.88)] backdrop-blur-xl">
+      <div class="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div class="flex items-start gap-4">
+            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#102a33] text-white shadow-[0_14px_30px_rgba(16,42,51,0.22)]">
+              <span class="material-symbols-outlined text-[26px]">shield_person</span>
+            </div>
+            <div>
+              <p class="text-[11px] font-extrabold uppercase tracking-[0.28em] text-slate-500">Admin Console</p>
+              <h1 class="mt-2 text-2xl font-extrabold tracking-[-0.04em] text-slate-950">CampusAid 管理模式</h1>
+              <p class="mt-1 text-sm text-slate-600">后台视图已与社区浏览解耦，社区内容只保留一个独立入口。</p>
+            </div>
+          </div>
 
-    <main class="relative overflow-hidden px-4 pb-14 pt-22 sm:px-6 lg:px-8">
+          <div class="flex flex-wrap items-center gap-3">
+            <RouterLink
+              to="/home"
+              class="inline-flex items-center gap-2 rounded-full border border-[#d9d1c3] bg-white px-4 py-2.5 text-sm font-extrabold text-slate-800 transition hover:bg-[#f6f1e7]"
+            >
+              <span class="material-symbols-outlined text-lg">storefront</span>
+              社区入口
+            </RouterLink>
+            <RouterLink
+              to="/messages"
+              class="inline-flex items-center gap-2 rounded-full border border-[#d9d1c3] bg-white px-4 py-2.5 text-sm font-extrabold text-slate-800 transition hover:bg-[#f6f1e7]"
+            >
+              <span class="material-symbols-outlined text-lg">notifications</span>
+              系统消息
+            </RouterLink>
+            <RouterLink
+              to="/admin/profile"
+              class="inline-flex items-center gap-2 rounded-full bg-[#102a33] px-4 py-2.5 text-sm font-extrabold text-white transition hover:bg-[#163a46]"
+            >
+              <span class="material-symbols-outlined text-lg">badge</span>
+              {{ displayName }}
+            </RouterLink>
+            <button
+              type="button"
+              class="inline-flex items-center gap-2 rounded-full bg-[#d96b2b] px-4 py-2.5 text-sm font-extrabold text-white transition hover:bg-[#be5a21]"
+              @click="logout"
+            >
+              <span class="material-symbols-outlined text-lg">logout</span>
+              退出登录
+            </button>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <RouterLink
+            v-for="item in navItems"
+            :key="item.to"
+            :to="item.to"
+            class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-extrabold transition"
+            :class="isActive(item.to)
+              ? 'bg-[#102a33] text-white'
+              : 'bg-white text-slate-700 hover:bg-[#efe8d7]'"
+          >
+            <span class="material-symbols-outlined text-base">{{ item.icon }}</span>
+            {{ item.label }}
+          </RouterLink>
+        </div>
+      </div>
+    </header>
+
+    <main class="relative overflow-hidden px-4 pb-14 pt-6 sm:px-6 lg:px-8">
       <div class="pointer-events-none absolute inset-x-0 top-0 h-90 bg-[radial-gradient(circle_at_top_left,rgba(11,61,73,0.16),transparent_32%),radial-gradient(circle_at_80%_18%,rgba(202,138,4,0.18),transparent_24%),linear-gradient(180deg,rgba(255,251,235,0.92),rgba(243,241,234,0))]"></div>
 
       <div class="relative mx-auto max-w-7xl">
@@ -21,11 +83,11 @@
                 </div>
 
                 <h1 class="mt-5 max-w-3xl text-4xl font-extrabold leading-[1.02] tracking-[-0.04em] md:text-5xl">
-                  校园互助平台管理后台
+                  {{ currentPageTitle }}
                 </h1>
 
                 <p class="mt-4 max-w-2xl text-sm leading-7 text-white/76 md:text-base">
-                  将总览监控、用户治理和内容审核拆成独立工作面板，降低切换成本，让后台真正按任务流转。
+                  {{ currentPageDescription }}
                 </p>
               </div>
             </div>
@@ -95,10 +157,12 @@
 </template>
 
 <script setup lang="ts">
-import { RouterLink, RouterView, useRoute } from 'vue-router'
-import AppTopNav from '../../components/AppTopNav.vue'
+import { computed } from 'vue'
+import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
+import { clearAuthStorage, getStoredUser } from '../../utils/auth'
 
 const route = useRoute()
+const router = useRouter()
 
 const navItems = [
   {
@@ -121,8 +185,48 @@ const navItems = [
     eyebrow: 'Moderation',
     icon: 'gavel',
     description: '处理待审核内容，完成通过、驳回或挂起。'
+  },
+  {
+    to: '/admin/profile',
+    label: '个人中心',
+    eyebrow: 'Profile',
+    icon: 'badge',
+    description: '查看管理员身份信息、快捷动作和后台使用入口。'
   }
 ]
 
+const displayName = computed(() => getStoredUser()?.name || '管理员')
+
+const currentPageTitle = computed(() => {
+  switch (route.path) {
+    case '/admin/users':
+      return '纯净管理模式下的用户治理面板'
+    case '/admin/moderation':
+      return '只处理待办事项的内容审核工作区'
+    case '/admin/profile':
+      return '面向管理者的专属个人中心'
+    default:
+      return '与社区浏览分离的运营总览指挥台'
+  }
+})
+
+const currentPageDescription = computed(() => {
+  switch (route.path) {
+    case '/admin/users':
+      return '用户管理只保留治理相关动作，社区流量入口已收敛，避免后台操作被内容浏览打断。'
+    case '/admin/moderation':
+      return '审核视图只承载待处理内容，完成后立即退出队列，保持后台界面始终围绕决策任务。'
+    case '/admin/profile':
+      return '个人中心改为管理员工作首页，保留身份信息、风险提示和常用操作，不再混入社区内容流。'
+    default:
+      return '将总览监控、用户治理和内容审核拆成独立工作面板，并把社区首页等浏览入口压缩为一个独立出口。'
+  }
+})
+
 const isActive = (path: string) => route.path === path
+
+const logout = async () => {
+  clearAuthStorage()
+  await router.push('/auth?tab=login')
+}
 </script>
