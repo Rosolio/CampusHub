@@ -36,17 +36,38 @@
         </div>
       </section>
 
-      <section class="mb-8 flex flex-wrap gap-3">
-        <button
-          v-for="category in categories"
-          :key="category"
-          type="button"
-          class="rounded-full px-5 py-2 text-sm font-semibold transition-all"
-          :class="activeCategory === category ? 'scale-95 bg-primary text-white shadow-sm' : 'bg-surface-container-high text-on-surface-variant hover:bg-cyan-50/60'"
-          @click="setActiveCategory(category)"
-        >
-          {{ category }}
-        </button>
+      <section class="mb-8 space-y-4">
+        <div class="flex flex-wrap gap-3">
+          <button
+            v-for="category in categories"
+            :key="category"
+            type="button"
+            class="rounded-full px-5 py-2 text-sm font-semibold transition-all"
+            :class="activeCategory === category ? 'scale-95 bg-primary text-white shadow-sm' : 'bg-surface-container-high text-on-surface-variant hover:bg-cyan-50/60'"
+            @click="setActiveCategory(category)"
+          >
+            {{ category }}
+          </button>
+        </div>
+
+        <label class="flex w-full items-center gap-3 rounded-[1.5rem] bg-surface-container-low px-4 py-3 text-sm text-on-surface shadow-sm lg:max-w-xl">
+          <span class="material-symbols-outlined text-lg text-on-surface-variant">search</span>
+          <input
+            v-model.trim="keyword"
+            type="text"
+            class="min-w-0 flex-1 bg-transparent outline-none placeholder:text-on-surface-variant/60"
+            placeholder="搜索标题、内容、分类、地点或发布者"
+          />
+          <button
+            v-if="keyword"
+            type="button"
+            class="inline-flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-on-surface"
+            aria-label="清空搜索"
+            @click="clearKeyword"
+          >
+            <span class="material-symbols-outlined text-lg">close</span>
+          </button>
+        </label>
       </section>
 
       <section v-if="loading" class="rounded-[2rem] bg-surface-container-low p-10 text-center text-on-surface-variant">
@@ -61,8 +82,8 @@
         <div class="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-surface-container-high">
           <span class="material-symbols-outlined text-4xl text-on-surface-variant">forum</span>
         </div>
-        <h2 class="text-2xl font-bold text-teal-900">这个分类还没有话题帖</h2>
-        <p class="mt-3 text-on-surface-variant">可以切换别的分类，或者直接发布一条新帖子。</p>
+        <h2 class="text-2xl font-bold text-teal-900">{{ emptyStateTitle }}</h2>
+        <p class="mt-3 text-on-surface-variant">{{ emptyStateDescription }}</p>
       </section>
 
       <section v-else class="grid gap-8 lg:grid-cols-2">
@@ -148,14 +169,16 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import { RouterLink, useRoute } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import AppBottomNav from '../components/AppBottomNav.vue'
 import AppTopNav from '../components/AppTopNav.vue'
 import { taskApi } from '../services/api'
 
 const route = useRoute()
+const router = useRouter()
 const categories = ['全部话题', '二手闲置', '恋爱交友', '打听求助', '兼职招聘']
 const activeCategory = ref('全部话题')
+const keyword = ref('')
 const topics = ref<any[]>([])
 const loading = ref(false)
 const error = ref('')
@@ -203,6 +226,31 @@ const applyRouteCategory = () => {
   activeCategory.value = categories.includes(nextCategory) ? nextCategory : '全部话题'
 }
 
+const applyRouteKeyword = () => {
+  keyword.value = String(route.query.keyword || '').trim()
+}
+
+const updateTopicQuery = () => {
+  const nextQuery: Record<string, string> = {}
+  if (activeCategory.value !== '全部话题') {
+    nextQuery.category = activeCategory.value
+  }
+  if (keyword.value) {
+    nextQuery.keyword = keyword.value
+  }
+
+  const currentCategory = String(route.query.category || '')
+  const currentKeyword = String(route.query.keyword || '').trim()
+  if (currentCategory === (nextQuery.category || '') && currentKeyword === (nextQuery.keyword || '')) {
+    return
+  }
+
+  router.replace({
+    path: route.path,
+    query: nextQuery
+  })
+}
+
 const fetchTopics = async () => {
   loading.value = true
   error.value = ''
@@ -221,13 +269,45 @@ const fetchTopics = async () => {
 }
 
 const filteredTopics = computed(() => {
-  if (activeCategory.value === '全部话题') return topics.value
-  return topics.value.filter((card: any) => card.category === activeCategory.value)
+  const normalizedKeyword = keyword.value.trim().toLowerCase()
+
+  return topics.value.filter((card: any) => {
+    const categoryMatched = activeCategory.value === '全部话题' || card.category === activeCategory.value
+    if (!categoryMatched) return false
+    if (!normalizedKeyword) return true
+
+    const searchText = [
+      card.title,
+      card.description,
+      card.category,
+      card.locationText,
+      card.publisher
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase()
+
+    return searchText.includes(normalizedKeyword)
+  })
 })
 
 const setActiveCategory = (category: string) => {
   activeCategory.value = category
 }
+
+const clearKeyword = () => {
+  keyword.value = ''
+}
+
+const emptyStateTitle = computed(() => (
+  keyword.value ? '没有找到匹配的话题帖' : '这个分类还没有话题帖'
+))
+
+const emptyStateDescription = computed(() => (
+  keyword.value
+    ? '试试更换关键词、切换分类，或者直接发布一条新帖子。'
+    : '可以切换别的分类，或者直接发布一条新帖子。'
+))
 
 const topicCardClass = (category: string) => {
   const map: Record<string, string> = {
@@ -240,9 +320,12 @@ const topicCardClass = (category: string) => {
 }
 
 watch(() => route.query.category, applyRouteCategory)
+watch(() => route.query.keyword, applyRouteKeyword)
+watch([activeCategory, keyword], updateTopicQuery)
 
 onMounted(async () => {
   applyRouteCategory()
+  applyRouteKeyword()
   await fetchTopics()
 })
 </script>
