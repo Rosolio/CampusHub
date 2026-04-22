@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.campusaid.mapper.TaskReviewMapper">
+    <resultMap id="TaskReviewResultMap" type="com.campusaid.entity.TaskReview">
+        <id property="id" column="id"/>
+        <result property="taskId" column="task_id"/>
+        <result property="reviewerId" column="reviewer_id"/>
+        <result property="revieweeId" column="reviewee_id"/>
+        <result property="reviewerRole" column="reviewer_role"/>
+        <result property="rating" column="rating"/>
+        <result property="content" column="content"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="reviewerName" column="reviewer_name"/>
+        <result property="reviewerAvatarUrl" column="reviewer_avatar_url"/>
+        <result property="revieweeName" column="reviewee_name"/>
+        <result property="revieweeAvatarUrl" column="reviewee_avatar_url"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="TaskReviewResultMap">
+        SELECT tr.*,
+               reviewer.name AS reviewer_name,
+               reviewer.avatar_url AS reviewer_avatar_url,
+               reviewee.name AS reviewee_name,
+               reviewee.avatar_url AS reviewee_avatar_url
+        FROM task_reviews tr
+        LEFT JOIN users reviewer ON tr.reviewer_id = reviewer.id
+        LEFT JOIN users reviewee ON tr.reviewee_id = reviewee.id
+        WHERE tr.id = #{id}
+    </select>
+
+    <select id="selectByTaskId" resultMap="TaskReviewResultMap">
+        SELECT tr.*,
+               reviewer.name AS reviewer_name,
+               reviewer.avatar_url AS reviewer_avatar_url,
+               reviewee.name AS reviewee_name,
+               reviewee.avatar_url AS reviewee_avatar_url
+        FROM task_reviews tr
+        LEFT JOIN users reviewer ON tr.reviewer_id = reviewer.id
+        LEFT JOIN users reviewee ON tr.reviewee_id = reviewee.id
+        WHERE tr.task_id = #{taskId}
+        ORDER BY tr.created_at ASC
+    </select>
+
+    <select id="selectByTaskIdAndReviewerId" resultMap="TaskReviewResultMap">
+        SELECT tr.*,
+               reviewer.name AS reviewer_name,
+               reviewer.avatar_url AS reviewer_avatar_url,
+               reviewee.name AS reviewee_name,
+               reviewee.avatar_url AS reviewee_avatar_url
+        FROM task_reviews tr
+        LEFT JOIN users reviewer ON tr.reviewer_id = reviewer.id
+        LEFT JOIN users reviewee ON tr.reviewee_id = reviewee.id
+        WHERE tr.task_id = #{taskId}
+          AND tr.reviewer_id = #{reviewerId}
+        LIMIT 1
+    </select>
+
+    <select id="selectAverageRatingByRevieweeId" resultType="java.math.BigDecimal">
+        SELECT AVG(rating)
+        FROM task_reviews
+        WHERE reviewee_id = #{revieweeId}
+    </select>
+
+    <insert id="insert" parameterType="com.campusaid.entity.TaskReview" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO task_reviews (task_id, reviewer_id, reviewee_id, reviewer_role, rating, content, created_at, updated_at)
+        VALUES (#{taskId}, #{reviewerId}, #{revieweeId}, #{reviewerRole}, #{rating}, #{content}, #{createdAt}, #{updatedAt})
+    </insert>
+
+    <delete id="deleteByTaskId" parameterType="java.lang.Long">
+        DELETE FROM task_reviews WHERE task_id = #{taskId}
+    </delete>
+</mapper>

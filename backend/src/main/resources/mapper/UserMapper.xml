@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.campusaid.mapper.UserMapper">
+    <resultMap id="UserResultMap" type="com.campusaid.entity.User">
+        <id property="id" column="id"/>
+        <result property="studentId" column="student_id"/>
+        <result property="name" column="name"/>
+        <result property="email" column="email"/>
+        <result property="password" column="password"/>
+        <result property="avatarUrl" column="avatar_url"/>
+        <result property="major" column="major"/>
+        <result property="score" column="score"/>
+        <result property="points" column="points"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="UserResultMap">
+        SELECT * FROM users WHERE id = #{id}
+    </select>
+
+    <select id="selectByStudentId" resultMap="UserResultMap">
+        SELECT * FROM users WHERE student_id = #{studentId}
+    </select>
+
+    <select id="selectByEmail" resultMap="UserResultMap">
+        SELECT * FROM users WHERE email = #{email}
+    </select>
+
+    <select id="selectAll" resultMap="UserResultMap">
+        SELECT * FROM users
+    </select>
+
+    <insert id="insert" parameterType="com.campusaid.entity.User" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO users (student_id, name, email, password, avatar_url, major, score, points, created_at, updated_at)
+        VALUES (#{studentId}, #{name}, #{email}, #{password}, #{avatarUrl}, #{major}, #{score}, #{points}, #{createdAt}, #{updatedAt})
+    </insert>
+
+    <update id="update" parameterType="com.campusaid.entity.User">
+        UPDATE users
+        SET student_id = #{studentId}, name = #{name}, email = #{email}, password = #{password}, 
+            avatar_url = #{avatarUrl}, major = #{major}, score = #{score}, points = #{points}, 
+            updated_at = #{updatedAt}
+        WHERE id = #{id}
+    </update>
+
+    <update id="incrementPoints">
+        UPDATE users
+        SET points = points + #{points},
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateScore">
+        UPDATE users
+        SET score = #{score},
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE FROM users WHERE id = #{id}
+    </delete>
+</mapper>

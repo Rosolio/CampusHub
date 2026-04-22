@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.campusaid.mapper.UserPointRecordMapper">
+    <resultMap id="UserPointRecordResultMap" type="com.campusaid.entity.UserPointRecord">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="points" column="points"/>
+        <result property="changeType" column="change_type"/>
+        <result property="description" column="description"/>
+        <result property="referenceType" column="reference_type"/>
+        <result property="referenceId" column="reference_id"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.campusaid.entity.UserPointRecord" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_point_records (user_id, points, change_type, description, reference_type, reference_id, created_at)
+        VALUES (#{userId}, #{points}, #{changeType}, #{description}, #{referenceType}, #{referenceId}, #{createdAt})
+    </insert>
+
+    <select id="selectByUserId" resultMap="UserPointRecordResultMap">
+        SELECT *
+        FROM user_point_records
+        WHERE user_id = #{userId}
+        ORDER BY created_at DESC, id DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="sumPositivePointsByUserIdAndChangeTypeBetween" resultType="java.lang.Integer">
+        SELECT COALESCE(SUM(points), 0)
+        FROM user_point_records
+        WHERE user_id = #{userId}
+          AND change_type = #{changeType}
+          AND points > 0
+          AND created_at >= #{start}
+          AND created_at &lt; #{end}
+    </select>
+</mapper>

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.campusaid.mapper.MessageMapper">
+    <resultMap id="MessageResultMap" type="com.campusaid.entity.Message">
+        <id property="id" column="id"/>
+        <result property="senderId" column="sender_id"/>
+        <result property="receiverId" column="receiver_id"/>
+        <result property="taskId" column="task_id"/>
+        <result property="content" column="content"/>
+        <result property="status" column="status"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="senderName" column="sender_name"/>
+        <result property="senderAvatarUrl" column="sender_avatar_url"/>
+        <result property="receiverName" column="receiver_name"/>
+        <result property="receiverAvatarUrl" column="receiver_avatar_url"/>
+        <result property="taskTitle" column="task_title"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="MessageResultMap">
+        SELECT m.*,
+               sender.name AS sender_name,
+               sender.avatar_url AS sender_avatar_url,
+               receiver.name AS receiver_name,
+               receiver.avatar_url AS receiver_avatar_url,
+               t.title AS task_title
+        FROM messages m
+        LEFT JOIN users sender ON m.sender_id = sender.id
+        LEFT JOIN users receiver ON m.receiver_id = receiver.id
+        LEFT JOIN tasks t ON m.task_id = t.id
+        WHERE m.id = #{id}
+    </select>
+
+    <select id="selectByUserId" resultMap="MessageResultMap">
+        SELECT m.*,
+               sender.name AS sender_name,
+               sender.avatar_url AS sender_avatar_url,
+               receiver.name AS receiver_name,
+               receiver.avatar_url AS receiver_avatar_url,
+               t.title AS task_title
+        FROM messages m
+        LEFT JOIN users sender ON m.sender_id = sender.id
+        LEFT JOIN users receiver ON m.receiver_id = receiver.id
+        LEFT JOIN tasks t ON m.task_id = t.id
+        WHERE m.sender_id = #{userId} OR m.receiver_id = #{userId}
+        ORDER BY m.created_at DESC
+    </select>
+
+    <select id="selectBySenderId" resultMap="MessageResultMap">
+        SELECT m.*,
+               sender.name AS sender_name,
+               sender.avatar_url AS sender_avatar_url,
+               receiver.name AS receiver_name,
+               receiver.avatar_url AS receiver_avatar_url,
+               t.title AS task_title
+        FROM messages m
+        LEFT JOIN users sender ON m.sender_id = sender.id
+        LEFT JOIN users receiver ON m.receiver_id = receiver.id
+        LEFT JOIN tasks t ON m.task_id = t.id
+        WHERE m.sender_id = #{senderId}
+        ORDER BY m.created_at DESC
+    </select>
+
+    <select id="selectByReceiverId" resultMap="MessageResultMap">
+        SELECT m.*,
+               sender.name AS sender_name,
+               sender.avatar_url AS sender_avatar_url,
+               receiver.name AS receiver_name,
+               receiver.avatar_url AS receiver_avatar_url,
+               t.title AS task_title
+        FROM messages m
+        LEFT JOIN users sender ON m.sender_id = sender.id
+        LEFT JOIN users receiver ON m.receiver_id = receiver.id
+        LEFT JOIN tasks t ON m.task_id = t.id
+        WHERE m.receiver_id = #{receiverId}
+        ORDER BY m.created_at DESC
+    </select>
+
+    <select id="selectByTaskId" resultMap="MessageResultMap">
+        SELECT m.*,
+               sender.name AS sender_name,
+               sender.avatar_url AS sender_avatar_url,
+               receiver.name AS receiver_name,
+               receiver.avatar_url AS receiver_avatar_url,
+               t.title AS task_title
+        FROM messages m
+        LEFT JOIN users sender ON m.sender_id = sender.id
+        LEFT JOIN users receiver ON m.receiver_id = receiver.id
+        LEFT JOIN tasks t ON m.task_id = t.id
+        WHERE m.task_id = #{taskId}
+        ORDER BY m.created_at DESC
+    </select>
+
+    <select id="selectUnreadByReceiverId" resultMap="MessageResultMap">
+        SELECT m.*,
+               sender.name AS sender_name,
+               sender.avatar_url AS sender_avatar_url,
+               receiver.name AS receiver_name,
+               receiver.avatar_url AS receiver_avatar_url,
+               t.title AS task_title
+        FROM messages m
+        LEFT JOIN users sender ON m.sender_id = sender.id
+        LEFT JOIN users receiver ON m.receiver_id = receiver.id
+        LEFT JOIN tasks t ON m.task_id = t.id
+        WHERE m.receiver_id = #{receiverId} AND m.status = 'unread'
+        ORDER BY m.created_at DESC
+    </select>
+
+    <insert id="insert" parameterType="com.campusaid.entity.Message" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO messages (sender_id, receiver_id, task_id, content, status, created_at)
+        VALUES (#{senderId}, #{receiverId}, #{taskId}, #{content}, #{status}, #{createdAt})
+    </insert>
+
+    <update id="update" parameterType="com.campusaid.entity.Message">
+        UPDATE messages
+        SET sender_id = #{senderId}, receiver_id = #{receiverId}, task_id = #{taskId}, 
+            content = #{content}, status = #{status}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE FROM messages WHERE id = #{id}
+    </delete>
+
+    <select id="countUnreadByReceiverId" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM messages WHERE receiver_id = #{receiverId} AND status = 'unread'
+    </select>
+</mapper>
