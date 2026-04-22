@@ -25,17 +25,20 @@ public class AdminService {
     private final UserMapper userMapper;
     private final TaskMapper taskMapper;
     private final UserLoginLogMapper userLoginLogMapper;
+    private final MessageService messageService;
     private final RedisTemplate<String, Object> redisTemplate;
 
     public AdminService(
         UserMapper userMapper,
         TaskMapper taskMapper,
         UserLoginLogMapper userLoginLogMapper,
+        MessageService messageService,
         RedisTemplate<String, Object> redisTemplate
     ) {
         this.userMapper = userMapper;
         this.taskMapper = taskMapper;
         this.userLoginLogMapper = userLoginLogMapper;
+        this.messageService = messageService;
         this.redisTemplate = redisTemplate;
     }
 
@@ -82,12 +85,25 @@ public class AdminService {
             throw new RuntimeException("内容不存在");
         }
 
-        task.setReviewStatus(normalizeReviewStatus(request.getReviewStatus()));
-        task.setReviewNote(trimToNull(request.getReviewNote()));
+        String nextReviewStatus = normalizeReviewStatus(request.getReviewStatus());
+        String reviewNote = trimToNull(request.getReviewNote());
+
+        task.setReviewStatus(nextReviewStatus);
+        task.setReviewNote(reviewNote);
         task.setReviewedBy(adminId);
         task.setReviewedAt(LocalDateTime.now());
         task.setUpdatedAt(LocalDateTime.now());
         taskMapper.update(task);
+
+        if ("rejected".equals(nextReviewStatus)) {
+            String reasonSuffix = reviewNote == null ? "请修改后重新提交。" : "原因：" + reviewNote;
+            messageService.sendSystemTaskMessage(
+                adminId,
+                task.getRequesterId(),
+                task.getId(),
+                String.format("【内容审核提醒】你发布的内容《%s》未通过审核，%s", task.getTitle(), reasonSuffix)
+            );
+        }
 
         redisTemplate.delete("tasks:all");
         redisTemplate.delete("tasks:" + taskId);

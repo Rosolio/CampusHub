@@ -25,9 +25,30 @@
         </div>
       </div>
 
-      <div class="mt-6 grid gap-4">
+      <div class="mt-6 rounded-[1.35rem] border border-[#ece5d8] bg-[#faf7f0] p-4">
+        <label class="block text-[11px] font-extrabold uppercase tracking-[0.2em] text-slate-500">关键词搜索</label>
+        <div class="mt-3 flex items-center gap-3 rounded-full bg-white px-4 py-3 shadow-[inset_0_1px_0_rgba(15,23,42,0.04)]">
+          <span class="material-symbols-outlined text-slate-400">search</span>
+          <input
+            v-model.trim="keyword"
+            type="text"
+            class="w-full border-0 bg-transparent text-sm font-semibold text-slate-800 outline-none placeholder:text-slate-400"
+            placeholder="搜索标题、正文、分类或发布者"
+          />
+        </div>
+      </div>
+
+      <div v-if="filteredTasks.length === 0" class="mt-6 rounded-[1.4rem] border border-dashed border-[#d8d2c6] bg-[#faf6ee] px-5 py-10 text-center">
+        <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-white text-slate-500 shadow-[0_12px_24px_rgba(15,23,42,0.05)]">
+          <span class="material-symbols-outlined">fact_check</span>
+        </div>
+        <p class="mt-4 text-lg font-extrabold text-slate-900">当前没有待审核内容</p>
+        <p class="mt-2 text-sm font-medium text-slate-500">已审核内容不会继续显示在这里。你也可以尝试调整搜索关键词。</p>
+      </div>
+
+      <div v-else class="mt-6 grid gap-4">
         <article
-          v-for="task in tasks"
+          v-for="task in filteredTasks"
           :key="task.id"
           class="overflow-hidden rounded-[1.5rem] border border-[#ece5d8] bg-[#fcf8f2] transition hover:-translate-y-0.5 hover:shadow-[0_14px_36px_rgba(15,23,42,0.06)]"
         >
@@ -102,8 +123,24 @@ import type { AdminTask } from './adminTypes'
 const error = ref('')
 const tasks = ref<AdminTask[]>([])
 const pendingTaskIds = ref(new Set<number>())
+const keyword = ref('')
 
-const pendingReviewCount = computed(() => tasks.value.filter((task) => task.reviewStatus === 'pending_review').length)
+const pendingTasks = computed(() => tasks.value.filter((task) => task.reviewStatus === 'pending_review'))
+const pendingReviewCount = computed(() => pendingTasks.value.length)
+const filteredTasks = computed(() => {
+  const query = keyword.value.toLowerCase()
+  if (!query) {
+    return pendingTasks.value
+  }
+
+  return pendingTasks.value.filter((task) => [
+    task.title,
+    task.description,
+    task.category,
+    task.requesterName,
+    String(task.requesterId)
+  ].some((value) => String(value || '').toLowerCase().includes(query)))
+})
 
 const loadTasks = async () => {
   error.value = ''
@@ -119,7 +156,7 @@ const reviewTask = async (task: AdminTask, reviewStatus: 'approved' | 'rejected'
   pendingTaskIds.value.add(task.id)
   try {
     await adminApi.reviewTask(task.id, { reviewStatus, reviewNote })
-    await loadTasks()
+    tasks.value = tasks.value.filter((item) => item.id !== task.id)
   } catch (err: any) {
     error.value = err?.response?.data?.message || '内容审核失败'
   } finally {
