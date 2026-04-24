@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS users (
     name VARCHAR(100) NOT NULL,
     email VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
-    avatar_url VARCHAR(500) NULL,
+    avatar_url MEDIUMTEXT NULL,
     major VARCHAR(100) NULL,
     role VARCHAR(32) NOT NULL DEFAULT 'USER',
     status VARCHAR(32) NOT NULL DEFAULT 'ACTIVE',
@@ -156,6 +156,21 @@ SET @add_users_last_login_at = IF(
     'ALTER TABLE users ADD COLUMN last_login_at DATETIME NULL AFTER points'
 );
 PREPARE stmt FROM @add_users_last_login_at;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @modify_users_avatar_url = IF(
+    EXISTS (
+        SELECT 1 FROM information_schema.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = 'users'
+          AND COLUMN_NAME = 'avatar_url'
+          AND DATA_TYPE <> 'mediumtext'
+    ),
+    'ALTER TABLE users MODIFY COLUMN avatar_url MEDIUMTEXT NULL',
+    'SELECT 1'
+);
+PREPARE stmt FROM @modify_users_avatar_url;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 

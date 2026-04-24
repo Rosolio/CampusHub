@@ -20,7 +20,7 @@ CREATE TABLE users (
     name VARCHAR(100) NOT NULL,
     email VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
-    avatar_url VARCHAR(500) NULL,
+    avatar_url MEDIUMTEXT NULL,
     major VARCHAR(100) NULL,
     role VARCHAR(32) NOT NULL DEFAULT 'USER',
     status VARCHAR(32) NOT NULL DEFAULT 'ACTIVE',

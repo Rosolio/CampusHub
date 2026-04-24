@@ -15,6 +15,11 @@ const api = axios.create({
 // 请求拦截器 - 添加token
 api.interceptors.request.use(
   (config) => {
+    if (config.url?.startsWith('/auth/')) {
+      delete config.headers.Authorization
+      return config
+    }
+
     if (!hasValidAuthToken()) {
       return config
     }
