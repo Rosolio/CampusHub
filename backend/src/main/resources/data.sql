@@ -3,7 +3,7 @@ VALUES
     (1, '20239999', '测试用户一', 'user1@example.com', '$2y$10$pDyLu1we/8IENxGEMGmBvOr4sKtzrDSfwG2TeailJfy2ZP05iFjZu', NULL, 'Computer Science', 'USER', 'ACTIVE', NULL, 10.00, 100, NOW(), NOW(), NOW()),
     (2, '20239998', '测试用户二', 'user2@example.com', '$2y$10$pDyLu1we/8IENxGEMGmBvOr4sKtzrDSfwG2TeailJfy2ZP05iFjZu', NULL, 'Mathematics', 'USER', 'ACTIVE', NULL, 8.50, 80, NOW(), NOW(), NOW()),
     (3, '20230001', '测试用户', 'test@example.com', '$2y$10$pDyLu1we/8IENxGEMGmBvOr4sKtzrDSfwG2TeailJfy2ZP05iFjZu', NULL, 'Software Engineering', 'USER', 'ACTIVE', NULL, 0.00, 0, NOW(), NOW(), NOW()),
-    (4, 'admin', '系统管理员', 'admin@campusaid.local', '$2y$10$pDyLu1we/8IENxGEMGmBvOr4sKtzrDSfwG2TeailJfy2ZP05iFjZu', NULL, 'CampusAid Ops', 'ADMIN', 'ACTIVE', NULL, 10.00, 999, NOW(), NOW(), NOW())
+    (4, 'admin', '系统管理员', 'admin@campushub.local', '$2y$10$pDyLu1we/8IENxGEMGmBvOr4sKtzrDSfwG2TeailJfy2ZP05iFjZu', NULL, 'CampusHub Ops', 'ADMIN', 'ACTIVE', NULL, 10.00, 999, NOW(), NOW(), NOW())
 ON DUPLICATE KEY UPDATE
     student_id = VALUES(student_id),
     name = VALUES(name),
@@ -37,7 +37,7 @@ ALTER TABLE user_settings AUTO_INCREMENT = 5;
 
 INSERT INTO announcements (id, author_id, title, content, pinned, created_at, updated_at)
 VALUES
-    (1, 4, 'CampusAid 社区公告', '欢迎使用校园互助平台。若你发现 bug、交互问题或有产品建议，可通过“社区反馈”功能直接提交给管理员。', 1, NOW(), NOW())
+    (1, 4, 'CampusHub 社区公告', '欢迎使用校园互助平台。若你发现 bug、交互问题或有产品建议，可通过“社区反馈”功能直接提交给管理员。', 1, NOW(), NOW())
 ON DUPLICATE KEY UPDATE
     author_id = VALUES(author_id),
     title = VALUES(title),

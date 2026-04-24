@@ -17,7 +17,7 @@
           <!-- 引言 -->
           <div>
             <p class="text-on-surface-variant leading-relaxed">
-              CampusAid 非常重视用户隐私保护。本隐私政策旨在向您说明我们如何收集、使用、存储和保护您的个人信息，以及您享有的权利。请您仔细阅读本政策，了解我们的隐私保护实践。
+              CampusHub 非常重视用户隐私保护。本隐私政策旨在向您说明我们如何收集、使用、存储和保护您的个人信息，以及您享有的权利。请您仔细阅读本政策，了解我们的隐私保护实践。
             </p>
           </div>
 
@@ -108,7 +108,7 @@
             <div class="space-y-3 mt-4">
               <div class="flex items-center gap-3">
                 <span class="material-symbols-outlined text-primary">email</span>
-                <span class="text-on-surface-variant">privacy@campusaid.com</span>
+                <span class="text-on-surface-variant">privacy@campushub.com</span>
               </div>
             </div>
           </div>

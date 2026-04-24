@@ -3,7 +3,7 @@
     <nav class="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
       <div class="flex items-center gap-8">
         <RouterLink to="/" class="font-headline text-xl font-bold tracking-tight text-teal-950">
-          CampusAid
+          CampusHub
         </RouterLink>
         <div class="app-top-nav-links hidden items-center gap-2 rounded-full bg-white/70 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] md:flex">
           <RouterLink

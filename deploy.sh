@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# CampusAid 服务器部署脚本
+# CampusHub 服务器部署脚本
 # 用法:
 #   ./deploy.sh
 #   ./deploy.sh frontend
@@ -21,12 +21,12 @@ BACKEND_DIR="$PROJECT_ROOT/backend"
 DEPLOY_BACKUP_DIR="${DEPLOY_BACKUP_DIR:-$HOME/deploy-backups}"
 GIT_REMOTE="${GIT_REMOTE:-origin}"
 GIT_BRANCH="${GIT_BRANCH:-dev}"
-FRONTEND_DIST_DIR="${FRONTEND_DIST_DIR:-/var/www/campusaid}"
-BACKEND_SERVICE_NAME="${BACKEND_SERVICE_NAME:-campusaid-backend}"
+FRONTEND_DIST_DIR="${FRONTEND_DIST_DIR:-/var/www/campushub}"
+BACKEND_SERVICE_NAME="${BACKEND_SERVICE_NAME:-campushub-backend}"
 DEPLOY_TARGET="${1:-frontend}"
 
 echo -e "${BLUE}========================================${NC}"
-echo -e "${BLUE}   CampusAid 服务器部署脚本${NC}"
+echo -e "${BLUE}   CampusHub 服务器部署脚本${NC}"
 echo -e "${BLUE}========================================${NC}"
 echo ""
 

@@ -8,7 +8,7 @@
           </div>
           <div>
             <p class="text-[11px] font-extrabold uppercase tracking-[0.28em] text-slate-500">Admin Console</p>
-            <h1 class="mt-2 text-2xl font-extrabold tracking-[-0.04em] text-slate-950">CampusAid 管理模式</h1>
+            <h1 class="mt-2 text-2xl font-extrabold tracking-[-0.04em] text-slate-950">CampusHub 管理模式</h1>
             <p class="mt-1 text-sm text-slate-600">管理员视图统一使用独立导航，不混入普通社区入口。</p>
           </div>
         </div>

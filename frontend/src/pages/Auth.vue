@@ -22,7 +22,7 @@
             <div class="w-10 h-10 primary-gradient rounded-xl flex items-center justify-center text-white">
               <span class="material-symbols-outlined" data-icon="volunteer_activism">volunteer_activism</span>
             </div>
-            <span class="font-headline text-2xl font-extrabold tracking-tight text-teal-900">CampusAid</span>
+            <span class="font-headline text-2xl font-extrabold tracking-tight text-teal-900">CampusHub</span>
           </div>
           <h1 class="font-headline text-5xl font-extrabold text-on-surface leading-[1.3] tracking-tight mb-6">
             校园互助，<br /><span class="text-primary">让生活更美好</span>
@@ -44,7 +44,7 @@
             <div class="w-8 h-8 primary-gradient rounded-lg flex items-center justify-center text-white">
               <span class="material-symbols-outlined text-sm" data-icon="volunteer_activism">volunteer_activism</span>
             </div>
-            <span class="font-headline text-xl font-bold tracking-tight text-teal-900">CampusAid</span>
+            <span class="font-headline text-xl font-bold tracking-tight text-teal-900">CampusHub</span>
           </div>
 
           <div class="mb-10">

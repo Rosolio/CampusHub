@@ -11,7 +11,7 @@ type PreferenceState = {
   language: LanguageCode
 }
 
-const STORAGE_KEY = 'campusaid.preferences'
+const STORAGE_KEY = 'campushub.preferences'
 const DEFAULT_PREFERENCES: PreferenceState = {
   notificationEnabled: true,
   theme: 'light',
@@ -39,7 +39,7 @@ const messages: Record<LanguageCode, Record<string, string>> = {
     settingsNotifications: '通知设置',
     settingsTheme: '主题设置',
     settingsLanguage: '语言设置',
-    settingsAboutCampusAid: '关于 CampusAid',
+    settingsAboutCampusHub: '关于 CampusHub',
     settingsPrivacy: '隐私政策',
     settingsAgreement: '用户协议',
     settingsLogout: '退出登录',
@@ -81,7 +81,7 @@ const messages: Record<LanguageCode, Record<string, string>> = {
     settingsNotifications: 'Notifications',
     settingsTheme: 'Theme',
     settingsLanguage: 'Language',
-    settingsAboutCampusAid: 'About CampusAid',
+    settingsAboutCampusHub: 'About CampusHub',
     settingsPrivacy: 'Privacy Policy',
     settingsAgreement: 'User Agreement',
     settingsLogout: 'Log out',
@@ -123,7 +123,7 @@ const messages: Record<LanguageCode, Record<string, string>> = {
     settingsNotifications: '通知設定',
     settingsTheme: '主題設定',
     settingsLanguage: '語言設定',
-    settingsAboutCampusAid: '關於 CampusAid',
+    settingsAboutCampusHub: '關於 CampusHub',
     settingsPrivacy: '隱私政策',
     settingsAgreement: '使用者協議',
     settingsLogout: '登出',

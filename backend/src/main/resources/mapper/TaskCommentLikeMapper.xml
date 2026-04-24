@@ -2,8 +2,8 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.campusaid.mapper.TaskCommentLikeMapper">
-    <resultMap id="TaskCommentLikeResultMap" type="com.campusaid.entity.TaskCommentLike">
+<mapper namespace="com.campushub.mapper.TaskCommentLikeMapper">
+    <resultMap id="TaskCommentLikeResultMap" type="com.campushub.entity.TaskCommentLike">
         <id property="id" column="id"/>
         <result property="commentId" column="comment_id"/>
         <result property="userId" column="user_id"/>
@@ -14,7 +14,7 @@
         SELECT * FROM task_comment_likes WHERE comment_id = #{commentId} AND user_id = #{userId} LIMIT 1
     </select>
 
-    <insert id="insert" parameterType="com.campusaid.entity.TaskCommentLike" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.campushub.entity.TaskCommentLike" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO task_comment_likes (comment_id, user_id, created_at)
         VALUES (#{commentId}, #{userId}, #{createdAt})
     </insert>

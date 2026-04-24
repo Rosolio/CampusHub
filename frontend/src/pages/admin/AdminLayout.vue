@@ -13,7 +13,7 @@
               <div class="relative">
                 <div class="flex flex-wrap items-center gap-3">
                   <span class="rounded-full border border-white/16 bg-white/10 px-4 py-2 text-[11px] font-extrabold uppercase tracking-[0.3em] text-white/82">
-                    CampusAid Control
+                    CampusHub Control
                   </span>
                   <span class="rounded-full bg-white/12 px-4 py-2 text-sm font-semibold text-white/86">
                     Admin Zone

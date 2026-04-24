@@ -13,7 +13,7 @@ import ProfileSettings from '../pages/settings/ProfileSettings.vue'
 import NotificationSettings from '../pages/settings/NotificationSettings.vue'
 import ThemeSettings from '../pages/settings/ThemeSettings.vue'
 import LanguageSettings from '../pages/settings/LanguageSettings.vue'
-import AboutCampusAid from '../pages/settings/AboutCampusAid.vue'
+import AboutCampusHub from '../pages/settings/AboutCampusHub.vue'
 import PrivacyPolicy from '../pages/settings/PrivacyPolicy.vue'
 import UserAgreement from '../pages/settings/UserAgreement.vue'
 import AdminLayout from '../pages/admin/AdminLayout.vue'
@@ -61,7 +61,7 @@ const router = createRouter({
     { path: '/settings/notification', name: 'notificationSettings', component: NotificationSettings, meta: { requiresAuth: true } },
     { path: '/settings/theme', name: 'themeSettings', component: ThemeSettings, meta: { requiresAuth: true } },
     { path: '/settings/language', name: 'languageSettings', component: LanguageSettings, meta: { requiresAuth: true } },
-    { path: '/settings/about', name: 'aboutCampusAid', component: AboutCampusAid, meta: { requiresAuth: true } },
+    { path: '/settings/about', name: 'aboutCampusHub', component: AboutCampusHub, meta: { requiresAuth: true } },
     { path: '/settings/privacy', name: 'privacyPolicy', component: PrivacyPolicy, meta: { requiresAuth: true } },
     { path: '/settings/agreement', name: 'userAgreement', component: UserAgreement, meta: { requiresAuth: true } },
   ],

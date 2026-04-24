@@ -2,8 +2,8 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.campusaid.mapper.TaskParticipantMapper">
-    <resultMap id="TaskParticipantResultMap" type="com.campusaid.entity.TaskParticipant">
+<mapper namespace="com.campushub.mapper.TaskParticipantMapper">
+    <resultMap id="TaskParticipantResultMap" type="com.campushub.entity.TaskParticipant">
         <id property="id" column="id"/>
         <result property="taskId" column="task_id"/>
         <result property="participantId" column="participant_id"/>
@@ -38,12 +38,12 @@
         LIMIT 1
     </select>
 
-    <insert id="insert" parameterType="com.campusaid.entity.TaskParticipant" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.campushub.entity.TaskParticipant" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO task_participants (task_id, participant_id, role, status, created_at, updated_at)
         VALUES (#{taskId}, #{participantId}, #{role}, #{status}, #{createdAt}, #{updatedAt})
     </insert>
 
-    <update id="update" parameterType="com.campusaid.entity.TaskParticipant">
+    <update id="update" parameterType="com.campushub.entity.TaskParticipant">
         UPDATE task_participants
         SET task_id = #{taskId}, participant_id = #{participantId}, role = #{role}, 
             status = #{status}, updated_at = #{updatedAt}

@@ -18,7 +18,7 @@
         </SettingsSection>
         
         <SettingsSection :title="t('settingsAbout')">
-          <SettingsItem :title="t('settingsAboutCampusAid')" type="button" :interactive="true" :show-chevron="true" @click="router.push('/settings/about')" />
+          <SettingsItem :title="t('settingsAboutCampusHub')" type="button" :interactive="true" :show-chevron="true" @click="router.push('/settings/about')" />
           <SettingsItem :title="t('settingsPrivacy')" type="button" :interactive="true" :show-chevron="true" @click="router.push('/settings/privacy')" />
           <SettingsItem :title="t('settingsAgreement')" type="button" :interactive="true" :show-chevron="true" @click="router.push('/settings/agreement')" />
         </SettingsSection>

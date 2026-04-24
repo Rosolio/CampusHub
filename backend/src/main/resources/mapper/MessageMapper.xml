@@ -2,8 +2,8 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.campusaid.mapper.MessageMapper">
-    <resultMap id="MessageResultMap" type="com.campusaid.entity.Message">
+<mapper namespace="com.campushub.mapper.MessageMapper">
+    <resultMap id="MessageResultMap" type="com.campushub.entity.Message">
         <id property="id" column="id"/>
         <result property="senderId" column="sender_id"/>
         <result property="receiverId" column="receiver_id"/>
@@ -107,12 +107,12 @@
         ORDER BY m.created_at DESC
     </select>
 
-    <insert id="insert" parameterType="com.campusaid.entity.Message" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.campushub.entity.Message" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO messages (sender_id, receiver_id, task_id, content, status, created_at)
         VALUES (#{senderId}, #{receiverId}, #{taskId}, #{content}, #{status}, #{createdAt})
     </insert>
 
-    <update id="update" parameterType="com.campusaid.entity.Message">
+    <update id="update" parameterType="com.campushub.entity.Message">
         UPDATE messages
         SET sender_id = #{senderId}, receiver_id = #{receiverId}, task_id = #{taskId}, 
             content = #{content}, status = #{status}

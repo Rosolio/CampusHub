@@ -2,8 +2,8 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.campusaid.mapper.TaskMapper">
-    <resultMap id="TaskResultMap" type="com.campusaid.entity.Task">
+<mapper namespace="com.campushub.mapper.TaskMapper">
+    <resultMap id="TaskResultMap" type="com.campushub.entity.Task">
         <id property="id" column="id"/>
         <result property="requesterId" column="requester_id"/>
         <result property="title" column="title"/>
@@ -235,7 +235,7 @@
         ORDER BY label ASC
     </select>
 
-    <insert id="insert" parameterType="com.campusaid.entity.Task" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.campushub.entity.Task" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO tasks (requester_id, title, description, category, task_mode, badge_primary, badge_secondary,
                           location_text, time_text, reward_title, reward_text, impact_title, impact_text,
                           map_image_url, contact_info, review_status, review_note, reviewed_by, reviewed_at,
@@ -248,7 +248,7 @@
                 #{completedAt}, #{createdAt}, #{updatedAt})
     </insert>
 
-    <update id="update" parameterType="com.campusaid.entity.Task">
+    <update id="update" parameterType="com.campushub.entity.Task">
         UPDATE tasks
         SET requester_id = #{requesterId}, title = #{title}, description = #{description},
             category = #{category}, task_mode = #{taskMode},

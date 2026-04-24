@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# CampusAid 一键停止脚本
+# CampusHub 一键停止脚本
 # 用法: ./stop.sh
 
 set -euo pipefail
@@ -19,7 +19,7 @@ BACKEND_PORT=8080
 FRONTEND_PORT=5173
 
 echo -e "${BLUE}========================================${NC}"
-echo -e "${BLUE}   CampusAid 停止服务${NC}"
+echo -e "${BLUE}   CampusHub 停止服务${NC}"
 echo -e "${BLUE}========================================${NC}"
 echo ""
 

@@ -2,8 +2,8 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.campusaid.mapper.TaskCommentMapper">
-    <resultMap id="TaskCommentResultMap" type="com.campusaid.entity.TaskComment">
+<mapper namespace="com.campushub.mapper.TaskCommentMapper">
+    <resultMap id="TaskCommentResultMap" type="com.campushub.entity.TaskComment">
         <id property="id" column="id"/>
         <result property="taskId" column="task_id"/>
         <result property="authorId" column="author_id"/>
@@ -65,12 +65,12 @@
         WHERE author_id = #{authorId}
     </select>
 
-    <insert id="insert" parameterType="com.campusaid.entity.TaskComment" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.campushub.entity.TaskComment" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO task_comments (task_id, author_id, parent_id, content, created_at, updated_at)
         VALUES (#{taskId}, #{authorId}, #{parentId}, #{content}, #{createdAt}, #{updatedAt})
     </insert>
 
-    <update id="update" parameterType="com.campusaid.entity.TaskComment">
+    <update id="update" parameterType="com.campushub.entity.TaskComment">
         UPDATE task_comments
         SET task_id = #{taskId},
             author_id = #{authorId},

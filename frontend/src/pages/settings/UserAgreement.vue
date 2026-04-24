@@ -17,7 +17,7 @@
           <!-- 引言 -->
           <div>
             <p class="text-on-surface-variant leading-relaxed">
-              欢迎使用 CampusAid！本用户协议（以下简称“协议”）是您与 CampusAid 之间关于使用我们服务的法律协议。通过注册、登录或使用我们的服务，您同意遵守本协议的所有条款和条件。
+              欢迎使用 CampusHub！本用户协议（以下简称“协议”）是您与 CampusHub 之间关于使用我们服务的法律协议。通过注册、登录或使用我们的服务，您同意遵守本协议的所有条款和条件。
             </p>
           </div>
 
@@ -25,7 +25,7 @@
           <div>
             <h2 class="text-xl font-bold text-teal-900 mb-4">账户注册</h2>
             <p class="text-on-surface-variant leading-relaxed mb-4">
-              您必须满足以下条件才能注册和使用 CampusAid 账户：
+              您必须满足以下条件才能注册和使用 CampusHub 账户：
             </p>
             <ul class="space-y-3 pl-6 list-disc text-on-surface-variant">
               <li>您必须是在校大学生</li>
@@ -41,7 +41,7 @@
           <div>
             <h2 class="text-xl font-bold text-teal-900 mb-4">用户行为规范</h2>
             <p class="text-on-surface-variant leading-relaxed mb-4">
-              在使用 CampusAid 服务时，您同意：
+              在使用 CampusHub 服务时，您同意：
             </p>
             <ul class="space-y-3 pl-6 list-disc text-on-surface-variant">
               <li>遵守法律法规和公序良俗</li>
@@ -56,7 +56,7 @@
           <div>
             <h2 class="text-xl font-bold text-teal-900 mb-4">服务使用</h2>
             <p class="text-on-surface-variant leading-relaxed mb-4">
-              CampusAid 提供以下服务：
+              CampusHub 提供以下服务：
             </p>
             <ul class="space-y-3 pl-6 list-disc text-on-surface-variant">
               <li>发布和接受校园任务</li>
@@ -73,7 +73,7 @@
           <div>
             <h2 class="text-xl font-bold text-teal-900 mb-4">知识产权</h2>
             <p class="text-on-surface-variant leading-relaxed">
-              CampusAid 及其相关服务中包含的所有内容（包括但不限于文本、图片、图标、标识、软件等）的知识产权归我们所有。您在使用服务过程中产生的内容，其知识产权归您所有，但您授予我们在服务范围内使用、复制、修改、发布和展示这些内容的权利。
+              CampusHub 及其相关服务中包含的所有内容（包括但不限于文本、图片、图标、标识、软件等）的知识产权归我们所有。您在使用服务过程中产生的内容，其知识产权归您所有，但您授予我们在服务范围内使用、复制、修改、发布和展示这些内容的权利。
             </p>
           </div>
 
@@ -81,7 +81,7 @@
           <div>
             <h2 class="text-xl font-bold text-teal-900 mb-4">免责声明</h2>
             <p class="text-on-surface-variant leading-relaxed">
-              CampusAid 不对以下情况承担责任：
+              CampusHub 不对以下情况承担责任：
             </p>
             <ul class="space-y-3 pl-6 list-disc text-on-surface-variant">
               <li>因网络故障、系统故障等原因导致的服务中断或数据丢失</li>
@@ -103,7 +103,7 @@
           <div>
             <h2 class="text-xl font-bold text-teal-900 mb-4">终止服务</h2>
             <p class="text-on-surface-variant leading-relaxed">
-              您可以随时停止使用 CampusAid 服务。我们也有权在以下情况下终止或暂停您的服务：
+              您可以随时停止使用 CampusHub 服务。我们也有权在以下情况下终止或暂停您的服务：
             </p>
             <ul class="space-y-3 pl-6 list-disc text-on-surface-variant">
               <li>您违反本协议的任何条款</li>

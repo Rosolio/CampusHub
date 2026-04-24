@@ -2,8 +2,8 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.campusaid.mapper.FeedbackMapper">
-    <resultMap id="FeedbackResultMap" type="com.campusaid.entity.Feedback">
+<mapper namespace="com.campushub.mapper.FeedbackMapper">
+    <resultMap id="FeedbackResultMap" type="com.campushub.entity.Feedback">
         <id property="id" column="id"/>
         <result property="userId" column="user_id"/>
         <result property="type" column="type"/>
@@ -60,12 +60,12 @@
         ORDER BY f.created_at DESC
     </select>
 
-    <insert id="insert" parameterType="com.campusaid.entity.Feedback" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.campushub.entity.Feedback" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO feedback (user_id, type, title, content, status, admin_reply, admin_id, handled_at, created_at, updated_at)
         VALUES (#{userId}, #{type}, #{title}, #{content}, #{status}, #{adminReply}, #{adminId}, #{handledAt}, #{createdAt}, #{updatedAt})
     </insert>
 
-    <update id="update" parameterType="com.campusaid.entity.Feedback">
+    <update id="update" parameterType="com.campushub.entity.Feedback">
         UPDATE feedback
         SET type = #{type},
             title = #{title},

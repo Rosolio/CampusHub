@@ -1,4 +1,4 @@
-# SECII CampusAid
+# SECII CampusHub
 
 校园互助平台项目，包含前端 `Vue 3 + Vite` 和后端 `Spring Boot 3 + MySQL + Redis`。
 
@@ -89,7 +89,7 @@ mvn clean package -DskipTests
 后端产物默认输出为：
 
 ```bash
-backend/target/campusaid-backend-1.0.0.jar
+backend/target/campushub-backend-1.0.0.jar
 ```
 
 ## 服务器部署
@@ -101,24 +101,24 @@ backend/target/campusaid-backend-1.0.0.jar
 部署结构：
 
 - `nginx` 提供前端静态资源
-- `systemd` 托管后端服务 `campusaid-backend`
+- `systemd` 托管后端服务 `campushub-backend`
 - `MySQL` 作为主数据库
 - `Redis` 作为缓存
 
 服务器上的关键路径：
 
-- 项目目录：`/home/ubuntu/apps/SECII-CampusAid`
-- 前端静态目录：`/var/www/campusaid`
-- 后端服务文件：`/etc/systemd/system/campusaid-backend.service`
-- Nginx 站点配置：`/etc/nginx/sites-available/campusaid`
-- 后端日志：`/var/log/campusaid-backend.log`
+- 项目目录：`/home/ubuntu/apps/SECII-CampusHub`
+- 前端静态目录：`/var/www/campushub`
+- 后端服务文件：`/etc/systemd/system/campushub-backend.service`
+- Nginx 站点配置：`/etc/nginx/sites-available/campushub`
+- 后端日志：`/var/log/campushub-backend.log`
 
 ### 后端服务管理
 
 ```bash
-sudo systemctl status campusaid-backend
-sudo systemctl restart campusaid-backend
-sudo tail -f /var/log/campusaid-backend.log
+sudo systemctl status campushub-backend
+sudo systemctl restart campushub-backend
+sudo tail -f /var/log/campushub-backend.log
 ```
 
 ### Nginx 管理
@@ -134,14 +134,14 @@ sudo systemctl status nginx
 服务器上推荐直接使用仓库根目录脚本：
 
 ```bash
-cd /home/ubuntu/apps/SECII-CampusAid
+cd /home/ubuntu/apps/SECII-CampusHub
 ./deploy.sh frontend
 ```
 
 可选目标：
 
-- `./deploy.sh frontend`：同步仓库、构建前端并发布到 `/var/www/campusaid`
-- `./deploy.sh backend`：同步仓库、构建后端并重启 `campusaid-backend`
+- `./deploy.sh frontend`：同步仓库、构建前端并发布到 `/var/www/campushub`
+- `./deploy.sh backend`：同步仓库、构建后端并重启 `campushub-backend`
 - `./deploy.sh all`：前后端一起部署
 
 脚本会先备份服务器当前工作区差异到 `~/deploy-backups/`，再将仓库强制对齐到 `origin/dev`，以避免服务器上的临时改动阻塞后续发布。前端部署使用 `npm ci`，减少 `package-lock.json` 漂移。

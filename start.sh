@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# CampusAid 一键启动脚本
+# CampusHub 一键启动脚本
 # 用法: ./start.sh
 
 set -euo pipefail
@@ -26,7 +26,7 @@ BACKEND_URL="http://127.0.0.1:${BACKEND_PORT}/api/tasks"
 FRONTEND_URL="http://127.0.0.1:${FRONTEND_PORT}"
 
 echo -e "${BLUE}========================================${NC}"
-echo -e "${BLUE}   CampusAid 一键启动脚本${NC}"
+echo -e "${BLUE}   CampusHub 一键启动脚本${NC}"
 echo -e "${BLUE}========================================${NC}"
 echo ""
 

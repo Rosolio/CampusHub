@@ -2,8 +2,8 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.campusaid.mapper.TaskReviewMapper">
-    <resultMap id="TaskReviewResultMap" type="com.campusaid.entity.TaskReview">
+<mapper namespace="com.campushub.mapper.TaskReviewMapper">
+    <resultMap id="TaskReviewResultMap" type="com.campushub.entity.TaskReview">
         <id property="id" column="id"/>
         <result property="taskId" column="task_id"/>
         <result property="reviewerId" column="reviewer_id"/>
@@ -64,7 +64,7 @@
         WHERE reviewee_id = #{revieweeId}
     </select>
 
-    <insert id="insert" parameterType="com.campusaid.entity.TaskReview" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.campushub.entity.TaskReview" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO task_reviews (task_id, reviewer_id, reviewee_id, reviewer_role, rating, content, created_at, updated_at)
         VALUES (#{taskId}, #{reviewerId}, #{revieweeId}, #{reviewerRole}, #{rating}, #{content}, #{createdAt}, #{updatedAt})
     </insert>
