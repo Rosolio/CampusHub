@@ -96,7 +96,9 @@ backend/target/campushub-backend-1.0.0.jar
 
 当前已采用非容器化方式部署到：
 
-- [http://42.193.183.160](http://42.193.183.160)
+- 主业务域名：[http://campushub.icu](http://campushub.icu)
+- 管理后台域名：[http://admin.campushub.icu](http://admin.campushub.icu)
+- 服务器公网地址：[http://42.193.183.160](http://42.193.183.160)
 
 部署结构：
 
