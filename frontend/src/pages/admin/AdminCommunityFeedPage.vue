@@ -1,18 +1,18 @@
 <template>
-  <div class="space-y-6">
-    <section v-if="error" class="rounded-[1.5rem] border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-semibold text-rose-700">
+  <div class="space-y-5">
+    <section v-if="error" class="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-semibold text-rose-700">
       {{ error }}
     </section>
 
-    <section class="rounded-[1.9rem] border border-[#ddd6c9] bg-[#fffdf8] p-5 shadow-[0_16px_48px_rgba(15,23,42,0.05)] md:p-6">
+    <section class="admin-panel p-5 md:p-6">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p class="text-[11px] font-extrabold uppercase tracking-[0.24em] text-slate-500">Community Feed</p>
-          <h2 class="mt-2 text-2xl font-extrabold tracking-tight text-slate-900">最新社区动态</h2>
+          <p class="admin-kicker">Community</p>
+          <h2 class="mt-2 text-xl font-extrabold tracking-tight text-slate-900">最新社区动态</h2>
         </div>
         <button
           type="button"
-          class="inline-flex items-center gap-2 rounded-full bg-[#102a33] px-4 py-2 text-sm font-extrabold text-white transition hover:bg-[#163a46]"
+          class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
           @click="loadContent"
         >
           <span class="material-symbols-outlined text-lg">refresh</span>
@@ -24,7 +24,7 @@
         <article
           v-for="item in contentList"
           :key="item.id"
-          class="rounded-[1.5rem] border border-[#e8e0d3] bg-[#faf7f0] p-5"
+          class="admin-panel-soft p-5"
         >
           <div class="flex flex-wrap items-center gap-2">
             <span class="rounded-full bg-white px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.18em] text-slate-800">

@@ -1,38 +1,38 @@
 <template>
-  <div class="space-y-6">
-    <section v-if="error" class="rounded-[1.5rem] border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-semibold text-rose-700">
+  <div class="space-y-5">
+    <section v-if="error" class="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-semibold text-rose-700">
       {{ error }}
     </section>
 
-    <section class="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+    <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
       <article
         v-for="card in overviewCards"
         :key="card.label"
-        class="rounded-[1.7rem] border border-[#ddd6c9] bg-[#fffdf8] p-5 shadow-[0_16px_48px_rgba(15,23,42,0.05)]"
+        class="admin-panel p-5"
       >
-        <div class="flex items-start justify-between gap-3">
+        <div class="flex items-start justify-between gap-4">
           <div>
-            <p class="text-[11px] font-extrabold uppercase tracking-[0.24em] text-slate-500">{{ card.label }}</p>
-            <p class="mt-4 text-4xl font-extrabold tracking-tight text-slate-900">{{ card.value }}</p>
+            <p class="admin-kicker">{{ card.label }}</p>
+            <p class="mt-3 text-3xl font-extrabold tracking-tight text-slate-900">{{ card.value }}</p>
           </div>
-          <div class="rounded-2xl bg-[#f4efe3] p-3 text-slate-700">
-            <span class="material-symbols-outlined text-2xl">{{ card.icon }}</span>
+          <div class="rounded-2xl bg-slate-100 p-3 text-slate-700">
+            <span class="material-symbols-outlined text-[22px]">{{ card.icon }}</span>
           </div>
         </div>
         <p class="mt-3 text-sm leading-6 text-slate-600">{{ card.hint }}</p>
       </article>
     </section>
 
-    <section class="grid gap-6 2xl:grid-cols-[1.15fr_0.85fr]">
-      <article class="rounded-[1.85rem] border border-[#ddd6c9] bg-[#fffdf8] p-5 shadow-[0_16px_48px_rgba(15,23,42,0.05)] md:p-6">
+    <section class="grid gap-5 2xl:grid-cols-[1.2fr_0.8fr]">
+      <article class="admin-panel p-5 md:p-6">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p class="text-[11px] font-extrabold uppercase tracking-[0.24em] text-slate-500">Activity Pulse</p>
-            <h2 class="mt-2 text-2xl font-extrabold tracking-tight text-slate-900">近 7 天活跃趋势</h2>
+            <p class="admin-kicker">Activity</p>
+            <h2 class="mt-2 text-xl font-extrabold tracking-tight text-slate-900">近 7 天活跃趋势</h2>
           </div>
           <button
             type="button"
-            class="inline-flex items-center gap-2 rounded-full bg-[#102a33] px-4 py-2 text-sm font-extrabold text-white transition hover:bg-[#163a46]"
+            class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
             @click="loadDashboard"
           >
             <span class="material-symbols-outlined text-lg">refresh</span>
@@ -40,12 +40,12 @@
           </button>
         </div>
 
-        <div class="mt-7 rounded-[1.5rem] bg-[#f4efe3] p-4">
+        <div class="admin-panel-soft mt-6 p-4">
           <div class="grid h-72 grid-cols-7 items-end gap-3">
             <div v-for="point in dailyActiveTrend" :key="point.label" class="flex h-full flex-col justify-end gap-3">
-              <div class="relative flex-1 overflow-hidden rounded-[1.15rem] bg-white px-2 py-3 shadow-[inset_0_1px_0_rgba(15,23,42,0.04)]">
+              <div class="relative flex-1 overflow-hidden rounded-2xl bg-white px-2 py-3">
                 <div
-                  class="absolute inset-x-2 bottom-2 rounded-[0.95rem] bg-[linear-gradient(180deg,#1cb5a3,#0f5961)] shadow-[0_12px_26px_rgba(15,89,97,0.2)]"
+                  class="absolute inset-x-2 bottom-2 rounded-xl bg-[linear-gradient(180deg,#334155,#0f172a)]"
                   :style="{ height: `${barHeight(point.value, dailyActiveTrend)}%` }"
                 ></div>
                 <div class="relative z-10 text-center text-xs font-extrabold text-slate-800">{{ point.value }}</div>
@@ -56,23 +56,23 @@
         </div>
       </article>
 
-      <article class="rounded-[1.85rem] border border-[#ddd6c9] bg-[#fffdf8] p-5 shadow-[0_16px_48px_rgba(15,23,42,0.05)] md:p-6">
+      <article class="admin-panel p-5 md:p-6">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p class="text-[11px] font-extrabold uppercase tracking-[0.24em] text-slate-500">Completion Flow</p>
-            <h2 class="mt-2 text-2xl font-extrabold tracking-tight text-slate-900">订单完成轨迹</h2>
+            <p class="admin-kicker">Orders</p>
+            <h2 class="mt-2 text-xl font-extrabold tracking-tight text-slate-900">订单完成轨迹</h2>
           </div>
-          <span class="rounded-full bg-[#fde9c8] px-3 py-1.5 text-xs font-extrabold uppercase tracking-[0.18em] text-[#b86500]">
-            Orders
+          <span class="rounded-lg bg-amber-50 px-3 py-1.5 text-xs font-extrabold uppercase tracking-[0.18em] text-amber-700">
+            近 7 天
           </span>
         </div>
 
-        <div class="mt-7 rounded-[1.5rem] bg-[#221f1a] p-4 text-white">
+        <div class="mt-6 rounded-3xl bg-slate-950 p-4 text-white">
           <svg viewBox="0 0 420 180" class="h-58 w-full">
             <defs>
               <linearGradient id="admin-order-line" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="#f6b73c" />
-                <stop offset="100%" stop-color="#ff8c42" />
+                <stop offset="0%" stop-color="#94a3b8" />
+                <stop offset="100%" stop-color="#ffffff" />
               </linearGradient>
             </defs>
             <polyline
@@ -89,8 +89,8 @@
               :cx="point.x"
               :cy="point.y"
               r="5.5"
-              fill="#fff4d1"
-              stroke="#f59e0b"
+              fill="#ffffff"
+              stroke="#cbd5e1"
               stroke-width="3"
             />
           </svg>
@@ -101,15 +101,15 @@
       </article>
     </section>
 
-    <section class="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-      <article class="rounded-[1.85rem] border border-[#ddd6c9] bg-[#fffdf8] p-5 shadow-[0_16px_48px_rgba(15,23,42,0.05)] md:p-6">
+    <section class="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
+      <article class="admin-panel p-5 md:p-6">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p class="text-[11px] font-extrabold uppercase tracking-[0.24em] text-slate-500">Content Mix</p>
-            <h2 class="mt-2 text-2xl font-extrabold tracking-tight text-slate-900">分类分布</h2>
+            <p class="admin-kicker">Distribution</p>
+            <h2 class="mt-2 text-xl font-extrabold tracking-tight text-slate-900">分类分布</h2>
           </div>
-          <span class="rounded-full bg-[#ece4ff] px-3 py-1.5 text-xs font-extrabold uppercase tracking-[0.18em] text-[#6444c6]">
-            Approved
+          <span class="rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-extrabold uppercase tracking-[0.18em] text-slate-600">
+            已审核内容
           </span>
         </div>
 
@@ -117,7 +117,7 @@
           <div
             v-for="(item, index) in categoryDistribution"
             :key="item.label"
-            class="rounded-[1.25rem] border border-[#ece5d8] bg-[#faf6ee] p-4"
+            class="admin-panel-soft p-4"
           >
             <div class="mb-3 flex items-center justify-between gap-3">
               <div class="flex items-center gap-3">
@@ -128,7 +128,7 @@
             </div>
             <div class="h-3 overflow-hidden rounded-full bg-white">
               <div
-                class="h-full rounded-full bg-[linear-gradient(90deg,#0f766e,#19b7a5,#8fe9dc)]"
+                class="h-full rounded-full bg-[linear-gradient(90deg,#0f172a,#334155,#94a3b8)]"
                 :style="{ width: `${distributionWidth(item.value, categoryDistribution)}%` }"
               ></div>
             </div>
@@ -136,14 +136,14 @@
         </div>
       </article>
 
-      <article class="rounded-[1.85rem] border border-[#ddd6c9] bg-[#fffdf8] p-5 shadow-[0_16px_48px_rgba(15,23,42,0.05)] md:p-6">
+      <article class="admin-panel p-5 md:p-6">
         <div>
-          <p class="text-[11px] font-extrabold uppercase tracking-[0.24em] text-slate-500">System State</p>
-          <h2 class="mt-2 text-2xl font-extrabold tracking-tight text-slate-900">审核与用户状态</h2>
+          <p class="admin-kicker">System State</p>
+          <h2 class="mt-2 text-xl font-extrabold tracking-tight text-slate-900">审核与用户状态</h2>
         </div>
 
         <div class="mt-6 grid gap-4">
-          <div class="rounded-[1.35rem] bg-[#13212b] p-4 text-white">
+          <div class="rounded-3xl bg-slate-950 p-4 text-white">
             <div class="flex items-center justify-between gap-3">
               <p class="text-sm font-extrabold">内容审核池</p>
               <span class="text-xs font-bold uppercase tracking-[0.18em] text-white/55">Moderation</span>
@@ -159,7 +159,7 @@
             </div>
           </div>
 
-          <div class="rounded-[1.35rem] bg-[#f4efe3] p-4">
+          <div class="admin-panel-soft p-4">
             <div class="flex items-center justify-between gap-3">
               <p class="text-sm font-extrabold text-slate-900">账号池</p>
               <span class="text-xs font-bold uppercase tracking-[0.18em] text-slate-500">Users</span>
@@ -168,7 +168,7 @@
               <span
                 v-for="item in userStatusDistribution"
                 :key="item.label"
-                class="rounded-full bg-white px-3 py-2 text-sm font-bold text-slate-700 shadow-[0_10px_22px_rgba(15,23,42,0.04)]"
+                class="rounded-full bg-white px-3 py-2 text-sm font-bold text-slate-700"
               >
                 {{ userStatusLabel(item.label) }} {{ item.value }}
               </span>

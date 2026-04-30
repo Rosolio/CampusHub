@@ -1,22 +1,22 @@
 <template>
-  <div class="space-y-6">
-    <section v-if="error" class="rounded-[1.5rem] border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-semibold text-rose-700">
+  <div class="space-y-5">
+    <section v-if="error" class="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-semibold text-rose-700">
       {{ error }}
     </section>
 
-    <section class="rounded-[1.9rem] border border-[#ddd6c9] bg-[#fffdf8] p-5 shadow-[0_16px_48px_rgba(15,23,42,0.05)] md:p-6">
+    <section class="admin-panel p-5 md:p-6">
       <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div>
-          <p class="text-[11px] font-extrabold uppercase tracking-[0.24em] text-slate-500">User Actions</p>
-          <h2 class="mt-2 text-2xl font-extrabold tracking-tight text-slate-900">用户列表</h2>
+          <p class="admin-kicker">Users</p>
+          <h2 class="mt-2 text-xl font-extrabold tracking-tight text-slate-900">用户列表</h2>
         </div>
         <div class="flex flex-wrap gap-3">
-          <div class="rounded-full bg-[#f3ede0] px-4 py-2 text-sm font-bold text-slate-700">
+          <div class="rounded-xl bg-slate-100 px-4 py-2 text-sm font-bold text-slate-700">
             共 {{ filteredUsers.length }} 个结果
           </div>
           <button
             type="button"
-            class="inline-flex items-center gap-2 rounded-full bg-[#102a33] px-4 py-2 text-sm font-extrabold text-white transition hover:bg-[#163a46]"
+            class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
             @click="loadUsers"
           >
             <span class="material-symbols-outlined text-lg">refresh</span>
@@ -25,9 +25,9 @@
         </div>
       </div>
 
-      <div class="mt-6 rounded-[1.35rem] border border-[#ece5d8] bg-[#faf7f0] p-4">
+      <div class="admin-panel-soft mt-6 p-4">
         <label class="block text-[11px] font-extrabold uppercase tracking-[0.2em] text-slate-500">学号搜索</label>
-        <div class="mt-3 flex items-center gap-3 rounded-full bg-white px-4 py-3 shadow-[inset_0_1px_0_rgba(15,23,42,0.04)]">
+        <div class="mt-3 flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3">
           <span class="material-symbols-outlined text-slate-400">person_search</span>
           <input
             v-model.trim="studentIdQuery"
@@ -38,8 +38,8 @@
         </div>
       </div>
 
-      <div class="mt-6 overflow-hidden rounded-[1.5rem] border border-[#e7dfd2] bg-[#faf7f0]">
-        <div class="hidden grid-cols-[1.1fr_1fr_1fr_0.8fr_1.3fr] gap-4 border-b border-[#e7dfd2] bg-[#f2ebdf] px-5 py-4 text-[11px] font-extrabold uppercase tracking-[0.2em] text-slate-500 lg:grid">
+      <div class="mt-6 overflow-hidden rounded-3xl border border-slate-200 bg-white">
+        <div class="hidden grid-cols-[1.1fr_1fr_1fr_0.8fr_1.3fr] gap-4 border-b border-slate-200 bg-slate-50 px-5 py-4 text-[11px] font-extrabold uppercase tracking-[0.2em] text-slate-500 lg:grid">
           <span>用户</span>
           <span>学号 / 邮箱</span>
           <span>专业</span>
@@ -55,13 +55,13 @@
           <div
             v-for="user in paginatedUsers"
             :key="user.id"
-            class="border-b border-[#ece5d8] px-5 py-4 last:border-b-0"
+            class="border-b border-slate-200 px-5 py-4 last:border-b-0"
           >
             <div class="grid gap-4 lg:grid-cols-[1.1fr_1fr_1fr_0.8fr_1.3fr] lg:items-center">
               <div class="min-w-0">
                 <div class="flex flex-wrap items-center gap-2">
                   <p class="text-sm font-extrabold text-slate-900">{{ user.name }}</p>
-                  <span v-if="user.role === 'ADMIN'" class="rounded-full bg-[#13212b] px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.14em] text-white">
+                  <span v-if="user.role === 'ADMIN'" class="rounded-full bg-slate-950 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.14em] text-white">
                     Admin
                   </span>
                 </div>
@@ -90,7 +90,7 @@
                 <button
                   v-if="user.role !== 'ADMIN'"
                   type="button"
-                  class="rounded-full bg-[#0f766e] px-3 py-2 text-xs font-extrabold text-white transition hover:bg-[#0b5f59] disabled:opacity-45"
+                  class="rounded-xl bg-slate-900 px-3 py-2 text-xs font-extrabold text-white transition hover:bg-slate-800 disabled:opacity-45"
                   :disabled="pendingUserIds.has(user.id) || user.status === 'ACTIVE'"
                   @click="changeUserStatus(user, 'ACTIVE')"
                 >
@@ -99,7 +99,7 @@
                 <button
                   v-if="user.role !== 'ADMIN'"
                   type="button"
-                  class="rounded-full bg-[#c2410c] px-3 py-2 text-xs font-extrabold text-white transition hover:bg-[#9a3412] disabled:opacity-45"
+                  class="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-extrabold text-rose-700 transition hover:bg-rose-100 disabled:opacity-45"
                   :disabled="pendingUserIds.has(user.id) || user.status === 'DISABLED'"
                   @click="changeUserStatus(user, 'DISABLED')"
                 >
@@ -111,14 +111,14 @@
         </div>
       </div>
 
-      <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <div class="flex flex-col gap-3 pt-2 md:flex-row md:items-center md:justify-between">
         <p class="text-sm font-semibold text-slate-500">
           第 {{ currentPage }} / {{ totalPages }} 页，每页 20 条
         </p>
         <div class="flex flex-wrap gap-2">
           <button
             type="button"
-            class="rounded-full border border-[#d5cdbf] bg-white px-4 py-2 text-sm font-extrabold text-slate-700 transition hover:bg-[#f8f4eb] disabled:opacity-45"
+            class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-extrabold text-slate-700 transition hover:bg-slate-50 disabled:opacity-45"
             :disabled="currentPage === 1"
             @click="currentPage = Math.max(1, currentPage - 1)"
           >
@@ -126,7 +126,7 @@
           </button>
           <button
             type="button"
-            class="rounded-full border border-[#d5cdbf] bg-white px-4 py-2 text-sm font-extrabold text-slate-700 transition hover:bg-[#f8f4eb] disabled:opacity-45"
+            class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-extrabold text-slate-700 transition hover:bg-slate-50 disabled:opacity-45"
             :disabled="currentPage === totalPages"
             @click="currentPage = Math.min(totalPages, currentPage + 1)"
           >

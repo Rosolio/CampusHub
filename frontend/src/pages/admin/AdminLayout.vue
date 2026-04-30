@@ -1,48 +1,50 @@
 <template>
-  <div class="min-h-screen bg-slate-50 font-body text-slate-900">
+  <div class="admin-shell min-h-screen font-body text-slate-900">
     <AdminModeHeader />
 
-    <main class="mx-auto flex max-w-7xl gap-5 px-4 pb-10 pt-5 sm:px-6 lg:px-8">
-      <aside class="sticky top-5 hidden h-[calc(100dvh-2.5rem)] w-72 shrink-0 flex-col rounded-lg border border-slate-200 bg-white shadow-sm lg:flex">
-        <div class="border-b border-slate-200 px-5 py-5">
+    <main class="mx-auto flex max-w-7xl gap-6 px-4 pb-10 pt-6 sm:px-6 lg:px-8">
+      <aside class="admin-panel sticky top-[5.5rem] hidden h-[calc(100dvh-7rem)] w-64 shrink-0 flex-col overflow-hidden lg:flex">
+        <div class="border-b border-slate-200/80 px-5 py-5">
           <div class="flex items-center gap-3">
-            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-teal-900 text-white">
-              <span class="material-symbols-outlined text-xl">admin_panel_settings</span>
+            <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-950 text-white">
+              <span class="material-symbols-outlined text-xl">space_dashboard</span>
             </div>
             <div>
-              <p class="text-sm font-extrabold text-slate-950">CampusHub 管理后台</p>
-              <p class="text-xs font-semibold text-slate-500">Admin Workspace</p>
+              <p class="text-sm font-extrabold text-slate-950">后台工作台</p>
+              <p class="text-xs font-semibold text-slate-500">精简导航与操作区</p>
             </div>
           </div>
         </div>
 
-        <nav class="min-h-0 flex-1 space-y-1 overflow-y-auto p-3">
+        <nav class="min-h-0 flex-1 space-y-1.5 overflow-y-auto p-3">
           <RouterLink
             v-for="item in navItems"
             :key="item.to"
             :to="item.to"
-            class="group flex items-start gap-3 rounded-lg px-3 py-3 text-sm transition"
+            class="group flex items-start gap-3 rounded-xl px-3 py-3 text-sm transition"
             :class="isActiveNav(item)
-              ? 'bg-teal-50 text-teal-950 ring-1 ring-teal-100'
+              ? 'bg-slate-950 text-white'
               : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950'"
           >
             <span
               class="material-symbols-outlined mt-0.5 text-xl"
-              :class="isActiveNav(item) ? 'text-teal-800' : 'text-slate-400 group-hover:text-slate-700'"
+              :class="isActiveNav(item) ? 'text-white' : 'text-slate-400 group-hover:text-slate-700'"
             >
               {{ item.icon }}
             </span>
             <span class="min-w-0">
               <span class="block font-extrabold">{{ item.label }}</span>
-              <span class="mt-0.5 block text-xs leading-5 text-slate-500">{{ item.description }}</span>
+              <span class="mt-0.5 block text-xs leading-5" :class="isActiveNav(item) ? 'text-slate-300' : 'text-slate-500'">
+                {{ item.description }}
+              </span>
             </span>
           </RouterLink>
         </nav>
 
-        <div class="border-t border-slate-200 p-3">
+        <div class="border-t border-slate-200/80 p-3">
           <RouterLink
             to="/home"
-            class="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-sm font-bold text-slate-700 transition hover:border-teal-200 hover:bg-teal-50 hover:text-teal-950"
+            class="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm font-bold text-slate-700 transition hover:border-slate-300 hover:bg-white"
           >
             <span class="inline-flex items-center gap-2">
               <span class="material-symbols-outlined text-lg">open_in_new</span>
@@ -54,18 +56,16 @@
       </aside>
 
       <section class="min-w-0 flex-1">
-        <div class="mb-4 rounded-lg border border-slate-200 bg-white px-4 py-4 shadow-sm sm:px-5">
-          <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div class="admin-panel mb-4 px-4 py-4 sm:px-5">
+          <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
-              <div class="mb-2 flex flex-wrap items-center gap-2">
-                <span class="rounded-md bg-teal-50 px-2.5 py-1 text-xs font-extrabold text-teal-800">
-                  管理模式
-                </span>
-                <span class="rounded-md bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">
+              <div class="mb-3 flex flex-wrap items-center gap-2">
+                <span class="rounded-lg bg-slate-950 px-2.5 py-1 text-xs font-extrabold text-white">管理模式</span>
+                <span class="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">
                   {{ activeNavItem.eyebrow }}
                 </span>
               </div>
-              <h1 class="text-2xl font-extrabold tracking-tight text-slate-950 md:text-3xl">
+              <h1 class="text-2xl font-extrabold tracking-tight text-slate-950 md:text-[2rem]">
                 {{ currentPageTitle }}
               </h1>
               <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
@@ -78,7 +78,7 @@
                 v-for="action in quickActions"
                 :key="action.to"
                 :to="action.to"
-                class="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition hover:border-teal-200 hover:bg-teal-50 hover:text-teal-950"
+                class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
               >
                 <span class="material-symbols-outlined text-lg">{{ action.icon }}</span>
                 {{ action.label }}
@@ -92,9 +92,9 @@
             v-for="item in navItems"
             :key="item.to"
             :to="item.to"
-            class="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-bold transition"
+            class="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-bold transition"
             :class="isActiveNav(item)
-              ? 'border-teal-200 bg-teal-50 text-teal-950'
+              ? 'border-slate-950 bg-slate-950 text-white'
               : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'"
           >
             <span class="material-symbols-outlined text-lg">{{ item.icon }}</span>
@@ -198,13 +198,13 @@ const currentPageTitle = computed(() => {
 const currentPageDescription = computed(() => {
   switch (route.path) {
     case '/admin/community':
-      return '社区内容作为后台中的独立工作区呈现，便于管理员观察最新动态并保持管理导航连续。'
+      return '在管理上下文中查看最新社区内容，减少来回切换普通用户视角造成的干扰。'
     case '/admin/users':
-      return '集中查看用户状态和账号治理动作，减少与普通社区浏览混在一起造成的操作干扰。'
+      return '集中查看账号状态和治理动作，把搜索、状态判断和执行操作放在同一工作面板。'
     case '/admin/moderation':
-      return '围绕待处理内容组织审核入口，优先完成需要管理员决策的事项。'
+      return '围绕待处理内容组织审核入口，优先完成需要管理员明确决策的事项。'
     case '/admin/profile':
-      return '保留身份信息、后台入口和管理相关操作，作为管理员自己的工作面板。'
+      return '保留管理员身份信息、核心概况和常用后台入口，作为个人工作面板。'
     default:
       return '将总览监控、用户治理、内容审核和反馈处理拆成清晰的后台工作区，适合日常检查和快速处置。'
   }

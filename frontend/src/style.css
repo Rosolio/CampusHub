@@ -210,3 +210,58 @@ html[data-resolved-theme='dark'] select {
     opacity: 0.95;
   }
 }
+
+.admin-shell {
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.96) 0%, rgba(241, 245, 249, 0.94) 100%);
+}
+
+.admin-panel {
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 1.25rem;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+}
+
+.admin-panel-soft {
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  background: rgba(248, 250, 252, 0.92);
+  border-radius: 1rem;
+}
+
+.admin-kicker {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgb(100 116 139);
+}
+
+.admin-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: rgb(15 23 42);
+}
+
+html[data-resolved-theme='dark'] .admin-shell {
+  background: linear-gradient(180deg, rgba(8, 20, 27, 0.98) 0%, rgba(13, 27, 36, 0.96) 100%);
+}
+
+html[data-resolved-theme='dark'] .admin-panel {
+  border-color: rgba(148, 163, 184, 0.18);
+  background: rgba(19, 35, 45, 0.9);
+  box-shadow: 0 14px 34px rgba(2, 6, 23, 0.26);
+}
+
+html[data-resolved-theme='dark'] .admin-panel-soft {
+  border-color: rgba(148, 163, 184, 0.16);
+  background: rgba(22, 40, 51, 0.88);
+}
+
+html[data-resolved-theme='dark'] .admin-kicker {
+  color: rgb(148 163 184);
+}
+
+html[data-resolved-theme='dark'] .admin-title {
+  color: rgb(241 245 249);
+}

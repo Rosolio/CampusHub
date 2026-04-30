@@ -1,22 +1,22 @@
 <template>
-  <div class="space-y-6">
-    <section v-if="error" class="rounded-[1.5rem] border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-semibold text-rose-700">
+  <div class="space-y-5">
+    <section v-if="error" class="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-semibold text-rose-700">
       {{ error }}
     </section>
 
-    <section class="rounded-[1.9rem] border border-[#ddd6c9] bg-[#fffdf8] p-5 shadow-[0_16px_48px_rgba(15,23,42,0.05)] md:p-6">
+    <section class="admin-panel p-5 md:p-6">
       <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div>
-          <p class="text-[11px] font-extrabold uppercase tracking-[0.24em] text-slate-500">Moderation Queue</p>
-          <h2 class="mt-2 text-2xl font-extrabold tracking-tight text-slate-900">内容审核台</h2>
+          <p class="admin-kicker">Moderation</p>
+          <h2 class="mt-2 text-xl font-extrabold tracking-tight text-slate-900">内容审核台</h2>
         </div>
         <div class="flex flex-wrap gap-3">
-          <div class="rounded-full bg-[#fef0c7] px-4 py-2 text-sm font-extrabold text-[#a16207]">
+          <div class="rounded-xl bg-amber-50 px-4 py-2 text-sm font-extrabold text-amber-700">
             待审核 {{ pendingReviewCount }}
           </div>
           <button
             type="button"
-            class="inline-flex items-center gap-2 rounded-full bg-[#102a33] px-4 py-2 text-sm font-extrabold text-white transition hover:bg-[#163a46]"
+            class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
             @click="loadTasks"
           >
             <span class="material-symbols-outlined text-lg">refresh</span>
@@ -25,9 +25,9 @@
         </div>
       </div>
 
-      <div class="mt-6 rounded-[1.35rem] border border-[#ece5d8] bg-[#faf7f0] p-4">
+      <div class="admin-panel-soft mt-6 p-4">
         <label class="block text-[11px] font-extrabold uppercase tracking-[0.2em] text-slate-500">关键词搜索</label>
-        <div class="mt-3 flex items-center gap-3 rounded-full bg-white px-4 py-3 shadow-[inset_0_1px_0_rgba(15,23,42,0.04)]">
+        <div class="mt-3 flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3">
           <span class="material-symbols-outlined text-slate-400">search</span>
           <input
             v-model.trim="keyword"
@@ -38,8 +38,8 @@
         </div>
       </div>
 
-      <div v-if="filteredTasks.length === 0" class="mt-6 rounded-[1.4rem] border border-dashed border-[#d8d2c6] bg-[#faf6ee] px-5 py-10 text-center">
-        <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-white text-slate-500 shadow-[0_12px_24px_rgba(15,23,42,0.05)]">
+      <div v-if="filteredTasks.length === 0" class="mt-6 rounded-3xl border border-dashed border-slate-300 bg-slate-50 px-5 py-10 text-center">
+        <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-white text-slate-500">
           <span class="material-symbols-outlined">fact_check</span>
         </div>
         <p class="mt-4 text-lg font-extrabold text-slate-900">当前没有待审核内容</p>
@@ -50,12 +50,12 @@
         <article
           v-for="task in filteredTasks"
           :key="task.id"
-          class="overflow-hidden rounded-[1.5rem] border border-[#ece5d8] bg-[#fcf8f2] transition hover:-translate-y-0.5 hover:shadow-[0_14px_36px_rgba(15,23,42,0.06)]"
+          class="overflow-hidden rounded-3xl border border-slate-200 bg-white transition hover:border-slate-300"
         >
-          <div class="grid gap-0 xl:grid-cols-[minmax(0,1fr)_15rem]">
+          <div class="grid gap-0 xl:grid-cols-[minmax(0,1fr)_14rem]">
             <div class="p-4 md:p-5">
               <div class="flex flex-wrap items-center gap-2">
-                <span class="rounded-full bg-white px-3 py-1 text-xs font-extrabold uppercase tracking-[0.14em] text-slate-700">
+                <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-extrabold uppercase tracking-[0.14em] text-slate-700">
                   {{ task.category || '未分类' }}
                 </span>
                 <span
@@ -74,17 +74,17 @@
                 <span>发布者 {{ task.requesterName || `#${task.requesterId}` }}</span>
               </div>
 
-              <p v-if="task.reviewNote" class="mt-4 rounded-2xl bg-[#fff4d8] px-3 py-2 text-sm font-semibold text-[#9a6700]">
+              <p v-if="task.reviewNote" class="mt-4 rounded-2xl bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-700">
                 审核备注：{{ task.reviewNote }}
               </p>
             </div>
 
-            <div class="border-t border-[#ece5d8] bg-[#1f2329] p-4 text-white xl:border-l xl:border-t-0">
-              <p class="text-[11px] font-extrabold uppercase tracking-[0.22em] text-white/48">Decision Panel</p>
+            <div class="border-t border-slate-200 bg-slate-50 p-4 xl:border-l xl:border-t-0">
+              <p class="text-[11px] font-extrabold uppercase tracking-[0.22em] text-slate-400">Decision</p>
               <div class="mt-4 grid gap-2.5">
                 <button
                   type="button"
-                  class="rounded-full bg-[#1c9c8f] px-4 py-3 text-sm font-extrabold text-white transition hover:bg-[#147d72] disabled:opacity-45"
+                  class="rounded-xl bg-slate-950 px-4 py-3 text-sm font-extrabold text-white transition hover:bg-slate-800 disabled:opacity-45"
                   :disabled="pendingTaskIds.has(task.id)"
                   @click="reviewTask(task, 'approved')"
                 >
@@ -92,7 +92,7 @@
                 </button>
                 <button
                   type="button"
-                  class="rounded-full bg-[#cf4c1f] px-4 py-3 text-sm font-extrabold text-white transition hover:bg-[#ac3a12] disabled:opacity-45"
+                  class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-extrabold text-rose-700 transition hover:bg-rose-100 disabled:opacity-45"
                   :disabled="pendingTaskIds.has(task.id)"
                   @click="reviewTask(task, 'rejected')"
                 >
@@ -100,7 +100,7 @@
                 </button>
                 <button
                   type="button"
-                  class="rounded-full border border-white/14 bg-white/8 px-4 py-3 text-sm font-extrabold text-white transition hover:bg-white/12 disabled:opacity-45"
+                  class="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-extrabold text-slate-700 transition hover:bg-slate-100 disabled:opacity-45"
                   :disabled="pendingTaskIds.has(task.id)"
                   @click="reviewTask(task, 'pending_review')"
                 >

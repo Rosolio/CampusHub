@@ -1,15 +1,15 @@
 <template>
-  <div class="space-y-6">
-    <section v-if="error" class="rounded-[1.5rem] border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-semibold text-rose-700">
+  <div class="space-y-5">
+    <section v-if="error" class="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-semibold text-rose-700">
       {{ error }}
     </section>
 
-    <section class="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
-      <article class="overflow-hidden rounded-[1.9rem] border border-[#ddd6c9] bg-[#fffdf8] shadow-[0_16px_48px_rgba(15,23,42,0.05)]">
-        <div class="bg-[linear-gradient(135deg,#102a33_0%,#0d4f57_55%,#d17a1f_100%)] px-6 py-6 text-white md:px-7">
-          <p class="text-[11px] font-extrabold uppercase tracking-[0.28em] text-white/58">Identity Capsule</p>
+    <section class="grid gap-5 xl:grid-cols-[1.05fr_0.95fr]">
+      <article class="admin-panel overflow-hidden">
+        <div class="border-b border-slate-200 bg-slate-950 px-6 py-6 text-white md:px-7">
+          <p class="text-[11px] font-extrabold uppercase tracking-[0.28em] text-white/58">Identity</p>
           <div class="mt-5 flex flex-col gap-5 md:flex-row md:items-center">
-            <div class="flex h-22 w-22 items-center justify-center rounded-[1.8rem] border border-white/20 bg-white/10 text-3xl font-extrabold uppercase shadow-[0_16px_40px_rgba(15,23,42,0.18)]">
+            <div class="flex h-22 w-22 items-center justify-center rounded-[1.8rem] border border-white/15 bg-white/10 text-3xl font-extrabold uppercase">
               {{ initials }}
             </div>
             <div class="min-w-0 flex-1">
@@ -28,15 +28,15 @@
         </div>
 
         <div class="grid gap-4 px-6 py-6 md:grid-cols-3 md:px-7">
-          <div class="rounded-[1.4rem] bg-[#f6f1e7] p-4">
+          <div class="admin-panel-soft p-4">
             <p class="text-[11px] font-extrabold uppercase tracking-[0.2em] text-slate-500">学号</p>
             <p class="mt-3 text-lg font-extrabold text-slate-900">{{ profile.studentId || '未配置' }}</p>
           </div>
-          <div class="rounded-[1.4rem] bg-[#f6f1e7] p-4">
+          <div class="admin-panel-soft p-4">
             <p class="text-[11px] font-extrabold uppercase tracking-[0.2em] text-slate-500">专业</p>
             <p class="mt-3 text-lg font-extrabold text-slate-900">{{ profile.major || '未填写' }}</p>
           </div>
-          <div class="rounded-[1.4rem] bg-[#f6f1e7] p-4">
+          <div class="admin-panel-soft p-4">
             <p class="text-[11px] font-extrabold uppercase tracking-[0.2em] text-slate-500">账号状态</p>
             <p class="mt-3 text-lg font-extrabold" :class="profile.status === 'DISABLED' ? 'text-rose-700' : 'text-emerald-700'">
               {{ profile.status === 'DISABLED' ? '已禁用' : '正常可用' }}
@@ -45,24 +45,24 @@
         </div>
       </article>
 
-      <article class="rounded-[1.9rem] border border-[#ddd6c9] bg-[#fffdf8] p-6 shadow-[0_16px_48px_rgba(15,23,42,0.05)] md:p-7">
-        <p class="text-[11px] font-extrabold uppercase tracking-[0.24em] text-slate-500">Admin Snapshot</p>
-        <h2 class="mt-2 text-2xl font-extrabold tracking-tight text-slate-900">管理面概况</h2>
+      <article class="admin-panel p-6 md:p-7">
+        <p class="admin-kicker">Snapshot</p>
+        <h2 class="mt-2 text-xl font-extrabold tracking-tight text-slate-900">管理面概况</h2>
 
         <div class="mt-6 grid gap-4 sm:grid-cols-2">
-          <div class="rounded-[1.4rem] bg-[#102a33] p-5 text-white">
+          <div class="rounded-3xl bg-slate-950 p-5 text-white">
             <p class="text-[11px] font-extrabold uppercase tracking-[0.2em] text-white/55">今日日活</p>
             <p class="mt-3 text-4xl font-extrabold">{{ overview.dailyActiveUsers ?? 0 }}</p>
           </div>
-          <div class="rounded-[1.4rem] bg-[#f7edd8] p-5 text-slate-900">
+          <div class="admin-panel-soft p-5 text-slate-900">
             <p class="text-[11px] font-extrabold uppercase tracking-[0.2em] text-slate-500">今日订单</p>
             <p class="mt-3 text-4xl font-extrabold">{{ overview.todayOrderCount ?? 0 }}</p>
           </div>
-          <div class="rounded-[1.4rem] bg-[#eef5f2] p-5 text-slate-900">
+          <div class="admin-panel-soft p-5 text-slate-900">
             <p class="text-[11px] font-extrabold uppercase tracking-[0.2em] text-slate-500">用户总数</p>
             <p class="mt-3 text-4xl font-extrabold">{{ overview.totalUsers ?? 0 }}</p>
           </div>
-          <div class="rounded-[1.4rem] bg-[#f3eefc] p-5 text-slate-900">
+          <div class="admin-panel-soft p-5 text-slate-900">
             <p class="text-[11px] font-extrabold uppercase tracking-[0.2em] text-slate-500">内容总量</p>
             <p class="mt-3 text-4xl font-extrabold">{{ overview.totalTasks ?? 0 }}</p>
           </div>
@@ -70,19 +70,19 @@
       </article>
     </section>
 
-    <section class="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
-      <article class="rounded-[1.9rem] border border-[#ddd6c9] bg-[#fffdf8] p-6 shadow-[0_16px_48px_rgba(15,23,42,0.05)] md:p-7">
-        <p class="text-[11px] font-extrabold uppercase tracking-[0.24em] text-slate-500">Quick Actions</p>
-        <h2 class="mt-2 text-2xl font-extrabold tracking-tight text-slate-900">后台常用入口</h2>
+    <section class="grid gap-5 xl:grid-cols-[0.95fr_1.05fr]">
+      <article class="admin-panel p-6 md:p-7">
+        <p class="admin-kicker">Quick Actions</p>
+        <h2 class="mt-2 text-xl font-extrabold tracking-tight text-slate-900">后台常用入口</h2>
         <div class="mt-6 grid gap-3">
           <RouterLink
             v-for="item in quickActions"
             :key="item.to"
             :to="item.to"
-            class="flex items-center justify-between rounded-[1.35rem] border border-[#e8e0d3] bg-[#faf7f0] px-5 py-4 transition hover:border-[#d7ccb8] hover:bg-[#f4eee2]"
+            class="admin-panel-soft flex items-center justify-between px-5 py-4 transition hover:border-slate-300 hover:bg-white"
           >
             <div class="flex items-center gap-4">
-              <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-slate-700 shadow-[0_12px_24px_rgba(15,23,42,0.06)]">
+              <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-slate-700">
                 <span class="material-symbols-outlined">{{ item.icon }}</span>
               </div>
               <div>
@@ -95,14 +95,14 @@
         </div>
       </article>
 
-      <article class="rounded-[1.9rem] border border-[#ddd6c9] bg-[#fffdf8] p-6 shadow-[0_16px_48px_rgba(15,23,42,0.05)] md:p-7">
-        <p class="text-[11px] font-extrabold uppercase tracking-[0.24em] text-slate-500">Operating Rules</p>
-        <h2 class="mt-2 text-2xl font-extrabold tracking-tight text-slate-900">后台工作原则</h2>
+      <article class="admin-panel p-6 md:p-7">
+        <p class="admin-kicker">Operating Rules</p>
+        <h2 class="mt-2 text-xl font-extrabold tracking-tight text-slate-900">后台工作原则</h2>
 
         <div class="mt-6 space-y-4">
-          <div v-for="rule in rules" :key="rule.title" class="rounded-[1.35rem] border border-[#ece5d8] bg-[#faf7f0] p-5">
+          <div v-for="rule in rules" :key="rule.title" class="admin-panel-soft p-5">
             <div class="flex items-center gap-3">
-              <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#102a33] text-white">
+              <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-950 text-white">
                 <span class="material-symbols-outlined text-lg">{{ rule.icon }}</span>
               </div>
               <p class="text-sm font-extrabold text-slate-900">{{ rule.title }}</p>
@@ -111,7 +111,7 @@
           </div>
         </div>
 
-        <div class="mt-6 rounded-[1.45rem] bg-[#102a33] p-5 text-white">
+        <div class="mt-6 rounded-3xl bg-slate-950 p-5 text-white">
           <p class="text-[11px] font-extrabold uppercase tracking-[0.22em] text-white/55">社区访问说明</p>
           <p class="mt-3 text-sm leading-7 text-white/80">
             管理模式下不再展示社区首页、发布流和个人内容流。如果需要回到社区，只通过顶部的“社区入口”进入，减少后台处理被内容浏览打断。
