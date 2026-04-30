@@ -13,6 +13,7 @@ import java.util.Map;
 public interface UserMapper {
     User selectById(Long id);
     User selectByStudentId(String studentId);
+    User selectByLoginIdentifier(String identifier);
     User selectByEmail(String email);
     List<User> selectAll();
     List<User> selectAdminUsers();

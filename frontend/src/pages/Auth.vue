@@ -83,7 +83,7 @@
           <!-- Login Form -->
           <form v-if="activeTab === 'login'" class="space-y-6" @submit.prevent="handleLogin">
             <div class="space-y-2">
-              <label class="block text-sm font-semibold text-on-surface-variant ml-1" for="student-id">学号</label>
+              <label class="block text-sm font-semibold text-on-surface-variant ml-1" for="student-id">用户名 / 学号</label>
               <div class="relative">
                 <span
                   class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/50"
@@ -93,7 +93,7 @@
                 <input
                   class="w-full pl-12 pr-4 py-3.5 bg-surface-container-low ghost-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-on-surface-variant/40"
                   id="student-id"
-                  placeholder="例如：20230045"
+                  placeholder="例如：20230045 或 wanppi"
                   type="text"
                   v-model="loginForm.studentId"
                 />
@@ -115,15 +115,17 @@
                   class="w-full pl-12 pr-12 py-3.5 bg-surface-container-low ghost-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-on-surface-variant/40"
                   id="password"
                   placeholder="••••••••"
-                  type="password"
+                  :type="showLoginPassword ? 'text' : 'password'"
                   v-model="loginForm.password"
                 />
                 <button
                   class="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/50"
-                  data-icon="visibility"
+                  :data-icon="showLoginPassword ? 'visibility_off' : 'visibility'"
                   type="button"
+                  :aria-label="showLoginPassword ? '隐藏密码' : '显示密码'"
+                  @click="showLoginPassword = !showLoginPassword"
                 >
-                  visibility
+                  {{ showLoginPassword ? 'visibility_off' : 'visibility' }}
                 </button>
               </div>
             </div>
@@ -217,15 +219,17 @@
                   class="w-full pl-12 pr-12 py-3.5 bg-surface-container-low ghost-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-on-surface-variant/40"
                   id="reg-password"
                   placeholder="••••••••"
-                  type="password"
+                  :type="showRegisterPassword ? 'text' : 'password'"
                   v-model="registerForm.password"
                 />
                 <button
                   class="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/50"
-                  data-icon="visibility"
+                  :data-icon="showRegisterPassword ? 'visibility_off' : 'visibility'"
                   type="button"
+                  :aria-label="showRegisterPassword ? '隐藏密码' : '显示密码'"
+                  @click="showRegisterPassword = !showRegisterPassword"
                 >
-                  visibility
+                  {{ showRegisterPassword ? 'visibility_off' : 'visibility' }}
                 </button>
               </div>
             </div>
@@ -242,15 +246,17 @@
                   class="w-full pl-12 pr-12 py-3.5 bg-surface-container-low ghost-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-on-surface-variant/40"
                   id="reg-confirm-password"
                   placeholder="••••••••"
-                  type="password"
+                  :type="showRegisterConfirmPassword ? 'text' : 'password'"
                   v-model="registerForm.confirmPassword"
                 />
                 <button
                   class="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/50"
-                  data-icon="visibility"
+                  :data-icon="showRegisterConfirmPassword ? 'visibility_off' : 'visibility'"
                   type="button"
+                  :aria-label="showRegisterConfirmPassword ? '隐藏确认密码' : '显示确认密码'"
+                  @click="showRegisterConfirmPassword = !showRegisterConfirmPassword"
                 >
-                  visibility
+                  {{ showRegisterConfirmPassword ? 'visibility_off' : 'visibility' }}
                 </button>
               </div>
             </div>
@@ -427,6 +433,9 @@ const loading = ref(false)
 const error = ref('')
 const showThirdPartyDialog = ref(false)
 const selectedProvider = ref<'QQ' | 'SSO'>('QQ')
+const showLoginPassword = ref(false)
+const showRegisterPassword = ref(false)
+const showRegisterConfirmPassword = ref(false)
 
 const loginForm = ref({
   studentId: '',
@@ -472,7 +481,7 @@ watch(
 
 const handleLogin = async () => {
   if (!loginForm.value.studentId.trim()) {
-    error.value = '请输入学号'
+    error.value = '请输入用户名或学号'
     return
   }
   if (!loginForm.value.password) {

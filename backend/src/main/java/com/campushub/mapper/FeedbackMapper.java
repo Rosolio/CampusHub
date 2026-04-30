@@ -12,4 +12,5 @@ public interface FeedbackMapper {
     List<Feedback> selectByUserId(Long userId);
     int insert(Feedback feedback);
     int update(Feedback feedback);
+    int delete(Long id);
 }

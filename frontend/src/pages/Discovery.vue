@@ -142,7 +142,7 @@
                   </button>
                 </div>
                 <div class="mt-5 inline-flex items-center gap-2 text-sm font-bold text-teal-900 transition-all group-hover:gap-3">
-                  进入 {{ selectedTopicEntryCategory }} 话题页
+                  进入全部话题页
                   <span class="material-symbols-outlined text-base">arrow_forward</span>
                 </div>
               </button>
@@ -419,10 +419,11 @@ const handleTaskEntry = async () => {
   await scrollToTaskSection()
 }
 
-const goToTopicSquare = (category = selectedTopicEntryCategory.value) => {
+const goToTopicSquare = (category = '全部话题') => {
+  const query = category === '全部话题' ? {} : { category }
   router.push({
     path: '/topics',
-    query: { category }
+    query
   })
 }
 

@@ -28,6 +28,11 @@ public class FeedbackController {
         return feedbackService.getMyFeedback(getCurrentUserId(authentication));
     }
 
+    @DeleteMapping("/{feedbackId}")
+    public void withdrawFeedback(@PathVariable Long feedbackId, Authentication authentication) {
+        feedbackService.withdrawFeedback(getCurrentUserId(authentication), feedbackId);
+    }
+
     private Long getCurrentUserId(Authentication authentication) {
         return Long.parseLong(authentication.getName());
     }

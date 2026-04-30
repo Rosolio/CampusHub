@@ -73,12 +73,13 @@
             </FormField>
 
             <FormField label="专业">
-              <input
+              <select
                 v-model="form.major"
-                type="text"
                 class="w-full px-4 py-3 rounded-xl bg-surface-container-low border border-outline-variant/15 focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-                placeholder="请输入专业"
-              />
+              >
+                <option value="">请选择专业</option>
+                <option v-for="major in majorOptions" :key="major" :value="major">{{ major }}</option>
+              </select>
             </FormField>
 
             <FormField label="电子邮箱">
@@ -132,6 +133,22 @@ const form = ref({
   major: '',
   avatarUrl: ''
 })
+
+const majorOptions = [
+  '软件工程',
+  '计算机科学与技术',
+  '人工智能',
+  '数据科学与大数据技术',
+  '网络空间安全',
+  '电子信息工程',
+  '自动化',
+  '数学与应用数学',
+  '工商管理',
+  '会计学',
+  '英语',
+  '法学',
+  '其他'
+]
 
 const fillForm = (user: any) => {
   currentUser.value = user || {}

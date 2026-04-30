@@ -26,6 +26,18 @@ import java.util.stream.Collectors;
 public class TaskService {
     private static final Set<String> TOPIC_CATEGORIES = Set.of("二手闲置", "恋爱交友", "打听求助", "兼职招聘");
     private static final Set<String> TASK_CATEGORIES = Set.of("跑腿代办", "学习辅导");
+    private static final Set<String> REVIEW_KEYWORDS = Set.of(
+        "代考",
+        "作弊",
+        "刷单",
+        "黄赌毒",
+        "辱骂",
+        "人身攻击",
+        "诈骗",
+        "裸聊",
+        "涉黄",
+        "暴力"
+    );
 
     private final TaskMapper taskMapper;
     private final TaskCommentMapper taskCommentMapper;
@@ -119,8 +131,9 @@ public class TaskService {
         task.setImpactText(request.getImpactText());
         task.setMapImageUrl(request.getMapImageUrl());
         task.setContactInfo(request.getContactInfo());
-        task.setReviewStatus("approved");
-        task.setReviewNote(null);
+        boolean requiresManualReview = containsReviewKeyword(request);
+        task.setReviewStatus(requiresManualReview ? "pending_review" : "approved");
+        task.setReviewNote(requiresManualReview ? "命中关键词审核规则，请管理员复核后展示。" : null);
         task.setReviewedBy(null);
         task.setReviewedAt(null);
         task.setStatus("pending");
@@ -145,6 +158,15 @@ public class TaskService {
 
         // 清除缓存
         redisTemplate.delete("tasks:all");
+
+        if (requiresManualReview) {
+            notifyTaskEvent(
+                requesterId,
+                requesterId,
+                task.getId(),
+                String.format("【内容审核提醒】你发布的内容《%s》已进入关键词审核队列，管理员通过后会正常展示。", task.getTitle())
+            );
+        }
 
         return TaskModeResolver.normalize(task);
     }
@@ -507,6 +529,20 @@ public class TaskService {
 
     private boolean isVisibleInCommunityFeed(Task task) {
         return task != null && "approved".equalsIgnoreCase(task.getReviewStatus());
+    }
+
+    private boolean containsReviewKeyword(TaskCreateRequest request) {
+        String text = String.join(" ",
+            safeText(request.getTitle()),
+            safeText(request.getDescription()),
+            safeText(request.getContactInfo()),
+            safeText(request.getCategory())
+        ).toLowerCase();
+        return REVIEW_KEYWORDS.stream().anyMatch(keyword -> text.contains(keyword.toLowerCase()));
+    }
+
+    private String safeText(String value) {
+        return value == null ? "" : value;
     }
 
     private boolean isExpiredTopic(Task task) {

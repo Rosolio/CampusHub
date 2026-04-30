@@ -60,6 +60,20 @@ public class FeedbackService {
         return feedbackMapper.selectByUserId(userId);
     }
 
+    public void withdrawFeedback(Long userId, Long feedbackId) {
+        if (userService.isAdmin(userId)) {
+            throw new RuntimeException("管理员无需撤回社区反馈");
+        }
+        Feedback feedback = feedbackMapper.selectById(feedbackId);
+        if (feedback == null || !userId.equals(feedback.getUserId())) {
+            throw new RuntimeException("反馈不存在");
+        }
+        if ("resolved".equals(feedback.getStatus())) {
+            throw new RuntimeException("已解决的反馈不能撤回");
+        }
+        feedbackMapper.delete(feedbackId);
+    }
+
     public List<Feedback> getAdminFeedback(Long adminId) {
         requireAdmin(adminId);
         return feedbackMapper.selectAll();

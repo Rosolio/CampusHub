@@ -308,6 +308,10 @@ export const feedbackApi = {
 
   getMyFeedback: () => {
     return api.get('/feedback/my')
+  },
+
+  withdrawFeedback: (feedbackId: number) => {
+    return api.delete(`/feedback/${feedbackId}`)
   }
 }
 

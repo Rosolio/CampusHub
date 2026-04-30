@@ -457,6 +457,36 @@ CREATE TABLE IF NOT EXISTS messages (
     KEY idx_messages_status (status)
 );
 
+SET @add_messages_receiver_status_created = IF(
+    EXISTS (
+        SELECT 1
+        FROM information_schema.STATISTICS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = 'messages'
+          AND INDEX_NAME = 'idx_messages_receiver_status_created'
+    ),
+    'SELECT 1',
+    'ALTER TABLE messages ADD INDEX idx_messages_receiver_status_created (receiver_id, status, created_at)'
+);
+PREPARE stmt FROM @add_messages_receiver_status_created;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @add_messages_sender_created = IF(
+    EXISTS (
+        SELECT 1
+        FROM information_schema.STATISTICS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = 'messages'
+          AND INDEX_NAME = 'idx_messages_sender_created'
+    ),
+    'SELECT 1',
+    'ALTER TABLE messages ADD INDEX idx_messages_sender_created (sender_id, created_at)'
+);
+PREPARE stmt FROM @add_messages_sender_created;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
 CREATE TABLE IF NOT EXISTS user_login_logs (
     id BIGINT NOT NULL AUTO_INCREMENT,
     user_id BIGINT NOT NULL,

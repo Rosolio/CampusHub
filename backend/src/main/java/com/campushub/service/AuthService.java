@@ -46,9 +46,10 @@ public class AuthService {
     }
 
     public Map<String, Object> login(LoginRequest request) {
-        User user = userMapper.selectByStudentId(request.getStudentId());
+        String identifier = request.getStudentId() == null ? "" : request.getStudentId().trim();
+        User user = userMapper.selectByLoginIdentifier(identifier);
         if (user == null || !passwordUtil.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("学号或密码错误");
+            throw new RuntimeException("用户名/学号或密码错误");
         }
         ensureUserEnabled(user);
 

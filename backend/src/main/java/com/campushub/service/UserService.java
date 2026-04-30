@@ -165,4 +165,17 @@ public class UserService {
         redisTemplate.delete("users:" + userId);
     }
 
+    public void adjustScore(Long userId, BigDecimal delta) {
+        User user = userMapper.selectById(userId);
+        if (user == null) {
+            throw new RuntimeException("用户不存在");
+        }
+        BigDecimal currentScore = user.getScore() == null ? BigDecimal.ZERO : user.getScore();
+        BigDecimal nextScore = currentScore.add(delta == null ? BigDecimal.ZERO : delta);
+        if (nextScore.compareTo(BigDecimal.ZERO) < 0) {
+            nextScore = BigDecimal.ZERO;
+        }
+        updateScore(userId, nextScore);
+    }
+
 }

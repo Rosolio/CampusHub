@@ -122,7 +122,9 @@ CREATE TABLE messages (
     KEY idx_messages_receiver_id (receiver_id),
     KEY idx_messages_sender_id (sender_id),
     KEY idx_messages_task_id (task_id),
-    KEY idx_messages_status (status)
+    KEY idx_messages_status (status),
+    KEY idx_messages_receiver_status_created (receiver_id, status, created_at),
+    KEY idx_messages_sender_created (sender_id, created_at)
 );
 
 CREATE TABLE announcements (

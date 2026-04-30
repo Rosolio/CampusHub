@@ -1,5 +1,6 @@
 package com.campushub.entity;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class Task {
@@ -26,10 +27,14 @@ public class Task {
     private String requesterName;
     private String requesterMajor;
     private String requesterAvatarUrl;
+    private BigDecimal requesterScore;
+    private Integer requesterPoints;
     private Long helperId;
     private String helperName;
     private String helperMajor;
     private String helperAvatarUrl;
+    private BigDecimal helperScore;
+    private Integer helperPoints;
     private String status;
     private Integer likeCount;
     private Integer commentCount;
@@ -225,6 +230,22 @@ public class Task {
         this.requesterAvatarUrl = requesterAvatarUrl;
     }
 
+    public BigDecimal getRequesterScore() {
+        return requesterScore;
+    }
+
+    public void setRequesterScore(BigDecimal requesterScore) {
+        this.requesterScore = requesterScore;
+    }
+
+    public Integer getRequesterPoints() {
+        return requesterPoints;
+    }
+
+    public void setRequesterPoints(Integer requesterPoints) {
+        this.requesterPoints = requesterPoints;
+    }
+
     public Long getHelperId() {
         return helperId;
     }
@@ -255,6 +276,22 @@ public class Task {
 
     public void setHelperAvatarUrl(String helperAvatarUrl) {
         this.helperAvatarUrl = helperAvatarUrl;
+    }
+
+    public BigDecimal getHelperScore() {
+        return helperScore;
+    }
+
+    public void setHelperScore(BigDecimal helperScore) {
+        this.helperScore = helperScore;
+    }
+
+    public Integer getHelperPoints() {
+        return helperPoints;
+    }
+
+    public void setHelperPoints(Integer helperPoints) {
+        this.helperPoints = helperPoints;
     }
 
     public String getStatus() {

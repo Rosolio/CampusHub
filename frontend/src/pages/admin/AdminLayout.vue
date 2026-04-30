@@ -153,6 +153,13 @@ const navItems = [
     description: '处理待审核内容，完成通过、驳回或挂起。'
   },
   {
+    to: '/home#feedback-queue',
+    label: '反馈处理',
+    eyebrow: 'Feedback',
+    icon: 'reviews',
+    description: '集中处理用户反馈、bug 和高频建议。'
+  },
+  {
     to: '/admin/profile',
     label: '个人中心',
     eyebrow: 'Profile',

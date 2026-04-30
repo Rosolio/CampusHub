@@ -11,6 +11,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ public class AdminService {
     private final UserMapper userMapper;
     private final TaskMapper taskMapper;
     private final UserLoginLogMapper userLoginLogMapper;
+    private final UserService userService;
     private final MessageService messageService;
     private final RedisTemplate<String, Object> redisTemplate;
 
@@ -32,12 +34,14 @@ public class AdminService {
         UserMapper userMapper,
         TaskMapper taskMapper,
         UserLoginLogMapper userLoginLogMapper,
+        UserService userService,
         MessageService messageService,
         RedisTemplate<String, Object> redisTemplate
     ) {
         this.userMapper = userMapper;
         this.taskMapper = taskMapper;
         this.userLoginLogMapper = userLoginLogMapper;
+        this.userService = userService;
         this.messageService = messageService;
         this.redisTemplate = redisTemplate;
     }
@@ -96,12 +100,13 @@ public class AdminService {
         taskMapper.update(task);
 
         if ("rejected".equals(nextReviewStatus)) {
+            userService.adjustScore(task.getRequesterId(), BigDecimal.valueOf(-1));
             String reasonSuffix = reviewNote == null ? "请修改后重新提交。" : "原因：" + reviewNote;
             messageService.sendSystemTaskMessage(
                 adminId,
                 task.getRequesterId(),
                 task.getId(),
-                String.format("【内容审核提醒】你发布的内容《%s》未通过审核，%s", task.getTitle(), reasonSuffix)
+                String.format("【内容审核提醒】你发布的内容《%s》未通过审核，%s 本次已扣除 1.00 信用分。", task.getTitle(), reasonSuffix)
             );
         }
 

@@ -77,4 +77,8 @@
             updated_at = #{updatedAt}
         WHERE id = #{id}
     </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE FROM feedback WHERE id = #{id}
+    </delete>
 </mapper>

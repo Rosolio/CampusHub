@@ -29,6 +29,14 @@
         SELECT * FROM users WHERE student_id = #{studentId}
     </select>
 
+    <select id="selectByLoginIdentifier" resultMap="UserResultMap">
+        SELECT *
+        FROM users
+        WHERE student_id = #{identifier} OR name = #{identifier}
+        ORDER BY CASE WHEN student_id = #{identifier} THEN 0 ELSE 1 END, id ASC
+        LIMIT 1
+    </select>
+
     <select id="selectByEmail" resultMap="UserResultMap">
         SELECT * FROM users WHERE email = #{email}
     </select>

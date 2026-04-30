@@ -45,6 +45,7 @@
         LEFT JOIN tasks t ON m.task_id = t.id
         WHERE m.sender_id = #{userId} OR m.receiver_id = #{userId}
         ORDER BY m.created_at DESC
+        LIMIT 200
     </select>
 
     <select id="selectBySenderId" resultMap="MessageResultMap">
@@ -105,6 +106,7 @@
         LEFT JOIN tasks t ON m.task_id = t.id
         WHERE m.receiver_id = #{receiverId} AND m.status = 'unread'
         ORDER BY m.created_at DESC
+        LIMIT 100
     </select>
 
     <insert id="insert" parameterType="com.campushub.entity.Message" useGeneratedKeys="true" keyProperty="id">

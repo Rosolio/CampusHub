@@ -27,10 +27,14 @@
         <result property="requesterName" column="requester_name"/>
         <result property="requesterMajor" column="requester_major"/>
         <result property="requesterAvatarUrl" column="requester_avatar_url"/>
+        <result property="requesterScore" column="requester_score"/>
+        <result property="requesterPoints" column="requester_points"/>
         <result property="helperId" column="helper_id"/>
         <result property="helperName" column="helper_name"/>
         <result property="helperMajor" column="helper_major"/>
         <result property="helperAvatarUrl" column="helper_avatar_url"/>
+        <result property="helperScore" column="helper_score"/>
+        <result property="helperPoints" column="helper_points"/>
         <result property="status" column="status"/>
         <result property="likeCount" column="like_count"/>
         <result property="commentCount" column="comment_count"/>
@@ -47,10 +51,14 @@
                u.name AS requester_name,
                u.major AS requester_major,
                u.avatar_url AS requester_avatar_url,
+               u.score AS requester_score,
+               u.points AS requester_points,
                helper.id AS helper_id,
                helper.name AS helper_name,
                helper.major AS helper_major,
                helper.avatar_url AS helper_avatar_url,
+               helper.score AS helper_score,
+               helper.points AS helper_points,
                COALESCE(tc.comment_count, 0) AS comment_count
         FROM tasks t
         LEFT JOIN users u ON t.requester_id = u.id
@@ -72,10 +80,14 @@
                u.name AS requester_name,
                u.major AS requester_major,
                u.avatar_url AS requester_avatar_url,
+               u.score AS requester_score,
+               u.points AS requester_points,
                helper.id AS helper_id,
                helper.name AS helper_name,
                helper.major AS helper_major,
                helper.avatar_url AS helper_avatar_url,
+               helper.score AS helper_score,
+               helper.points AS helper_points,
                COALESCE(tc.comment_count, 0) AS comment_count
         FROM tasks t
         LEFT JOIN users u ON t.requester_id = u.id
@@ -97,10 +109,14 @@
                u.name AS requester_name,
                u.major AS requester_major,
                u.avatar_url AS requester_avatar_url,
+               u.score AS requester_score,
+               u.points AS requester_points,
                helper.id AS helper_id,
                helper.name AS helper_name,
                helper.major AS helper_major,
                helper.avatar_url AS helper_avatar_url,
+               helper.score AS helper_score,
+               helper.points AS helper_points,
                COALESCE(tc.comment_count, 0) AS comment_count
         FROM tasks t
         LEFT JOIN users u ON t.requester_id = u.id
@@ -123,10 +139,14 @@
                u.name AS requester_name,
                u.major AS requester_major,
                u.avatar_url AS requester_avatar_url,
+               u.score AS requester_score,
+               u.points AS requester_points,
                helper.id AS helper_id,
                helper.name AS helper_name,
                helper.major AS helper_major,
                helper.avatar_url AS helper_avatar_url,
+               helper.score AS helper_score,
+               helper.points AS helper_points,
                COALESCE(tc.comment_count, 0) AS comment_count
         FROM tasks t
         INNER JOIN task_participants tp ON tp.task_id = t.id
@@ -152,10 +172,14 @@
                u.name AS requester_name,
                u.major AS requester_major,
                u.avatar_url AS requester_avatar_url,
+               u.score AS requester_score,
+               u.points AS requester_points,
                helper.id AS helper_id,
                helper.name AS helper_name,
                helper.major AS helper_major,
                helper.avatar_url AS helper_avatar_url,
+               helper.score AS helper_score,
+               helper.points AS helper_points,
                COALESCE(tc.comment_count, 0) AS comment_count
         FROM tasks t
         LEFT JOIN users u ON t.requester_id = u.id
@@ -178,10 +202,14 @@
                u.name AS requester_name,
                u.major AS requester_major,
                u.avatar_url AS requester_avatar_url,
+               u.score AS requester_score,
+               u.points AS requester_points,
                helper.id AS helper_id,
                helper.name AS helper_name,
                helper.major AS helper_major,
                helper.avatar_url AS helper_avatar_url,
+               helper.score AS helper_score,
+               helper.points AS helper_points,
                COALESCE(tc.comment_count, 0) AS comment_count
         FROM tasks t
         LEFT JOIN users u ON t.requester_id = u.id

@@ -664,7 +664,9 @@ const selectConversation = (key: string) => {
 
 const fetchMessages = async (options?: { silent?: boolean }) => {
   const silent = options?.silent ?? false
-  loading.value = true
+  if (!silent) {
+    loading.value = true
+  }
   if (!silent) {
     fetchError.value = ''
   }
@@ -701,7 +703,9 @@ const fetchMessages = async (options?: { silent?: boolean }) => {
       messages.value = []
     }
   } finally {
-    loading.value = false
+    if (!silent) {
+      loading.value = false
+    }
   }
 }
 
@@ -775,7 +779,7 @@ onMounted(() => {
   fetchMessages()
   pollingTimer = window.setInterval(() => {
     fetchMessages({ silent: true })
-  }, 15000)
+  }, 5000)
 })
 
 onBeforeUnmount(() => {

@@ -112,6 +112,17 @@
                 <p class="text-sm font-bold text-teal-900">管理员回复</p>
                 <p class="mt-2 text-sm leading-7 text-on-surface-variant">{{ item.adminReply }}</p>
               </div>
+
+              <div v-if="canWithdrawFeedback(item)" class="mt-4 flex justify-end">
+                <button
+                  type="button"
+                  class="rounded-full bg-rose-50 px-4 py-2 text-sm font-bold text-rose-600 transition hover:bg-rose-100 disabled:opacity-60"
+                  :disabled="withdrawingId === item.id"
+                  @click="handleWithdrawFeedback(item)"
+                >
+                  {{ withdrawingId === item.id ? '撤回中...' : '撤回反馈' }}
+                </button>
+              </div>
             </article>
           </div>
         </section>
@@ -133,6 +144,7 @@ type FeedbackType = 'BUG' | 'SUGGESTION' | 'OTHER'
 
 const loading = ref(false)
 const submitting = ref(false)
+const withdrawingId = ref<number | null>(null)
 const error = ref('')
 const successMessage = ref('')
 const feedbackList = ref<any[]>([])
@@ -186,6 +198,25 @@ const handleSubmit = async () => {
     error.value = err?.response?.data?.message || '反馈提交失败'
   } finally {
     submitting.value = false
+  }
+}
+
+const canWithdrawFeedback = (item: any) => item?.status !== 'resolved'
+
+const handleWithdrawFeedback = async (item: any) => {
+  if (!canWithdrawFeedback(item)) return
+
+  withdrawingId.value = item.id
+  error.value = ''
+  successMessage.value = ''
+  try {
+    await feedbackApi.withdrawFeedback(item.id)
+    successMessage.value = '反馈已撤回。'
+    await loadFeedback()
+  } catch (err: any) {
+    error.value = err?.response?.data?.message || '撤回反馈失败'
+  } finally {
+    withdrawingId.value = null
   }
 }
 

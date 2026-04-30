@@ -164,7 +164,7 @@
           </section>
         </section>
 
-        <section class="rounded-[2rem] bg-surface-container-lowest p-6 shadow-sm">
+        <section id="feedback-queue" class="rounded-[2rem] bg-surface-container-lowest p-6 shadow-sm">
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p class="text-[11px] font-extrabold uppercase tracking-[0.24em] text-teal-700/65">Feedback Queue</p>
@@ -276,6 +276,7 @@ const quickLinks = [
   { to: '/admin/community', label: '社区动态', description: '进入独立页面查看最新社区内容。', icon: 'newspaper' },
   { to: '/admin/users', label: '用户治理', description: '处理账号状态和用户搜索。', icon: 'manage_accounts' },
   { to: '/admin/moderation', label: '内容审核', description: '管理待审核内容与驳回通知。', icon: 'gavel' },
+  { to: '/home#feedback-queue', label: '反馈处理', description: '集中回复用户 bug 与产品建议。', icon: 'reviews' },
   { to: '/admin/profile', label: '个人中心', description: '查看管理员身份信息与后台工作入口。', icon: 'badge' }
 ]
 
