@@ -1,9 +1,9 @@
 <template>
-  <div class="bg-surface font-body text-on-surface min-h-screen pb-24 md:pb-0">
+  <div class="h-[100dvh] overflow-hidden bg-surface font-body text-on-surface">
     <AppTopNav :avatar-url="currentUser.avatarUrl || defaultAvatarUrl" />
 
-    <main class="pt-24 px-6 max-w-7xl mx-auto">
-      <div class="mb-6">
+    <main class="mx-auto flex h-full max-w-7xl flex-col px-4 pb-20 pt-20 sm:px-6 md:pb-6 md:pt-24">
+      <div class="mb-3 shrink-0">
         <RouterLink
           to="/"
           class="flex items-center gap-2 text-on-surface-variant font-medium hover:text-primary transition-colors group"
@@ -16,10 +16,10 @@
         </RouterLink>
       </div>
 
-      <div class="mb-6 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+      <div class="mb-4 flex shrink-0 flex-col gap-2 md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 class="text-3xl font-extrabold font-headline text-teal-900">消息中心</h1>
-          <p class="text-on-surface-variant leading-relaxed text-lg">
+          <h1 class="font-headline text-2xl font-extrabold text-teal-900 md:text-3xl">消息中心</h1>
+          <p class="text-sm leading-relaxed text-on-surface-variant md:text-base">
             按任务查看沟通记录，直接在右侧继续回复。
           </p>
         </div>
@@ -33,20 +33,20 @@
         </button>
       </div>
 
-      <div v-if="fetchError" class="mb-6 rounded-3xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-medium text-rose-700">
+      <div v-if="fetchError" class="mb-4 shrink-0 rounded-3xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-medium text-rose-700">
         {{ fetchError }}
       </div>
 
-      <div class="grid grid-cols-1 gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
-        <aside class="rounded-[2rem] bg-surface-container-lowest p-5 shadow-sm">
-          <div class="mb-4 flex items-center justify-between">
+      <div class="grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(180px,32vh)_minmax(0,1fr)] gap-4 overflow-hidden lg:grid-cols-[360px_minmax(0,1fr)] lg:grid-rows-1 lg:gap-6">
+        <aside class="flex min-h-0 flex-col rounded-[2rem] bg-surface-container-lowest p-4 shadow-sm md:p-5">
+          <div class="mb-3 flex shrink-0 items-center justify-between">
             <div>
-              <h2 class="text-xl font-extrabold text-teal-900">会话列表</h2>
+              <h2 class="text-lg font-extrabold text-teal-900 md:text-xl">会话列表</h2>
               <p class="text-sm text-on-surface-variant">共 {{ filteredConversations.length }} 个会话</p>
             </div>
           </div>
 
-          <div class="mb-4 flex flex-wrap gap-2">
+          <div class="mb-3 flex shrink-0 flex-wrap gap-2">
             <button
               class="rounded-full px-4 py-2 text-sm font-bold transition-colors"
               type="button"
@@ -60,12 +60,12 @@
             </div>
           </div>
 
-          <div v-if="filteredConversations.length === 0" class="rounded-3xl bg-surface-container-low p-6 text-center">
+          <div v-if="filteredConversations.length === 0" class="min-h-0 flex-1 overflow-y-auto rounded-3xl bg-surface-container-low p-6 text-center">
             <p class="text-lg font-bold text-teal-900 mb-2">暂无会话</p>
             <p class="text-on-surface-variant">{{ showUnreadOnly ? '当前没有未读会话。' : '去任务详情页联系需求方后，这里会出现对应聊天。' }}</p>
           </div>
 
-          <div v-else class="space-y-3">
+          <div v-else class="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
             <button
               v-for="conversation in filteredConversations"
               :key="conversation.key"
@@ -106,7 +106,7 @@
           </div>
         </aside>
 
-        <section class="rounded-[2rem] bg-surface-container-lowest shadow-sm overflow-hidden min-h-[640px] flex flex-col">
+        <section class="flex min-h-0 flex-col overflow-hidden rounded-[2rem] bg-surface-container-lowest shadow-sm">
           <div v-if="!selectedConversation" class="flex-1 flex items-center justify-center p-8">
             <div class="max-w-md rounded-[2rem] bg-surface-container-low p-8 text-center">
               <p class="mb-2 text-xl font-extrabold text-teal-900">选择一个会话</p>
@@ -115,7 +115,7 @@
           </div>
 
           <template v-else>
-            <div class="border-b border-outline-variant/15 px-6 py-5">
+            <div class="shrink-0 border-b border-outline-variant/15 px-5 py-4 md:px-6 md:py-5">
               <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div class="flex items-center gap-4">
                   <div v-if="selectedConversation.isSystemChannel" class="flex h-14 w-14 items-center justify-center rounded-full border border-amber-200 bg-amber-50 text-amber-700">
@@ -146,7 +146,7 @@
 
             <div
               ref="messageViewport"
-              class="flex-1 space-y-4 overflow-y-auto bg-[linear-gradient(180deg,rgba(240,253,250,0.85),rgba(255,255,255,0.96))] px-6 py-6"
+              class="min-h-0 flex-1 space-y-4 overflow-y-auto bg-[linear-gradient(180deg,rgba(240,253,250,0.85),rgba(255,255,255,0.96))] px-5 py-5 md:px-6 md:py-6"
               @scroll="handleMessageScroll"
             >
               <div v-for="group in groupedSelectedMessages" :key="group.label" class="space-y-4">
@@ -192,7 +192,7 @@
               </div>
             </div>
 
-            <div v-if="!selectedConversation.isSystemChannel" class="border-t border-outline-variant/15 bg-white px-6 py-5">
+            <div v-if="!selectedConversation.isSystemChannel" class="shrink-0 border-t border-outline-variant/15 bg-white px-5 py-4 md:px-6 md:py-5">
               <div v-if="newMessageNoticeCount > 0" class="mb-4 flex justify-center">
                 <button
                   class="rounded-full bg-teal-900 px-4 py-2 text-sm font-bold text-white shadow-lg transition-colors hover:bg-teal-800"
@@ -231,7 +231,7 @@
                 </button>
               </div>
             </div>
-            <div v-else class="border-t border-outline-variant/15 bg-amber-50/60 px-6 py-5 text-sm text-amber-900">
+            <div v-else class="shrink-0 border-t border-outline-variant/15 bg-amber-50/60 px-6 py-5 text-sm text-amber-900">
               系统提醒会集中展示在这里，点击消息卡片内的按钮可直接进入对应详情页或互评页。
             </div>
           </template>
