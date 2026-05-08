@@ -5,6 +5,32 @@ stages:
 backend-build:
   stage: build
   image: maven:3.9.9-eclipse-temurin-17
+  services:
+    - name: mysql:8.0
+      alias: mysql
+    - name: redis:7-alpine
+      alias: redis
+  variables:
+    MYSQL_DATABASE: campusaid
+    MYSQL_ROOT_PASSWORD: root
+    TEST_DB_URL: jdbc:mysql://mysql:3306/campusaid?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+    TEST_DB_USERNAME: root
+    TEST_DB_PASSWORD: root
+    REDIS_HOST: redis
+    REDIS_PORT: 6379
+    MAVEN_OPTS: -Dmaven.repo.local=/cache/m2/repository
+  cache:
+    key: maven
+    paths:
+      - /cache/m2/repository
   script:
     - cd backend
-    - mvn clean package -DskipTests
+    - mvn test
+  artifacts:
+    when: always
+    paths:
+      - backend/target/surefire-reports/
+      - backend/target/site/jacoco/
+    reports:
+      junit:
+        - backend/target/surefire-reports/TEST-*.xml
