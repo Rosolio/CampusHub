@@ -39,6 +39,32 @@ backend-test:
     MYSQL_ROOT_PASSWORD: "root"
   script:
     - cd backend
+    - |
+      echo "Waiting for MySQL on mysql:3306..."
+      for attempt in $(seq 1 60); do
+        if (echo > /dev/tcp/mysql/3306) >/dev/null 2>&1; then
+          echo "MySQL is reachable."
+          break
+        fi
+        if [ "$attempt" -eq 60 ]; then
+          echo "MySQL did not become ready in time." >&2
+          exit 1
+        fi
+        sleep 2
+      done
+    - |
+      echo "Waiting for Redis on redis:6379..."
+      for attempt in $(seq 1 60); do
+        if (echo > /dev/tcp/redis/6379) >/dev/null 2>&1; then
+          echo "Redis is reachable."
+          break
+        fi
+        if [ "$attempt" -eq 60 ]; then
+          echo "Redis did not become ready in time." >&2
+          exit 1
+        fi
+        sleep 2
+      done
     - mvn -B clean verify
     - awk -F, 'NR>1 {miss+=$8; cov+=$9} END {total=miss+cov; printf("LINE_COVERAGE=%.2f%%\n", (cov/total)*100)}' target/site/jacoco/jacoco.csv
   coverage: '/LINE_COVERAGE=([0-9]+\.[0-9]+)%/'
