@@ -52,6 +52,36 @@ backend-test:
         fi
         sleep 2
       done
+    - mvn -q -DskipTests dependency:build-classpath -Dmdep.outputFile=.ci-test-classpath
+    - |
+      cat > WaitForMysql.java <<'EOF'
+      import java.sql.Connection;
+      import java.sql.DriverManager;
+
+      public class WaitForMysql {
+          public static void main(String[] args) throws Exception {
+              String url = System.getenv("TEST_DB_URL");
+              String username = System.getenv("TEST_DB_USERNAME");
+              String password = System.getenv("TEST_DB_PASSWORD");
+              int maxAttempts = 60;
+              for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+                  try (Connection ignored = DriverManager.getConnection(url, username, password)) {
+                      System.out.println("MySQL accepted JDBC connection on attempt " + attempt + ".");
+                      return;
+                  } catch (Exception ex) {
+                      System.out.println("MySQL JDBC wait attempt " + attempt + " failed: " + ex.getClass().getSimpleName());
+                      if (attempt == maxAttempts) {
+                          throw ex;
+                      }
+                      Thread.sleep(2000);
+                  }
+              }
+          }
+      }
+      EOF
+    - mkdir -p .ci-classes
+    - javac -cp "$(cat .ci-test-classpath)" -d .ci-classes WaitForMysql.java
+    - java -cp ".ci-classes:$(cat .ci-test-classpath)" WaitForMysql
     - |
       echo "Waiting for Redis on redis:6379..."
       for attempt in $(seq 1 60); do
