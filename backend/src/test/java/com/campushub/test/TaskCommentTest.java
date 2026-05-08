@@ -11,16 +11,12 @@ import com.campushub.service.TaskService;
 import com.campushub.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
-@Transactional
-public class TaskCommentTest {
+public class TaskCommentTest extends IntegrationTestSupport {
 
     @Autowired
     private TaskService taskService;

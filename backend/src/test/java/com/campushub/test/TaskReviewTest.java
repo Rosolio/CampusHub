@@ -11,8 +11,6 @@ import com.campushub.service.TaskService;
 import com.campushub.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -20,9 +18,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
-@Transactional
-public class TaskReviewTest {
+public class TaskReviewTest extends IntegrationTestSupport {
 
     @Autowired
     private TaskService taskService;

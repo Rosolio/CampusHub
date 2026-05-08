@@ -6,16 +6,12 @@ import com.campushub.dto.ThirdPartyLoginRequest;
 import com.campushub.service.AuthService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
-@Transactional
-public class AuthTest {
+public class AuthTest extends IntegrationTestSupport {
 
     @Autowired
     private AuthService authService;
