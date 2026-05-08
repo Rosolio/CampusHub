@@ -24,6 +24,11 @@ public class TestRedisConfig {
 
         return new RedisTemplate<>() {
             @Override
+            public void afterPropertiesSet() {
+                // Skip RedisConnectionFactory validation in tests.
+            }
+
+            @Override
             public ValueOperations<String, Object> opsForValue() {
                 return valueOperations;
             }
