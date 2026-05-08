@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.campushub.mapper.AnnouncementMapper">
+    <resultMap id="AnnouncementResultMap" type="com.campushub.entity.Announcement">
+        <id property="id" column="id"/>
+        <result property="authorId" column="author_id"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="pinned" column="pinned"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="authorName" column="author_name"/>
+    </resultMap>
+
+    <select id="selectAll" resultMap="AnnouncementResultMap">
+        SELECT a.*,
+               u.name AS author_name
+        FROM announcements a
+        LEFT JOIN users u ON a.author_id = u.id
+        ORDER BY a.pinned DESC, a.created_at DESC
+    </select>
+
+    <select id="selectById" resultMap="AnnouncementResultMap">
+        SELECT a.*,
+               u.name AS author_name
+        FROM announcements a
+        LEFT JOIN users u ON a.author_id = u.id
+        WHERE a.id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="com.campushub.entity.Announcement" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO announcements (author_id, title, content, pinned, created_at, updated_at)
+        VALUES (#{authorId}, #{title}, #{content}, #{pinned}, #{createdAt}, #{updatedAt})
+    </insert>
+
+    <update id="update" parameterType="com.campushub.entity.Announcement">
+        UPDATE announcements
+        SET title = #{title},
+            content = #{content},
+            pinned = #{pinned},
+            updated_at = #{updatedAt}
+        WHERE id = #{id}
+    </update>
+</mapper>

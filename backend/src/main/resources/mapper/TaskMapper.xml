@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.campushub.mapper.TaskMapper">
+    <resultMap id="TaskResultMap" type="com.campushub.entity.Task">
+        <id property="id" column="id"/>
+        <result property="requesterId" column="requester_id"/>
+        <result property="title" column="title"/>
+        <result property="description" column="description"/>
+        <result property="category" column="category"/>
+        <result property="taskMode" column="task_mode"/>
+        <result property="badgePrimary" column="badge_primary"/>
+        <result property="badgeSecondary" column="badge_secondary"/>
+        <result property="locationText" column="location_text"/>
+        <result property="timeText" column="time_text"/>
+        <result property="rewardTitle" column="reward_title"/>
+        <result property="rewardText" column="reward_text"/>
+        <result property="impactTitle" column="impact_title"/>
+        <result property="impactText" column="impact_text"/>
+        <result property="mapImageUrl" column="map_image_url"/>
+        <result property="contactInfo" column="contact_info"/>
+        <result property="reviewStatus" column="review_status"/>
+        <result property="reviewNote" column="review_note"/>
+        <result property="reviewedBy" column="reviewed_by"/>
+        <result property="reviewedAt" column="reviewed_at"/>
+        <result property="requesterName" column="requester_name"/>
+        <result property="requesterMajor" column="requester_major"/>
+        <result property="requesterAvatarUrl" column="requester_avatar_url"/>
+        <result property="requesterScore" column="requester_score"/>
+        <result property="requesterPoints" column="requester_points"/>
+        <result property="helperId" column="helper_id"/>
+        <result property="helperName" column="helper_name"/>
+        <result property="helperMajor" column="helper_major"/>
+        <result property="helperAvatarUrl" column="helper_avatar_url"/>
+        <result property="helperScore" column="helper_score"/>
+        <result property="helperPoints" column="helper_points"/>
+        <result property="status" column="status"/>
+        <result property="likeCount" column="like_count"/>
+        <result property="commentCount" column="comment_count"/>
+        <result property="expiresAt" column="expires_at"/>
+        <result property="requesterCompletedAt" column="requester_completed_at"/>
+        <result property="helperCompletedAt" column="helper_completed_at"/>
+        <result property="completedAt" column="completed_at"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="TaskResultMap">
+        SELECT t.*,
+               u.name AS requester_name,
+               u.major AS requester_major,
+               u.avatar_url AS requester_avatar_url,
+               u.score AS requester_score,
+               u.points AS requester_points,
+               helper.id AS helper_id,
+               helper.name AS helper_name,
+               helper.major AS helper_major,
+               helper.avatar_url AS helper_avatar_url,
+               helper.score AS helper_score,
+               helper.points AS helper_points,
+               COALESCE(tc.comment_count, 0) AS comment_count
+        FROM tasks t
+        LEFT JOIN users u ON t.requester_id = u.id
+        LEFT JOIN task_participants helper_tp
+               ON helper_tp.task_id = t.id
+              AND helper_tp.role = 'helper'
+              AND helper_tp.status != 'canceled'
+        LEFT JOIN users helper ON helper_tp.participant_id = helper.id
+        LEFT JOIN (
+            SELECT task_id, COUNT(*) AS comment_count
+            FROM task_comments
+            GROUP BY task_id
+        ) tc ON tc.task_id = t.id
+        WHERE t.id = #{id}
+    </select>
+
+    <select id="selectAll" resultMap="TaskResultMap">
+        SELECT t.*,
+               u.name AS requester_name,
+               u.major AS requester_major,
+               u.avatar_url AS requester_avatar_url,
+               u.score AS requester_score,
+               u.points AS requester_points,
+               helper.id AS helper_id,
+               helper.name AS helper_name,
+               helper.major AS helper_major,
+               helper.avatar_url AS helper_avatar_url,
+               helper.score AS helper_score,
+               helper.points AS helper_points,
+               COALESCE(tc.comment_count, 0) AS comment_count
+        FROM tasks t
+        LEFT JOIN users u ON t.requester_id = u.id
+        LEFT JOIN task_participants helper_tp
+               ON helper_tp.task_id = t.id
+              AND helper_tp.role = 'helper'
+              AND helper_tp.status != 'canceled'
+        LEFT JOIN users helper ON helper_tp.participant_id = helper.id
+        LEFT JOIN (
+            SELECT task_id, COUNT(*) AS comment_count
+            FROM task_comments
+            GROUP BY task_id
+        ) tc ON tc.task_id = t.id
+        ORDER BY t.created_at DESC
+    </select>
+
+    <select id="selectByRequesterId" resultMap="TaskResultMap">
+        SELECT t.*,
+               u.name AS requester_name,
+               u.major AS requester_major,
+               u.avatar_url AS requester_avatar_url,
+               u.score AS requester_score,
+               u.points AS requester_points,
+               helper.id AS helper_id,
+               helper.name AS helper_name,
+               helper.major AS helper_major,
+               helper.avatar_url AS helper_avatar_url,
+               helper.score AS helper_score,
+               helper.points AS helper_points,
+               COALESCE(tc.comment_count, 0) AS comment_count
+        FROM tasks t
+        LEFT JOIN users u ON t.requester_id = u.id
+        LEFT JOIN task_participants helper_tp
+               ON helper_tp.task_id = t.id
+              AND helper_tp.role = 'helper'
+              AND helper_tp.status != 'canceled'
+        LEFT JOIN users helper ON helper_tp.participant_id = helper.id
+        LEFT JOIN (
+            SELECT task_id, COUNT(*) AS comment_count
+            FROM task_comments
+            GROUP BY task_id
+        ) tc ON tc.task_id = t.id
+        WHERE t.requester_id = #{requesterId}
+        ORDER BY t.created_at DESC
+    </select>
+
+    <select id="selectByHelperId" resultMap="TaskResultMap">
+        SELECT DISTINCT t.*,
+               u.name AS requester_name,
+               u.major AS requester_major,
+               u.avatar_url AS requester_avatar_url,
+               u.score AS requester_score,
+               u.points AS requester_points,
+               helper.id AS helper_id,
+               helper.name AS helper_name,
+               helper.major AS helper_major,
+               helper.avatar_url AS helper_avatar_url,
+               helper.score AS helper_score,
+               helper.points AS helper_points,
+               COALESCE(tc.comment_count, 0) AS comment_count
+        FROM tasks t
+        INNER JOIN task_participants tp ON tp.task_id = t.id
+        LEFT JOIN users u ON t.requester_id = u.id
+        LEFT JOIN task_participants helper_tp
+               ON helper_tp.task_id = t.id
+              AND helper_tp.role = 'helper'
+              AND helper_tp.status != 'canceled'
+        LEFT JOIN users helper ON helper_tp.participant_id = helper.id
+        LEFT JOIN (
+            SELECT task_id, COUNT(*) AS comment_count
+            FROM task_comments
+            GROUP BY task_id
+        ) tc ON tc.task_id = t.id
+        WHERE tp.participant_id = #{helperId}
+          AND tp.role = 'helper'
+          AND tp.status != 'canceled'
+        ORDER BY t.created_at DESC
+    </select>
+
+    <select id="selectByStatus" resultMap="TaskResultMap">
+        SELECT t.*,
+               u.name AS requester_name,
+               u.major AS requester_major,
+               u.avatar_url AS requester_avatar_url,
+               u.score AS requester_score,
+               u.points AS requester_points,
+               helper.id AS helper_id,
+               helper.name AS helper_name,
+               helper.major AS helper_major,
+               helper.avatar_url AS helper_avatar_url,
+               helper.score AS helper_score,
+               helper.points AS helper_points,
+               COALESCE(tc.comment_count, 0) AS comment_count
+        FROM tasks t
+        LEFT JOIN users u ON t.requester_id = u.id
+        LEFT JOIN task_participants helper_tp
+               ON helper_tp.task_id = t.id
+              AND helper_tp.role = 'helper'
+              AND helper_tp.status != 'canceled'
+        LEFT JOIN users helper ON helper_tp.participant_id = helper.id
+        LEFT JOIN (
+            SELECT task_id, COUNT(*) AS comment_count
+            FROM task_comments
+            GROUP BY task_id
+        ) tc ON tc.task_id = t.id
+        WHERE t.status = #{status}
+        ORDER BY t.created_at DESC
+    </select>
+
+    <select id="selectAdminTasks" resultMap="TaskResultMap">
+        SELECT t.*,
+               u.name AS requester_name,
+               u.major AS requester_major,
+               u.avatar_url AS requester_avatar_url,
+               u.score AS requester_score,
+               u.points AS requester_points,
+               helper.id AS helper_id,
+               helper.name AS helper_name,
+               helper.major AS helper_major,
+               helper.avatar_url AS helper_avatar_url,
+               helper.score AS helper_score,
+               helper.points AS helper_points,
+               COALESCE(tc.comment_count, 0) AS comment_count
+        FROM tasks t
+        LEFT JOIN users u ON t.requester_id = u.id
+        LEFT JOIN task_participants helper_tp
+               ON helper_tp.task_id = t.id
+              AND helper_tp.role = 'helper'
+              AND helper_tp.status != 'canceled'
+        LEFT JOIN users helper ON helper_tp.participant_id = helper.id
+        LEFT JOIN (
+            SELECT task_id, COUNT(*) AS comment_count
+            FROM task_comments
+            GROUP BY task_id
+        ) tc ON tc.task_id = t.id
+        ORDER BY
+            CASE t.review_status
+                WHEN 'pending_review' THEN 0
+                WHEN 'rejected' THEN 1
+                ELSE 2
+            END,
+            t.created_at DESC
+    </select>
+
+    <select id="sumTopicLikesByRequesterId" resultType="java.lang.Integer">
+        SELECT COALESCE(SUM(like_count), 0)
+        FROM tasks
+        WHERE requester_id = #{requesterId}
+          AND task_mode = 'topic'
+    </select>
+
+    <select id="countTasksByReviewStatus" resultType="map">
+        SELECT review_status AS label, COUNT(*) AS value
+        FROM tasks
+        GROUP BY review_status
+    </select>
+
+    <select id="countTasksByCategory" resultType="map">
+        SELECT COALESCE(category, '未分类') AS label, COUNT(*) AS value
+        FROM tasks
+        WHERE review_status = 'approved'
+        GROUP BY category
+        ORDER BY value DESC, label ASC
+    </select>
+
+    <select id="countCompletedTasksByDateRange" resultType="map">
+        SELECT DATE_FORMAT(completed_at, '%Y-%m-%d') AS label, COUNT(*) AS value
+        FROM tasks
+        WHERE completed_at IS NOT NULL
+          AND completed_at <![CDATA[>=]]> #{start}
+          AND completed_at <![CDATA[<]]> #{end}
+        GROUP BY DATE_FORMAT(completed_at, '%Y-%m-%d')
+        ORDER BY label ASC
+    </select>
+
+    <insert id="insert" parameterType="com.campushub.entity.Task" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tasks (requester_id, title, description, category, task_mode, badge_primary, badge_secondary,
+                          location_text, time_text, reward_title, reward_text, impact_title, impact_text,
+                          map_image_url, contact_info, review_status, review_note, reviewed_by, reviewed_at,
+                          status, like_count, expires_at, requester_completed_at, helper_completed_at, completed_at,
+                          created_at, updated_at)
+        VALUES (#{requesterId}, #{title}, #{description}, #{category}, #{taskMode}, #{badgePrimary}, #{badgeSecondary},
+                #{locationText}, #{timeText}, #{rewardTitle}, #{rewardText}, #{impactTitle}, #{impactText},
+                #{mapImageUrl}, #{contactInfo}, #{reviewStatus}, #{reviewNote}, #{reviewedBy}, #{reviewedAt},
+                #{status}, #{likeCount}, #{expiresAt}, #{requesterCompletedAt}, #{helperCompletedAt},
+                #{completedAt}, #{createdAt}, #{updatedAt})
+    </insert>
+
+    <update id="update" parameterType="com.campushub.entity.Task">
+        UPDATE tasks
+        SET requester_id = #{requesterId}, title = #{title}, description = #{description},
+            category = #{category}, task_mode = #{taskMode},
+            badge_primary = #{badgePrimary}, badge_secondary = #{badgeSecondary},
+            location_text = #{locationText}, time_text = #{timeText},
+            reward_title = #{rewardTitle}, reward_text = #{rewardText},
+            impact_title = #{impactTitle}, impact_text = #{impactText},
+            map_image_url = #{mapImageUrl}, contact_info = #{contactInfo},
+            review_status = #{reviewStatus}, review_note = #{reviewNote},
+            reviewed_by = #{reviewedBy}, reviewed_at = #{reviewedAt},
+            status = #{status}, like_count = #{likeCount}, expires_at = #{expiresAt},
+            requester_completed_at = #{requesterCompletedAt}, helper_completed_at = #{helperCompletedAt},
+            completed_at = #{completedAt}, updated_at = #{updatedAt}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE FROM tasks WHERE id = #{id}
+    </delete>
+</mapper>

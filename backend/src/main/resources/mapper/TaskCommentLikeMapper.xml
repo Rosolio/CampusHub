@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.campushub.mapper.TaskCommentLikeMapper">
+    <resultMap id="TaskCommentLikeResultMap" type="com.campushub.entity.TaskCommentLike">
+        <id property="id" column="id"/>
+        <result property="commentId" column="comment_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <select id="selectByCommentIdAndUserId" resultMap="TaskCommentLikeResultMap">
+        SELECT * FROM task_comment_likes WHERE comment_id = #{commentId} AND user_id = #{userId} LIMIT 1
+    </select>
+
+    <insert id="insert" parameterType="com.campushub.entity.TaskCommentLike" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO task_comment_likes (comment_id, user_id, created_at)
+        VALUES (#{commentId}, #{userId}, #{createdAt})
+    </insert>
+
+    <delete id="deleteByCommentIdAndUserId">
+        DELETE FROM task_comment_likes WHERE comment_id = #{commentId} AND user_id = #{userId}
+    </delete>
+
+    <delete id="deleteByCommentIds">
+        DELETE FROM task_comment_likes
+        WHERE comment_id IN
+        <foreach collection="commentIds" item="commentId" open="(" separator="," close=")">
+            #{commentId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteByTaskId">
+        DELETE tcl
+        FROM task_comment_likes tcl
+        INNER JOIN task_comments tc ON tc.id = tcl.comment_id
+        WHERE tc.task_id = #{taskId}
+    </delete>
+</mapper>

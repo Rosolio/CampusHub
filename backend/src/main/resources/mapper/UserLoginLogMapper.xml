@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.campushub.mapper.UserLoginLogMapper">
+    <insert id="insert" parameterType="com.campushub.entity.UserLoginLog" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_login_logs (user_id, login_type, created_at)
+        VALUES (#{userId}, #{loginType}, #{createdAt})
+    </insert>
+
+    <select id="countDistinctUsersBetween" resultType="java.lang.Integer">
+        SELECT COUNT(DISTINCT user_id)
+        FROM user_login_logs
+        WHERE created_at <![CDATA[>=]]> #{start}
+          AND created_at <![CDATA[<]]> #{end}
+    </select>
+
+    <select id="countDistinctUsersByDateRange" resultType="map">
+        SELECT DATE_FORMAT(created_at, '%Y-%m-%d') AS label, COUNT(DISTINCT user_id) AS value
+        FROM user_login_logs
+        WHERE created_at <![CDATA[>=]]> #{start}
+          AND created_at <![CDATA[<]]> #{end}
+        GROUP BY DATE_FORMAT(created_at, '%Y-%m-%d')
+        ORDER BY label ASC
+    </select>
+</mapper>

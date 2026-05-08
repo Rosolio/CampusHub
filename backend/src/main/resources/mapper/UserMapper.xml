@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.campushub.mapper.UserMapper">
+    <resultMap id="UserResultMap" type="com.campushub.entity.User">
+        <id property="id" column="id"/>
+        <result property="studentId" column="student_id"/>
+        <result property="name" column="name"/>
+        <result property="email" column="email"/>
+        <result property="password" column="password"/>
+        <result property="avatarUrl" column="avatar_url"/>
+        <result property="major" column="major"/>
+        <result property="role" column="role"/>
+        <result property="status" column="status"/>
+        <result property="disabledReason" column="disabled_reason"/>
+        <result property="score" column="score"/>
+        <result property="points" column="points"/>
+        <result property="lastLoginAt" column="last_login_at"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="UserResultMap">
+        SELECT * FROM users WHERE id = #{id}
+    </select>
+
+    <select id="selectByStudentId" resultMap="UserResultMap">
+        SELECT * FROM users WHERE student_id = #{studentId}
+    </select>
+
+    <select id="selectByLoginIdentifier" resultMap="UserResultMap">
+        SELECT *
+        FROM users
+        WHERE student_id = #{identifier} OR name = #{identifier}
+        ORDER BY CASE WHEN student_id = #{identifier} THEN 0 ELSE 1 END, id ASC
+        LIMIT 1
+    </select>
+
+    <select id="selectByEmail" resultMap="UserResultMap">
+        SELECT * FROM users WHERE email = #{email}
+    </select>
+
+    <select id="selectAll" resultMap="UserResultMap">
+        SELECT * FROM users
+    </select>
+
+    <select id="selectAdminUsers" resultMap="UserResultMap">
+        SELECT *
+        FROM users
+        ORDER BY created_at DESC
+    </select>
+
+    <select id="countUsersByStatus" resultType="map">
+        SELECT status AS label, COUNT(*) AS value
+        FROM users
+        GROUP BY status
+    </select>
+
+    <insert id="insert" parameterType="com.campushub.entity.User" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO users (student_id, name, email, password, avatar_url, major, role, status, disabled_reason, score, points, last_login_at, created_at, updated_at)
+        VALUES (#{studentId}, #{name}, #{email}, #{password}, #{avatarUrl}, #{major}, #{role}, #{status}, #{disabledReason}, #{score}, #{points}, #{lastLoginAt}, #{createdAt}, #{updatedAt})
+    </insert>
+
+    <update id="update" parameterType="com.campushub.entity.User">
+        UPDATE users
+        SET student_id = #{studentId}, name = #{name}, email = #{email}, password = #{password}, 
+            avatar_url = #{avatarUrl}, major = #{major}, role = #{role}, status = #{status},
+            disabled_reason = #{disabledReason}, score = #{score}, points = #{points},
+            last_login_at = #{lastLoginAt},
+            updated_at = #{updatedAt}
+        WHERE id = #{id}
+    </update>
+
+    <update id="incrementPoints">
+        UPDATE users
+        SET points = points + #{points},
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateScore">
+        UPDATE users
+        SET score = #{score},
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateUserStatus">
+        UPDATE users
+        SET status = #{status},
+            disabled_reason = #{disabledReason},
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateLastLoginAt">
+        UPDATE users
+        SET last_login_at = #{lastLoginAt},
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE FROM users WHERE id = #{id}
+    </delete>
+</mapper>

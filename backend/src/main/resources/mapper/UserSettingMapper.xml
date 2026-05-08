@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.campushub.mapper.UserSettingMapper">
+    <resultMap id="UserSettingResultMap" type="com.campushub.entity.UserSetting">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="notificationEnabled" column="notification_enabled"/>
+        <result property="theme" column="theme"/>
+        <result property="language" column="language"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="UserSettingResultMap">
+        SELECT * FROM user_settings WHERE id = #{id}
+    </select>
+
+    <select id="selectByUserId" resultMap="UserSettingResultMap">
+        SELECT * FROM user_settings WHERE user_id = #{userId}
+    </select>
+
+    <insert id="insert" parameterType="com.campushub.entity.UserSetting" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_settings (user_id, notification_enabled, theme, language, updated_at)
+        VALUES (#{userId}, #{notificationEnabled}, #{theme}, #{language}, #{updatedAt})
+    </insert>
+
+    <update id="update" parameterType="com.campushub.entity.UserSetting">
+        UPDATE user_settings
+        SET user_id = #{userId}, notification_enabled = #{notificationEnabled}, 
+            theme = #{theme}, language = #{language}, updated_at = #{updatedAt}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE FROM user_settings WHERE id = #{id}
+    </delete>
+</mapper>
