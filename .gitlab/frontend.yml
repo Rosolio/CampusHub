@@ -1,11 +1,31 @@
 # 配置仅供参考！
 stages:
+  - quality
   - build
+
+cache:
+  key: "frontend-${CI_COMMIT_REF_SLUG}"
+  paths:
+    - frontend/node_modules/
+
+frontend-lint:
+  stage: quality
+  image: node:20
+  script:
+    - cd frontend
+    - npm ci
+    - npm run lint
 
 frontend-build:
   stage: build
   image: node:20
+  needs:
+    - frontend-lint
   script:
     - cd frontend
-    - npm install
+    - npm ci
     - npm run build
+  artifacts:
+    when: on_success
+    paths:
+      - frontend/dist/

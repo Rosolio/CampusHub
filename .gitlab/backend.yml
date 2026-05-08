@@ -1,10 +1,66 @@
 # 配置仅供参考！
 stages:
+  - quality
+  - test
   - build
+
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+  TEST_DB_URL: "jdbc:mysql://mysql:3306/campushub?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai"
+  TEST_DB_USERNAME: "root"
+  TEST_DB_PASSWORD: "root"
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"
+
+cache:
+  key: "backend-${CI_COMMIT_REF_SLUG}"
+  paths:
+    - .m2/repository
+
+backend-checkstyle:
+  stage: quality
+  image: maven:3.9.9-eclipse-temurin-17
+  script:
+    - cd backend
+    - mvn -B checkstyle:check
+
+backend-test:
+  stage: test
+  image: maven:3.9.9-eclipse-temurin-17
+  services:
+    - name: mysql:8.0
+      alias: mysql
+      command:
+        - --default-authentication-plugin=mysql_native_password
+    - name: redis:7-alpine
+      alias: redis
+  variables:
+    MYSQL_DATABASE: "campushub"
+    MYSQL_ROOT_PASSWORD: "root"
+  script:
+    - cd backend
+    - mvn -B clean verify
+    - awk -F, 'NR>1 {miss+=$8; cov+=$9} END {total=miss+cov; printf("LINE_COVERAGE=%.2f%%\n", (cov/total)*100)}' target/site/jacoco/jacoco.csv
+  coverage: '/LINE_COVERAGE=([0-9]+\.[0-9]+)%/'
+  artifacts:
+    when: always
+    paths:
+      - backend/target/site/jacoco/
+      - backend/target/surefire-reports/
+    reports:
+      junit:
+        - backend/target/surefire-reports/TEST-*.xml
 
 backend-build:
   stage: build
   image: maven:3.9.9-eclipse-temurin-17
+  needs:
+    - backend-checkstyle
+    - backend-test
   script:
     - cd backend
-    - mvn clean package -DskipTests
+    - mvn -B clean package -DskipTests
+  artifacts:
+    when: on_success
+    paths:
+      - backend/target/campushub-backend-1.0.0.jar
