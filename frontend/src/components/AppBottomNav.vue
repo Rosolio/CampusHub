@@ -19,14 +19,14 @@
 import { computed } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { usePreferences } from '../composables/usePreferences'
-import { isAdminUser } from '../utils/auth'
+import { isAdminUser, storedUser } from '../utils/auth'
 
 const route = useRoute()
 const { t } = usePreferences()
-const isAdmin = isAdminUser()
+const isAdmin = computed(() => isAdminUser() || String(storedUser.value?.role || '').toUpperCase() === 'ADMIN')
 
 const items = computed(() => (
-  isAdmin
+  isAdmin.value
     ? [
         { to: '/', label: '社区', icon: 'home' },
         { to: '/admin', label: '后台', icon: 'shield_person' },

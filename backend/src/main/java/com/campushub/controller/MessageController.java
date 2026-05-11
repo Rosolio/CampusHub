@@ -30,8 +30,8 @@ public class MessageController {
     }
 
     @PutMapping("/{id}/read")
-    public Message markAsRead(@PathVariable Long id) {
-        return messageService.markAsRead(id);
+    public Message markAsRead(@PathVariable Long id, Authentication authentication) {
+        return messageService.markAsRead(id, getCurrentUserId(authentication));
     }
 
     @GetMapping("/unread/count")

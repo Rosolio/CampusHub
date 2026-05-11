@@ -1,5 +1,12 @@
 import axios from 'axios'
-import { clearAuthStorage, getStoredToken, hasValidAuthToken } from '../utils/auth'
+import {
+  clearAuthStorage,
+  getStoredRefreshToken,
+  getStoredToken,
+  hasValidAuthToken,
+  isTokenExpired,
+  setStoredToken
+} from '../utils/auth'
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api'
 
@@ -11,6 +18,53 @@ const api = axios.create({
     'Content-Type': 'application/json'
   }
 })
+
+const authApiClient = axios.create({
+  baseURL: apiBaseUrl,
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+})
+
+const requestData = async <T>(request: Promise<{ data: T }>) => {
+  const response = await request
+  return response.data
+}
+
+let refreshPromise: Promise<string | null> | null = null
+
+const refreshAccessToken = async () => {
+  if (refreshPromise) {
+    return refreshPromise
+  }
+
+  refreshPromise = (async () => {
+    const refreshToken = getStoredRefreshToken()
+    if (!refreshToken || isTokenExpired(refreshToken)) {
+      clearAuthStorage()
+      return null
+    }
+
+    try {
+      const response = await authApiClient.post<{ token: string }>('/auth/refresh', { refreshToken })
+      const nextToken = response.data?.token
+      if (!nextToken) {
+        clearAuthStorage()
+        return null
+      }
+      setStoredToken(nextToken)
+      return nextToken
+    } catch {
+      clearAuthStorage()
+      return null
+    } finally {
+      refreshPromise = null
+    }
+  })()
+
+  return refreshPromise
+}
 
 // 请求拦截器 - 添加token
 api.interceptors.request.use(
@@ -38,73 +92,60 @@ api.interceptors.request.use(
 // 响应拦截器 - 处理错误
 api.interceptors.response.use(
   (response) => {
-    return response.data
+    return response
   },
-  (error) => {
-    if (error.response?.status === 401) {
-      // token过期，清除本地存储并跳转到登录页
-      clearAuthStorage()
-      window.location.href = '/auth'
+  async (error) => {
+    const originalRequest = error.config
+
+    if (
+      error.response?.status === 401 &&
+      originalRequest &&
+      !originalRequest.url?.startsWith('/auth/') &&
+      !originalRequest._retry
+    ) {
+      originalRequest._retry = true
+      const nextToken = await refreshAccessToken()
+      if (nextToken) {
+        originalRequest.headers.Authorization = `Bearer ${nextToken}`
+        return api(originalRequest)
+      }
     }
+
+    if (error.response?.status === 401) {
+      clearAuthStorage()
+      window.location.href = '/auth?tab=login'
+    }
+
     return Promise.reject(error)
   }
 )
 
 // 认证相关API
 export const authApi = {
-  // 登录
-  login: (studentId: string, password: string) => {
-    return api.post('/auth/login', { studentId, password })
-  },
-  
-  // 注册
+  login: (studentId: string, password: string) => requestData(api.post('/auth/login', { studentId, password })),
+
   register: (data: {
     studentId: string
     name: string
     email: string
     password: string
-  }) => {
-    return api.post('/auth/register', data)
-  },
+  }) => requestData(api.post('/auth/register', data)),
 
   thirdPartyLogin: (data: {
     provider: string
     providerUserId: string
     displayName?: string
     email?: string
-  }) => {
-    return api.post('/auth/third-party', data)
-  },
-  
-  // 刷新token
-  refreshToken: (refreshToken: string) => {
-    return api.post('/auth/refresh', { refreshToken })
-  }
+  }) => requestData(api.post('/auth/third-party', data)),
+
+  refreshToken: (refreshToken: string) => requestData(authApiClient.post('/auth/refresh', { refreshToken }))
 }
 
-// 任务相关API
 export const taskApi = {
-  // 获取所有任务
-  getTasks: () => {
-    return api.get('/tasks')
-  },
-  
-  // 获取任务详情
-  getTaskById: (id: number) => {
-    return api.get(`/tasks/${id}`)
-  },
-
-  // 点赞帖子
-  likeTask: (taskId: number) => {
-    return api.post(`/tasks/${taskId}/like`)
-  },
-
-  // 取消帖子点赞
-  unlikeTask: (taskId: number) => {
-    return api.delete(`/tasks/${taskId}/like`)
-  },
-  
-  // 创建任务
+  getTasks: () => requestData(api.get('/tasks')),
+  getTaskById: (id: number) => requestData(api.get(`/tasks/${id}`)),
+  likeTask: (taskId: number) => requestData(api.post(`/tasks/${taskId}/like`)),
+  unlikeTask: (taskId: number) => requestData(api.delete(`/tasks/${taskId}/like`)),
   createTask: (data: {
     title: string
     description: string
@@ -121,225 +162,90 @@ export const taskApi = {
     mapImageUrl?: string
     contactInfo?: string
     expiresAt?: string
-  }) => {
-    return api.post('/tasks', data)
-  },
-  
-  // 接受任务
-  acceptTask: (taskId: number) => {
-    return api.post(`/tasks/${taskId}/accept`)
-  },
-
-  // 取消接单
-  unacceptTask: (taskId: number) => {
-    return api.post(`/tasks/${taskId}/unaccept`)
-  },
-
-  // 获取话题帖评论
-  getTaskComments: (taskId: number) => {
-    return api.get(`/tasks/${taskId}/comments`)
-  },
-
-  // 发表评论或回复
+  }) => requestData(api.post('/tasks', data)),
+  acceptTask: (taskId: number) => requestData(api.post(`/tasks/${taskId}/accept`)),
+  unacceptTask: (taskId: number) => requestData(api.post(`/tasks/${taskId}/unaccept`)),
+  getTaskComments: (taskId: number) => requestData(api.get(`/tasks/${taskId}/comments`)),
   createTaskComment: (taskId: number, data: {
     content: string
     parentId?: number | null
-  }) => {
-    return api.post(`/tasks/${taskId}/comments`, data)
-  },
-
-  // 点赞评论
-  likeTaskComment: (taskId: number, commentId: number) => {
-    return api.post(`/tasks/${taskId}/comments/${commentId}/like`)
-  },
-
-  // 取消评论点赞
-  unlikeTaskComment: (taskId: number, commentId: number) => {
-    return api.delete(`/tasks/${taskId}/comments/${commentId}/like`)
-  },
-
-  // 删除评论或回复
-  deleteTaskComment: (taskId: number, commentId: number) => {
-    return api.delete(`/tasks/${taskId}/comments/${commentId}`)
-  },
-  
-  // 完成任务
-  completeTask: (taskId: number) => {
-    return api.post(`/tasks/${taskId}/complete`)
-  },
-
-  // 获取任务评价
-  getTaskReviews: (taskId: number) => {
-    return api.get(`/tasks/${taskId}/reviews`)
-  },
-
-  // 提交任务评价
+  }) => requestData(api.post(`/tasks/${taskId}/comments`, data)),
+  likeTaskComment: (taskId: number, commentId: number) => requestData(api.post(`/tasks/${taskId}/comments/${commentId}/like`)),
+  unlikeTaskComment: (taskId: number, commentId: number) => requestData(api.delete(`/tasks/${taskId}/comments/${commentId}/like`)),
+  deleteTaskComment: (taskId: number, commentId: number) => requestData(api.delete(`/tasks/${taskId}/comments/${commentId}`)),
+  completeTask: (taskId: number) => requestData(api.post(`/tasks/${taskId}/complete`)),
+  getTaskReviews: (taskId: number) => requestData(api.get(`/tasks/${taskId}/reviews`)),
+  getTaskReviewsBatch: (taskIds: number[]) => requestData(api.get('/task-reviews', { params: { taskIds: taskIds.join(',') } })),
   createTaskReview: (taskId: number, data: {
     rating: number
     content?: string
-  }) => {
-    return api.post(`/tasks/${taskId}/reviews`, data)
-  },
-  
-  // 取消任务
-  cancelTask: (taskId: number) => {
-    return api.post(`/tasks/${taskId}/cancel`)
-  },
-
-  // 删除任务
+  }) => requestData(api.post(`/tasks/${taskId}/reviews`, data)),
+  cancelTask: (taskId: number) => requestData(api.post(`/tasks/${taskId}/cancel`)),
   deleteTask: async (taskId: number) => {
     try {
-      return await api.delete(`/tasks/${taskId}`)
+      return await requestData(api.delete(`/tasks/${taskId}`))
     } catch (error: any) {
       const status = error?.response?.status
       if (status === 404 || status === 405) {
-        return api.post(`/tasks/${taskId}/delete`)
+        return requestData(api.post(`/tasks/${taskId}/delete`))
       }
       throw error
     }
   },
-  
-  // 获取我的任务
-  getMyTasks: () => {
-    return api.get('/tasks/my')
-  },
-
-  // 获取我的服务
-  getMyAcceptedTasks: () => {
-    return api.get('/tasks/my/accepted')
-  },
-
-  // 获取我收到的点赞数
-  getMyReceivedLikeCount: () => {
-    return api.get('/tasks/my/received-likes/count')
-  }
+  getMyTasks: () => requestData(api.get('/tasks/my')),
+  getMyAcceptedTasks: () => requestData(api.get('/tasks/my/accepted')),
+  getMyReceivedLikeCount: () => requestData(api.get('/tasks/my/received-likes/count'))
 }
 
-// 用户相关API
 export const userApi = {
-  // 获取当前用户信息
-  getCurrentUser: () => {
-    return api.get('/users/me')
-  },
-
-  // 获取指定用户信息
-  getUserById: (id: number) => {
-    return api.get(`/users/${id}`)
-  },
-
-  // 获取当前用户积分明细
-  getPointRecords: () => {
-    return api.get('/users/me/points/records')
-  },
-  
-  // 更新用户信息
+  getCurrentUser: () => requestData(api.get('/users/me')),
+  getUserById: (id: number) => requestData(api.get(`/users/${id}`)),
+  getPointRecords: () => requestData(api.get('/users/me/points/records')),
   updateUser: (data: {
     name?: string
     email?: string
     avatarUrl?: string
     major?: string
-  }) => {
-    return api.put('/users/me', data)
-  },
-  
-  // 获取用户设置
-  getUserSettings: () => {
-    return api.get('/users/settings')
-  },
-  
-  // 更新用户设置
+  }) => requestData(api.put('/users/me', data)),
+  getUserSettings: () => requestData(api.get('/users/settings')),
   updateUserSettings: (data: {
     notificationEnabled?: boolean
     theme?: string
     language?: string
-  }) => {
-    return api.put('/users/settings', data)
-  }
+  }) => requestData(api.put('/users/settings', data))
 }
 
 export const adminApi = {
-  getDashboard: () => {
-    return api.get('/admin/dashboard')
-  },
-
-  getUsers: () => {
-    return api.get('/admin/users')
-  },
-
-  updateUserStatus: (userId: number, data: { status: 'ACTIVE' | 'DISABLED'; disabledReason?: string }) => {
-    return api.put(`/admin/users/${userId}/status`, data)
-  },
-
-  getTasks: () => {
-    return api.get('/admin/tasks')
-  },
-
-  reviewTask: (taskId: number, data: { reviewStatus: 'approved' | 'rejected' | 'pending_review'; reviewNote?: string }) => {
-    return api.put(`/admin/tasks/${taskId}/review`, data)
-  },
-
-  getAnnouncements: () => {
-    return api.get('/admin/announcements')
-  },
-
-  createAnnouncement: (data: { title: string; content: string; pinned?: boolean }) => {
-    return api.post('/admin/announcements', data)
-  },
-
-  getFeedback: () => {
-    return api.get('/admin/feedback')
-  },
-
-  updateFeedback: (feedbackId: number, data: { status: 'open' | 'in_progress' | 'resolved'; adminReply?: string }) => {
-    return api.put(`/admin/feedback/${feedbackId}`, data)
-  }
+  getDashboard: () => requestData(api.get('/admin/dashboard')),
+  getUsers: () => requestData(api.get('/admin/users')),
+  updateUserStatus: (userId: number, data: { status: 'ACTIVE' | 'DISABLED'; disabledReason?: string }) => requestData(api.put(`/admin/users/${userId}/status`, data)),
+  getTasks: () => requestData(api.get('/admin/tasks')),
+  reviewTask: (taskId: number, data: { reviewStatus: 'approved' | 'rejected' | 'pending_review'; reviewNote?: string }) => requestData(api.put(`/admin/tasks/${taskId}/review`, data)),
+  getAnnouncements: () => requestData(api.get('/admin/announcements')),
+  createAnnouncement: (data: { title: string; content: string; pinned?: boolean }) => requestData(api.post('/admin/announcements', data)),
+  getFeedback: () => requestData(api.get('/admin/feedback')),
+  updateFeedback: (feedbackId: number, data: { status: 'open' | 'in_progress' | 'resolved'; adminReply?: string }) => requestData(api.put(`/admin/feedback/${feedbackId}`, data))
 }
 
 export const announcementApi = {
-  getAnnouncements: () => {
-    return api.get('/announcements')
-  }
+  getAnnouncements: () => requestData(api.get('/announcements'))
 }
 
 export const feedbackApi = {
-  createFeedback: (data: { type: 'BUG' | 'SUGGESTION' | 'OTHER'; title: string; content: string }) => {
-    return api.post('/feedback', data)
-  },
-
-  getMyFeedback: () => {
-    return api.get('/feedback/my')
-  },
-
-  withdrawFeedback: (feedbackId: number) => {
-    return api.delete(`/feedback/${feedbackId}`)
-  }
+  createFeedback: (data: { type: 'BUG' | 'SUGGESTION' | 'OTHER'; title: string; content: string }) => requestData(api.post('/feedback', data)),
+  getMyFeedback: () => requestData(api.get('/feedback/my')),
+  withdrawFeedback: (feedbackId: number) => requestData(api.delete(`/feedback/${feedbackId}`))
 }
 
-// 消息相关API
 export const messageApi = {
-  // 获取消息列表
-  getMessages: () => {
-    return api.get('/messages')
-  },
-
-  // 获取未读消息数量
-  getUnreadCount: () => {
-    return api.get('/messages/unread/count')
-  },
-  
-  // 发送消息
+  getMessages: () => requestData(api.get('/messages')),
+  getUnreadCount: () => requestData(api.get('/messages/unread/count')),
   sendMessage: (data: {
     receiverId: number
     content: string
     taskId?: number
-  }) => {
-    return api.post('/messages', data)
-  },
-  
-  // 标记消息为已读
-  markAsRead: (messageId: number) => {
-    return api.put(`/messages/${messageId}/read`)
-  }
+  }) => requestData(api.post('/messages', data)),
+  markAsRead: (messageId: number) => requestData(api.put(`/messages/${messageId}/read`))
 }
 
 export default api

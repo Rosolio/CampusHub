@@ -20,7 +20,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public Map<String, Object> login(@RequestBody LoginRequest request) {
-        return authService.login(request);
+        return authService.login(request, request.getStudentId());
     }
 
     @PostMapping("/register")

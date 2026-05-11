@@ -11,6 +11,7 @@ import com.campushub.mapper.UserMapper;
 import com.campushub.mapper.UserSettingMapper;
 import com.campushub.util.JwtUtil;
 import com.campushub.util.PasswordUtil;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,37 +22,50 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class AuthService {
+    private static final int MAX_LOGIN_ATTEMPTS = 5;
+    private static final long LOGIN_ATTEMPT_WINDOW_MINUTES = 15;
 
     private final UserMapper userMapper;
     private final UserLoginLogMapper userLoginLogMapper;
     private final UserSettingMapper userSettingMapper;
     private final PasswordUtil passwordUtil;
     private final JwtUtil jwtUtil;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     public AuthService(
         UserMapper userMapper,
         UserLoginLogMapper userLoginLogMapper,
         UserSettingMapper userSettingMapper,
         PasswordUtil passwordUtil,
-        JwtUtil jwtUtil
+        JwtUtil jwtUtil,
+        RedisTemplate<String, Object> redisTemplate
     ) {
         this.userMapper = userMapper;
         this.userLoginLogMapper = userLoginLogMapper;
         this.userSettingMapper = userSettingMapper;
         this.passwordUtil = passwordUtil;
         this.jwtUtil = jwtUtil;
+        this.redisTemplate = redisTemplate;
     }
 
     public Map<String, Object> login(LoginRequest request) {
+        return login(request, request == null ? null : request.getStudentId());
+    }
+
+    public Map<String, Object> login(LoginRequest request, String loginIdentifier) {
         String identifier = request.getStudentId() == null ? "" : request.getStudentId().trim();
+        enforceLoginRateLimit(loginIdentifier == null ? identifier : loginIdentifier.trim());
         User user = userMapper.selectByLoginIdentifier(identifier);
         if (user == null || !passwordUtil.matches(request.getPassword(), user.getPassword())) {
+            recordLoginFailure(loginIdentifier == null ? identifier : loginIdentifier.trim());
             throw new RuntimeException("用户名/学号或密码错误");
         }
         ensureUserEnabled(user);
+        clearLoginFailures(loginIdentifier == null ? identifier : loginIdentifier.trim());
 
         String token = jwtUtil.generateToken(user.getId());
         String refreshToken = jwtUtil.generateRefreshToken(user.getId());
@@ -62,6 +76,32 @@ public class AuthService {
         result.put("refreshToken", refreshToken);
         result.put("user", user);
         return result;
+    }
+
+    private void enforceLoginRateLimit(String loginIdentifier) {
+        String key = buildLoginAttemptKey(loginIdentifier);
+        Object attempts = redisTemplate.opsForValue().get(key);
+        int currentAttempts = attempts instanceof Number ? ((Number) attempts).intValue() : 0;
+        if (currentAttempts >= MAX_LOGIN_ATTEMPTS) {
+            throw new RuntimeException("登录失败次数过多，请 15 分钟后再试");
+        }
+    }
+
+    private void recordLoginFailure(String loginIdentifier) {
+        String key = buildLoginAttemptKey(loginIdentifier);
+        Long attempts = redisTemplate.opsForValue().increment(key);
+        if (attempts != null && attempts == 1L) {
+            redisTemplate.expire(key, LOGIN_ATTEMPT_WINDOW_MINUTES, TimeUnit.MINUTES);
+        }
+    }
+
+    private void clearLoginFailures(String loginIdentifier) {
+        redisTemplate.delete(buildLoginAttemptKey(loginIdentifier));
+    }
+
+    private String buildLoginAttemptKey(String loginIdentifier) {
+        String normalized = safeTrim(loginIdentifier).toLowerCase(Locale.ROOT);
+        return "auth:login_attempts:" + (normalized.isEmpty() ? "anonymous" : normalized);
     }
 
     @Transactional

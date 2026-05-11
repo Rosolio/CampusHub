@@ -108,21 +108,22 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import AppBottomNav from '../../components/AppBottomNav.vue'
 import AppTopNav from '../../components/AppTopNav.vue'
 import FormField from '../../components/FormField.vue'
 import PageBackHeader from '../../components/PageBackHeader.vue'
+import { DEFAULT_AVATAR_URL } from '../../constants/assets'
 import { userApi } from '../../services/api'
+import { setStoredUser, storedUser } from '../../utils/auth'
 
 type FeedbackState = {
   message: string
   type: 'success' | 'error'
 }
 
-const defaultAvatarUrl = 'https://lh3.googleusercontent.com/aida-public/AB6AXuCiLbFU7pVFtxNTritARAKtsfLckW_wkjJiV2rFKqMWcFko9ZyzywXKfI-beY8PsNlDPydquagUKI84JRDA61Il8JyKkTo4eTEC6V7rDTLEh7sxndlLckhzr39wS8y2q791sv60bcongp65uejTweYf1EuVudjHTuVBVvgbwCXh703jxsVqcXAzjL3h0siDYDx_Pnu6CwTloSJab7yMtGZUWxARsJWav93KRIgI_oAqzSUJqNWf5JCR_glXmXtETxmPfTarhn_Oetl7'
-
-const currentUser = ref<any>(JSON.parse(localStorage.getItem('user') || '{}'))
+const defaultAvatarUrl = DEFAULT_AVATAR_URL
+const currentUser = computed(() => storedUser.value || {})
 const initialAvatarUrl = ref('')
 const avatarInputRef = ref<HTMLInputElement | null>(null)
 const saving = ref(false)
@@ -151,7 +152,6 @@ const majorOptions = [
 ]
 
 const fillForm = (user: any) => {
-  currentUser.value = user || {}
   initialAvatarUrl.value = user?.avatarUrl || ''
   form.value = {
     name: user?.name || '',
@@ -163,10 +163,9 @@ const fillForm = (user: any) => {
 
 const loadCurrentUser = async () => {
   try {
-    const response = await userApi.getCurrentUser() as any
-    const user = response?.data ?? response ?? {}
+    const user = await userApi.getCurrentUser() as Record<string, any>
     fillForm(user)
-    localStorage.setItem('user', JSON.stringify(user))
+    setStoredUser(user)
   } catch (error) {
     console.error('加载个人资料失败:', error)
     fillForm(currentUser.value)
@@ -222,16 +221,14 @@ const handleSave = async () => {
   feedback.value = { message: '', type: 'success' }
 
   try {
-    const response = await userApi.updateUser({
+    const updatedUser = await userApi.updateUser({
       name: form.value.name.trim(),
       email: form.value.email.trim(),
       major: form.value.major.trim(),
       avatarUrl: form.value.avatarUrl || ''
-    }) as any
-
-    const updatedUser = response?.data ?? response ?? {}
+    }) as Record<string, any>
     fillForm(updatedUser)
-    localStorage.setItem('user', JSON.stringify(updatedUser))
+    setStoredUser(updatedUser)
     feedback.value = { message: '个人资料已保存，头像展示已同步更新。', type: 'success' }
   } catch (error: any) {
     console.error('保存个人资料失败:', error)

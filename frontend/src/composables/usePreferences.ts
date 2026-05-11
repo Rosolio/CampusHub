@@ -240,8 +240,7 @@ export const initializePreferences = async () => {
       if (!hasValidAuthToken()) return
 
       try {
-        const response = await userApi.getUserSettings() as any
-        const remote = response?.data ?? response ?? {}
+        const remote = await userApi.getUserSettings() as Record<string, any>
         mergePreferences({
           notificationEnabled: typeof remote.notificationEnabled === 'boolean'
             ? remote.notificationEnabled

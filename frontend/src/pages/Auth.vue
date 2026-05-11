@@ -103,7 +103,7 @@
             <div class="space-y-2">
               <div class="flex justify-between items-center px-1">
                 <label class="block text-sm font-semibold text-on-surface-variant" for="password">密码</label>
-                <a class="text-xs font-bold text-primary hover:underline" href="#">忘记密码？</a>
+                <button class="text-xs font-bold text-primary hover:underline" type="button" @click="handleForgotPassword">忘记密码？</button>
               </div>
               <div class="relative">
                 <span
@@ -268,7 +268,7 @@
                 type="checkbox"
                 v-model="registerForm.agree"
               />
-              <label class="text-sm font-medium text-on-surface-variant cursor-pointer" for="reg-agree">我已阅读并同意 <a class="text-primary hover:underline" href="#">用户协议</a> 和 <a class="text-primary hover:underline" href="#">隐私政策</a></label>
+              <label class="text-sm font-medium text-on-surface-variant cursor-pointer" for="reg-agree">我已阅读并同意 <RouterLink class="text-primary hover:underline" to="/settings/agreement">用户协议</RouterLink> 和 <RouterLink class="text-primary hover:underline" to="/settings/privacy">隐私政策</RouterLink></label>
             </div>
 
             <button
@@ -420,8 +420,10 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { showToast } from '../composables/useToast'
 import { authApi } from '../services/api'
+import { setAuthSession } from '../utils/auth'
 
 const route = useRoute()
 const router = useRouter()
@@ -493,16 +495,13 @@ const handleLogin = async () => {
   error.value = ''
 
   try {
-    const response = await authApi.login(loginForm.value.studentId, loginForm.value.password) as any
-    const payload = response?.data ?? response
+    const payload = await authApi.login(loginForm.value.studentId, loginForm.value.password) as Record<string, any>
     const token = payload?.accessToken ?? payload?.token
     const refreshToken = payload?.refreshToken
     const user = payload?.user
 
     if (token && user) {
-      localStorage.setItem('token', token)
-      localStorage.setItem('refreshToken', refreshToken || '')
-      localStorage.setItem('user', JSON.stringify(user))
+      setAuthSession({ token, refreshToken, user })
       router.push('/')
     } else {
       error.value = payload?.message || '登录失败'
@@ -545,21 +544,18 @@ const handleRegister = async () => {
   error.value = ''
 
   try {
-    const response = await authApi.register({
+    const payload = await authApi.register({
       studentId: registerForm.value.studentId,
       name: registerForm.value.name,
       email: registerForm.value.email,
       password: registerForm.value.password
-    }) as any
-    const payload = response?.data ?? response
+    }) as Record<string, any>
     const token = payload?.accessToken ?? payload?.token
     const refreshToken = payload?.refreshToken
     const user = payload?.user
 
     if (token && user) {
-      localStorage.setItem('token', token)
-      localStorage.setItem('refreshToken', refreshToken || '')
-      localStorage.setItem('user', JSON.stringify(user))
+      setAuthSession({ token, refreshToken, user })
       router.push('/')
     } else {
       error.value = payload?.message || '注册失败'
@@ -587,6 +583,10 @@ const closeThirdPartyDialog = () => {
   resetThirdPartyForm()
 }
 
+const handleForgotPassword = () => {
+  showToast('请联系管理员或校园统一身份认证入口重置密码。', 'info')
+}
+
 const handleThirdPartyLogin = async () => {
   if (!thirdPartyForm.value.providerUserId.trim()) {
     error.value = selectedProvider.value === 'QQ' ? '请输入 QQ 账号标识' : '请输入统一身份认证账号'
@@ -597,21 +597,18 @@ const handleThirdPartyLogin = async () => {
   error.value = ''
 
   try {
-    const response = await authApi.thirdPartyLogin({
+    const payload = await authApi.thirdPartyLogin({
       provider: selectedProvider.value,
       providerUserId: thirdPartyForm.value.providerUserId.trim(),
       displayName: thirdPartyForm.value.displayName.trim(),
       email: thirdPartyForm.value.email.trim()
-    }) as any
-    const payload = response?.data ?? response
+    }) as Record<string, any>
     const token = payload?.accessToken ?? payload?.token
     const refreshToken = payload?.refreshToken
     const user = payload?.user
 
     if (token && user) {
-      localStorage.setItem('token', token)
-      localStorage.setItem('refreshToken', refreshToken || '')
-      localStorage.setItem('user', JSON.stringify(user))
+      setAuthSession({ token, refreshToken, user })
       closeThirdPartyDialog()
       router.push('/')
     } else {

@@ -511,52 +511,21 @@
       </div>
     </div>
 
-    <!-- Bottom Navigation Bar (Mobile) -->
-    <nav
-      class="md:hidden bg-white/90 backdrop-blur-lg fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-6 pb-6 pt-3 rounded-t-3xl shadow-[0_-4px_20px_rgba(0,52,57,0.05)]"
-    >
-      <RouterLink
-        to="/"
-        class="flex flex-col items-center justify-center transition-transform"
-        :class="isActive('/') ? 'bg-teal-800 text-white dark:bg-teal-400 dark:text-teal-950 rounded-2xl px-5 py-2 scale-90' : 'text-teal-800/50 dark:text-teal-400/50'"
-      >
-        <span class="material-symbols-outlined" :data-weight="isActive('/') ? 'fill' : 'regular'">home</span>
-        <span class="text-[10px] font-semibold uppercase tracking-wider mt-1">社区</span>
-      </RouterLink>
-      <RouterLink
-        to="/publish"
-        class="flex flex-col items-center justify-center transition-transform"
-        :class="isActive('/publish') ? 'bg-teal-800 text-white dark:bg-teal-400 dark:text-teal-950 rounded-2xl px-5 py-2 scale-90' : 'text-teal-800/50 dark:text-teal-400/50'"
-      >
-        <span class="material-symbols-outlined">{{ isActive('/publish') ? 'add_circle' : 'add_circle' }}</span>
-        <span class="text-[10px] font-semibold uppercase tracking-wider mt-1">发布</span>
-      </RouterLink>
-      <RouterLink
-        to="/messages"
-        class="flex flex-col items-center justify-center transition-transform"
-        :class="isActive('/messages') ? 'bg-teal-800 text-white dark:bg-teal-400 dark:text-teal-950 rounded-2xl px-5 py-2 scale-90' : 'text-teal-800/50 dark:text-teal-400/50'"
-      >
-        <span class="material-symbols-outlined">{{ isActive('/messages') ? 'chat_bubble' : 'chat_bubble' }}</span>
-        <span class="text-[10px] font-semibold uppercase tracking-wider mt-1">消息</span>
-      </RouterLink>
-      <RouterLink
-        to="/profile"
-        class="flex flex-col items-center justify-center transition-transform"
-        :class="isActive('/profile') || isActive('/tasks') ? 'bg-teal-800 text-white dark:bg-teal-400 dark:text-teal-950 rounded-2xl px-5 py-2 scale-90' : 'text-teal-800/50 dark:text-teal-400/50'"
-      >
-        <span class="material-symbols-outlined" :data-weight="(isActive('/profile') || isActive('/tasks')) ? 'fill' : 'regular'">person</span>
-        <span class="text-[10px] font-semibold uppercase tracking-wider mt-1">个人中心</span>
-      </RouterLink>
-    </nav>
+    <AppBottomNav />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
+import AppBottomNav from '../components/AppBottomNav.vue'
 import AppTopNav from '../components/AppTopNav.vue'
+import { useConfirm } from '../composables/useConfirm'
 import { usePreferences } from '../composables/usePreferences'
+import { showToast } from '../composables/useToast'
+import { DEFAULT_AVATAR_URL, DEFAULT_TASK_IMAGE } from '../constants/assets'
 import { taskApi, userApi } from '../services/api'
+import { storedUser, setStoredUser } from '../utils/auth'
 
 type TabKey = 'requests' | 'topics' | 'services'
 type StatusFilter = 'all' | 'active' | 'completed' | 'canceled'
@@ -565,11 +534,11 @@ const props = defineProps<{
   initialTab?: TabKey
 }>()
 
-const route = useRoute()
 const router = useRouter()
 const { formatLocaleDateTime } = usePreferences()
+const { openConfirm } = useConfirm()
 const activeTab = ref<TabKey>(props.initialTab ?? 'requests')
-const currentUser = ref<any>(JSON.parse(localStorage.getItem('user') || '{}'))
+const currentUser = computed(() => storedUser.value || {})
 const myTasks = ref<any[]>([])
 const myServiceTasks = ref<any[]>([])
 const receivedLikeCount = ref(0)
@@ -584,8 +553,8 @@ const receivedReviewCount = ref(0)
 const showPointRecordsDialog = ref(false)
 const pointRecordsLoading = ref(false)
 const pointRecords = ref<any[]>([])
-const defaultAvatarUrl = 'https://lh3.googleusercontent.com/aida-public/AB6AXuCiLbFU7pVFtxNTritARAKtsfLckW_wkjJiV2rFKqMWcFko9ZyzywXKfI-beY8PsNlDPydquagUKI84JRDA61Il8JyKkTo4eTEC6V7rDTLEh7sxndlLckhzr39wS8y2q791sv60bcongp65uejTweYf1EuVudjHTuVBVvgbwCXh703jxsVqcXAzjL3h0siDYDx_Pnu6CwTloSJab7yMtGZUWxARsJWav93KRIgI_oAqzSUJqNWf5JCR_glXmXtETxmPfTarhn_Oetl7'
-const defaultTaskImage = 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=600&q=80'
+const defaultAvatarUrl = DEFAULT_AVATAR_URL
+const defaultTaskImage = DEFAULT_TASK_IMAGE
 const statusFilters: Array<{ label: string; value: StatusFilter }> = [
   { label: '全部订单', value: 'all' },
   { label: '进行中', value: 'active' },
@@ -687,11 +656,6 @@ const historyEmptyText = computed(() => {
     : '接下社区里的跑腿需求后，这里会显示你当前服务中的任务和已完成记录。'
 })
 
-const isActive = (path: string) => {
-  return route.path === path
-}
-
-// 跳转到发布页面
 const goToPublish = () => {
   router.push('/publish')
 }
@@ -778,8 +742,7 @@ const normalizeNumberResponse = (response: any) => {
 const fetchPointRecords = async () => {
   pointRecordsLoading.value = true
   try {
-    const response = await userApi.getPointRecords() as any
-    pointRecords.value = Array.isArray(response) ? response : Array.isArray(response?.data) ? response.data : []
+      pointRecords.value = await userApi.getPointRecords() as any[]
   } catch (error) {
     console.error('加载积分明细失败:', error)
     pointRecords.value = []
@@ -813,33 +776,28 @@ const fetchReviewStatuses = async (requestTasks: any[], serviceTasks: any[]) => 
   }
 
   const currentUserId = Number(currentUser.value?.id)
-  const reviewResponses = await Promise.all(completedTaskIds.map(async (taskId) => {
-    try {
-      const response = await taskApi.getTaskReviews(taskId) as any
-      const reviews = normalizeResponseList(response)
-      return { taskId, reviews }
-    } catch (error) {
-      console.error(`获取任务 ${taskId} 的互评状态失败:`, error)
-      return { taskId, reviews: [] }
-    }
-  }))
+  try {
+    const [reviewCounts, receivedReviews] = await Promise.all([
+      taskApi.getTaskReviewsBatch(completedTaskIds) as Promise<Record<string, number>>,
+      Promise.all(completedTaskIds.map((taskId) => taskApi.getTaskReviews(taskId)))
+    ])
 
-  taskReviewStatusMap.value = Object.fromEntries(
-    reviewResponses.map(({ taskId, reviews }) => [taskId, reviews.length >= 2 ? 'completed' : 'pending'] as const)
-  )
+    taskReviewStatusMap.value = Object.fromEntries(
+      completedTaskIds.map((taskId) => [taskId, Number(reviewCounts?.[taskId] ?? 0) >= 2 ? 'completed' : 'pending'] as const)
+    )
 
-  const receivedReviews = reviewResponses
-    .flatMap(({ reviews }) => reviews)
-    .filter((review) => Number(review?.revieweeId) === currentUserId)
-
-  receivedReviewCount.value = receivedReviews.length
-  if (receivedReviews.length === 0) {
+    const flattenedReviews = receivedReviews.flatMap((reviews) => normalizeResponseList(reviews))
+    const ownReviews = flattenedReviews.filter((review) => Number(review?.revieweeId) === currentUserId)
+    receivedReviewCount.value = ownReviews.length
+    receivedReviewAverage.value = ownReviews.length === 0
+      ? 0
+      : ownReviews.reduce((sum, review) => sum + Number(review?.rating || 0), 0) / ownReviews.length
+  } catch (error) {
+    console.error('批量获取互评状态失败:', error)
+    taskReviewStatusMap.value = {}
     receivedReviewAverage.value = 0
-    return
+    receivedReviewCount.value = 0
   }
-
-  const ratingSum = receivedReviews.reduce((sum, review) => sum + Number(review?.rating || 0), 0)
-  receivedReviewAverage.value = ratingSum / receivedReviews.length
 }
 
 const fetchProfileData = async () => {
@@ -849,11 +807,10 @@ const fetchProfileData = async () => {
       taskApi.getMyTasks(),
       taskApi.getMyAcceptedTasks(),
       taskApi.getMyReceivedLikeCount()
-    ]) as any
+    ])
 
     if (userResponse) {
-      currentUser.value = userResponse
-      localStorage.setItem('user', JSON.stringify(userResponse))
+      setStoredUser(userResponse)
     }
 
     myTasks.value = normalizeResponseList(taskResponse)
@@ -871,11 +828,16 @@ const fetchProfileData = async () => {
 
 const handleDeleteTask = async (task: any) => {
   if (isDeleteDisabled(task.status)) {
-    alert('进行中或已完成的需求暂不支持删除')
+    showToast('进行中或已完成的需求暂不支持删除', 'error')
     return
   }
 
-  const confirmed = window.confirm(`确认删除“${task.title}”吗？删除后将无法恢复。`)
+  const confirmed = await openConfirm({
+    title: '确认删除需求',
+    message: `确认删除“${task.title}”吗？删除后将无法恢复。`,
+    confirmText: '删除',
+    tone: 'danger'
+  })
   if (!confirmed) {
     return
   }
@@ -893,18 +855,20 @@ const handleDeleteTask = async (task: any) => {
       responseData?.error ||
       (typeof responseData === 'string' ? responseData : '') ||
       '删除失败，请稍后重试'
-    alert(message)
+    showToast(message, 'error')
   } finally {
     deletingTaskId.value = null
   }
 }
 
 const handleCompleteTask = async (task: any) => {
-  const confirmed = window.confirm(
-    task.status === 'completion_pending'
+  const confirmed = await openConfirm({
+    title: task.status === 'completion_pending' ? '确认任务完成' : '提交完成申请',
+    message: task.status === 'completion_pending'
       ? `确认“${task.title}”已经完成吗？确认后将正式结束并进入互评。`
-      : `确认提交“${task.title}”的完成申请吗？提交后会等待对方确认。`
-  )
+      : `确认提交“${task.title}”的完成申请吗？提交后会等待对方确认。`,
+    confirmText: '确认'
+  })
   if (!confirmed) {
     return
   }
@@ -932,14 +896,19 @@ const handleCompleteTask = async (task: any) => {
       responseData?.error ||
       (typeof responseData === 'string' ? responseData : '') ||
       '完成任务失败，请稍后重试'
-    alert(message)
+    showToast(message, 'error')
   } finally {
     completingTaskId.value = null
   }
 }
 
 const handleUnacceptTask = async (task: any) => {
-  const confirmed = window.confirm(`确认取消接单“${task.title}”吗？取消后任务会重新回到社区首页。`)
+  const confirmed = await openConfirm({
+    title: '确认取消接单',
+    message: `确认取消接单“${task.title}”吗？取消后任务会重新回到社区首页。`,
+    confirmText: '确认取消',
+    tone: 'danger'
+  })
   if (!confirmed) {
     return
   }
@@ -956,7 +925,7 @@ const handleUnacceptTask = async (task: any) => {
       responseData?.error ||
       (typeof responseData === 'string' ? responseData : '') ||
       '取消接单失败，请稍后重试'
-    alert(message)
+    showToast(message, 'error')
   } finally {
     cancelingServiceTaskId.value = null
   }

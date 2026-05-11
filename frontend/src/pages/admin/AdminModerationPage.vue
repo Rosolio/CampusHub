@@ -152,11 +152,20 @@ const loadTasks = async () => {
 }
 
 const reviewTask = async (task: AdminTask, reviewStatus: 'approved' | 'rejected' | 'pending_review') => {
-  const reviewNote = window.prompt('请输入审核备注（可留空）', task.reviewNote || '') || ''
+  const reviewNote = window.prompt('请输入审核备注（可留空）', task.reviewNote || '')
+  if (reviewNote === null) {
+    return
+  }
   pendingTaskIds.value.add(task.id)
   try {
     await adminApi.reviewTask(task.id, { reviewStatus, reviewNote })
-    tasks.value = tasks.value.filter((item) => item.id !== task.id)
+    if (reviewStatus === 'pending_review') {
+      tasks.value = tasks.value.map((item) => (
+        item.id === task.id ? { ...item, reviewStatus, reviewNote } : item
+      ))
+    } else {
+      tasks.value = tasks.value.filter((item) => item.id !== task.id)
+    }
   } catch (err: any) {
     error.value = err?.response?.data?.message || '内容审核失败'
   } finally {

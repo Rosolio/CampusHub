@@ -174,9 +174,19 @@ PREPARE stmt FROM @modify_users_avatar_url;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 
-UPDATE users
-SET role = COALESCE(NULLIF(role, ''), 'USER'),
-    status = COALESCE(NULLIF(status, ''), 'ACTIVE');
+SET @normalize_users = IF(
+    EXISTS (
+        SELECT 1
+        FROM users
+        WHERE role IS NULL OR role = '' OR status IS NULL OR status = ''
+        LIMIT 1
+    ),
+    'UPDATE users SET role = COALESCE(NULLIF(role, ''''), ''USER''), status = COALESCE(NULLIF(status, ''''), ''ACTIVE'')',
+    'SELECT 1'
+);
+PREPARE stmt FROM @normalize_users;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
 SET @add_tasks_category = IF(
     EXISTS (
@@ -208,23 +218,45 @@ PREPARE stmt FROM @add_tasks_task_mode;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 
-UPDATE tasks
-SET category = CASE
-        WHEN badge_secondary = '校园配送' THEN '跑腿代办'
-        WHEN badge_secondary = '闲置交换' THEN '二手闲置'
-        WHEN badge_secondary = '信息求助' THEN '打听求助'
-        WHEN badge_secondary = '社交互助' THEN '恋爱交友'
-        WHEN badge_secondary = '兼职机会' THEN '兼职招聘'
-        ELSE COALESCE(category, badge_secondary, '跑腿代办')
-    END
-WHERE category IS NULL OR category = '';
+SET @normalize_tasks_category = IF(
+    EXISTS (
+        SELECT 1
+        FROM tasks
+        WHERE category IS NULL OR category = ''
+        LIMIT 1
+    ),
+    'UPDATE tasks SET category = CASE
+            WHEN badge_secondary = ''校园配送'' THEN ''跑腿代办''
+            WHEN badge_secondary = ''闲置交换'' THEN ''二手闲置''
+            WHEN badge_secondary = ''信息求助'' THEN ''打听求助''
+            WHEN badge_secondary = ''社交互助'' THEN ''恋爱交友''
+            WHEN badge_secondary = ''兼职机会'' THEN ''兼职招聘''
+            ELSE COALESCE(category, badge_secondary, ''跑腿代办'')
+        END
+    WHERE category IS NULL OR category = ''''',
+    'SELECT 1'
+);
+PREPARE stmt FROM @normalize_tasks_category;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
-UPDATE tasks
-SET task_mode = CASE
-        WHEN category = '跑腿代办' THEN 'task'
-        ELSE 'topic'
-    END
-WHERE task_mode IS NULL OR task_mode = '';
+SET @normalize_tasks_mode = IF(
+    EXISTS (
+        SELECT 1
+        FROM tasks
+        WHERE task_mode IS NULL OR task_mode = ''
+        LIMIT 1
+    ),
+    'UPDATE tasks SET task_mode = CASE
+            WHEN category IN (''跑腿代办'', ''学习辅导'') THEN ''task''
+            ELSE ''topic''
+        END
+    WHERE task_mode IS NULL OR task_mode = ''''',
+    'SELECT 1'
+);
+PREPARE stmt FROM @normalize_tasks_mode;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
 SET @add_tasks_contact_info = IF(
     EXISTS (

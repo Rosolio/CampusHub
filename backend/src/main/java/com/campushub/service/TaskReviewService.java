@@ -13,7 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class TaskReviewService {
@@ -42,6 +44,26 @@ public class TaskReviewService {
     public List<TaskReview> getTaskReviews(Long taskId) {
         ensureReviewableTask(taskId);
         return taskReviewMapper.selectByTaskId(taskId);
+    }
+
+    public Map<Long, Integer> getTaskReviewCounts(List<Long> taskIds) {
+        Map<Long, Integer> result = new LinkedHashMap<>();
+        if (taskIds == null || taskIds.isEmpty()) {
+            return result;
+        }
+
+        for (Long taskId : taskIds) {
+            ensureReviewableTask(taskId);
+            result.put(taskId, 0);
+        }
+
+        for (Map<String, Object> row : taskReviewMapper.countByTaskIds(taskIds)) {
+            Long taskId = ((Number) row.get("taskId")).longValue();
+            int reviewCount = ((Number) row.get("reviewCount")).intValue();
+            result.put(taskId, reviewCount);
+        }
+
+        return result;
     }
 
     @Transactional

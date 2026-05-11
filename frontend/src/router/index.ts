@@ -1,28 +1,29 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeGateway from '../pages/HomeGateway.vue'
-import TopicSquare from '../pages/TopicSquare.vue'
-import RequestDetail from '../pages/RequestDetail.vue'
-import TaskReviewPage from '../pages/TaskReviewPage.vue'
-import Profile from '../pages/Profile.vue'
-import Auth from '../pages/Auth.vue'
-import Messages from '../pages/Messages.vue'
-import Settings from '../pages/Settings.vue'
-import Publish from '../pages/Publish.vue'
-import FeedbackPage from '../pages/FeedbackPage.vue'
-import ProfileSettings from '../pages/settings/ProfileSettings.vue'
-import NotificationSettings from '../pages/settings/NotificationSettings.vue'
-import ThemeSettings from '../pages/settings/ThemeSettings.vue'
-import LanguageSettings from '../pages/settings/LanguageSettings.vue'
-import AboutCampusHub from '../pages/settings/AboutCampusHub.vue'
-import PrivacyPolicy from '../pages/settings/PrivacyPolicy.vue'
-import UserAgreement from '../pages/settings/UserAgreement.vue'
-import AdminLayout from '../pages/admin/AdminLayout.vue'
-import AdminOverviewPage from '../pages/admin/AdminOverviewPage.vue'
-import AdminUsersPage from '../pages/admin/AdminUsersPage.vue'
-import AdminModerationPage from '../pages/admin/AdminModerationPage.vue'
-import AdminProfilePage from '../pages/admin/AdminProfilePage.vue'
-import AdminCommunityFeedPage from '../pages/admin/AdminCommunityFeedPage.vue'
 import { hasValidAuthToken, isAdminUser } from '../utils/auth'
+
+const HomeGateway = () => import('../pages/HomeGateway.vue')
+const TopicSquare = () => import('../pages/TopicSquare.vue')
+const RequestDetail = () => import('../pages/RequestDetail.vue')
+const TaskReviewPage = () => import('../pages/TaskReviewPage.vue')
+const Profile = () => import('../pages/Profile.vue')
+const Auth = () => import('../pages/Auth.vue')
+const Messages = () => import('../pages/Messages.vue')
+const Settings = () => import('../pages/Settings.vue')
+const Publish = () => import('../pages/Publish.vue')
+const FeedbackPage = () => import('../pages/FeedbackPage.vue')
+const ProfileSettings = () => import('../pages/settings/ProfileSettings.vue')
+const NotificationSettings = () => import('../pages/settings/NotificationSettings.vue')
+const ThemeSettings = () => import('../pages/settings/ThemeSettings.vue')
+const LanguageSettings = () => import('../pages/settings/LanguageSettings.vue')
+const AboutCampusHub = () => import('../pages/settings/AboutCampusHub.vue')
+const PrivacyPolicy = () => import('../pages/settings/PrivacyPolicy.vue')
+const UserAgreement = () => import('../pages/settings/UserAgreement.vue')
+const AdminLayout = () => import('../pages/admin/AdminLayout.vue')
+const AdminOverviewPage = () => import('../pages/admin/AdminOverviewPage.vue')
+const AdminUsersPage = () => import('../pages/admin/AdminUsersPage.vue')
+const AdminModerationPage = () => import('../pages/admin/AdminModerationPage.vue')
+const AdminProfilePage = () => import('../pages/admin/AdminProfilePage.vue')
+const AdminCommunityFeedPage = () => import('../pages/admin/AdminCommunityFeedPage.vue')
 
 const router = createRouter({
   history: createWebHistory(),

@@ -523,8 +523,12 @@ import { computed, onMounted, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import AppBottomNav from '../components/AppBottomNav.vue'
 import AppTopNav from '../components/AppTopNav.vue'
+import { useConfirm } from '../composables/useConfirm'
 import { usePreferences } from '../composables/usePreferences'
+import { DEFAULT_AVATAR_URL } from '../constants/assets'
 import { messageApi, taskApi, userApi } from '../services/api'
+import { setStoredUser, storedUser } from '../utils/auth'
+import { inferTaskMode, normalizeTask as normalizeTaskRecord } from '../utils/tasks'
 
 type FeedbackType = 'success' | 'error'
 type CommentNode = any & { children: any[] }
@@ -533,10 +537,11 @@ const props = defineProps<{ id: string }>()
 
 const router = useRouter()
 const { formatLocaleDateTime } = usePreferences()
+const { openConfirm } = useConfirm()
 
-const defaultAvatarUrl = 'https://lh3.googleusercontent.com/aida-public/AB6AXuDeXWwurmf7TZNlFaxpQ4N9cUqjIOp0LS96VhYcYf185KeqTd4xoDC5zDnZXuyz0rPWpKhC4ba_hynr8lnO8q6p3XV7x3xNlMa2DSut8QJvZfUVM2qf5PC2-N0AYVms42RiY4_P94jUh4mT59Hebcq7dghdwvFEuHsNZnEE-dIvmt6o_lbkR6PbC5eBwdRyiJQDuuP4OpAAMsyQrL-AHsU8Gt5aUDTvEzoe_LNthLkmawY2jV4fB5Kx0E0sooeg65eOCnt0Ldnv1HnC'
+const defaultAvatarUrl = DEFAULT_AVATAR_URL
 const request = ref<any>({})
-const currentUser = ref<any>(JSON.parse(localStorage.getItem('user') || '{}'))
+const currentUser = computed(() => storedUser.value || {})
 const acceptedTaskIds = ref<number[]>([])
 const comments = ref<any[]>([])
 const commentSortMode = ref<'likes' | 'latest'>('likes')
@@ -558,12 +563,7 @@ const contactError = ref('')
 const feedbackMessage = ref('')
 const feedbackType = ref<FeedbackType>('success')
 
-const isTopicPost = computed(() => {
-  if (request.value?.taskMode) {
-    return request.value.taskMode === 'topic'
-  }
-  return request.value?.category && !['跑腿代办', '学习辅导'].includes(request.value.category)
-})
+const isTopicPost = computed(() => inferTaskMode(request.value) === 'topic')
 
 const isOwnTask = computed(() => {
   const currentUserId = Number(currentUser.value?.id)
@@ -836,14 +836,12 @@ const canDeleteComment = (comment: any) => {
   )
 }
 
-const normalizeTask = (task: any) => {
+const normalizeRequestTask = (task: any) => {
   const category = task?.category || inferCategory(task)
-  const resolvedTaskMode = ['跑腿代办', '学习辅导'].includes(category) ? 'task' : 'topic'
-  return {
+  return normalizeTaskRecord({
     ...task,
-    category,
-    taskMode: task?.taskMode === resolvedTaskMode ? task.taskMode : resolvedTaskMode
-  }
+    category
+  })
 }
 
 const inferCategory = (task: any) => {
@@ -875,8 +873,7 @@ const formatDateTime = (value?: string) => {
 
 const fetchTaskDetail = async () => {
   try {
-    const response = await taskApi.getTaskById(Number(props.id)) as any
-    request.value = normalizeTask(response?.data ?? response ?? {})
+    request.value = normalizeRequestTask(await taskApi.getTaskById(Number(props.id)))
     if (isTopicPost.value) {
       await fetchComments()
       reviews.value = []
@@ -896,8 +893,7 @@ const fetchReviews = async () => {
   if (isTopicPost.value) return
   reviewsLoading.value = true
   try {
-    const response = await taskApi.getTaskReviews(Number(props.id)) as any
-    reviews.value = Array.isArray(response) ? response : Array.isArray(response?.data) ? response.data : []
+    reviews.value = await taskApi.getTaskReviews(Number(props.id)) as any[]
   } catch (error: any) {
     console.error('获取评价失败:', error)
     reviews.value = []
@@ -911,8 +907,7 @@ const fetchReviews = async () => {
 
 const fetchAcceptedTasks = async () => {
   try {
-    const response = await taskApi.getMyAcceptedTasks() as any
-    const tasks = Array.isArray(response) ? response : Array.isArray(response?.data) ? response.data : []
+    const tasks = await taskApi.getMyAcceptedTasks() as any[]
     acceptedTaskIds.value = tasks.map((task: any) => Number(task.id)).filter((id: number) => Number.isFinite(id))
   } catch (error) {
     console.error('获取我的服务失败:', error)
@@ -924,8 +919,7 @@ const fetchComments = async () => {
   if (!isTopicPost.value) return
   commentsLoading.value = true
   try {
-    const response = await taskApi.getTaskComments(Number(props.id)) as any
-    comments.value = Array.isArray(response) ? response : Array.isArray(response?.data) ? response.data : []
+    comments.value = await taskApi.getTaskComments(Number(props.id)) as any[]
     request.value = {
       ...request.value,
       commentCount: comments.value.length
@@ -1007,10 +1001,9 @@ const submitComment = async () => {
       parentId: replyTarget.value?.id ?? null
     })
     commentForm.value.content = ''
-    const latestUser = await userApi.getCurrentUser() as any
+    const latestUser = await userApi.getCurrentUser() as Record<string, any>
     if (latestUser) {
-      currentUser.value = latestUser
-      localStorage.setItem('user', JSON.stringify(latestUser))
+      setStoredUser(latestUser)
     }
     setFeedback(replyTarget.value ? '回复已发布。' : '评论已发布。', 'success')
     cancelReply()
@@ -1104,7 +1097,12 @@ const handleDeleteTask = async () => {
     return
   }
 
-  const confirmed = window.confirm(`确认删除“${request.value.title || '这条帖子'}”吗？删除后将无法恢复。`)
+  const confirmed = await openConfirm({
+    title: '确认删除内容',
+    message: `确认删除“${request.value.title || '这条帖子'}”吗？删除后将无法恢复。`,
+    confirmText: '删除',
+    tone: 'danger'
+  })
   if (!confirmed) {
     return
   }
@@ -1143,10 +1141,10 @@ const toggleTopicLike = async () => {
     const response = isTopicLiked.value
       ? await taskApi.unlikeTask(Number(props.id))
       : await taskApi.likeTask(Number(props.id))
-    const payload = response as any
-    request.value = normalizeTask({
+    const nextTaskState = (response && typeof response === 'object') ? response as Record<string, any> : {}
+    request.value = normalizeRequestTask({
       ...request.value,
-      ...(payload?.data ?? payload ?? {})
+      ...nextTaskState
     })
   } catch (error: any) {
     console.error('帖子点赞操作失败:', error)
@@ -1173,8 +1171,7 @@ const toggleCommentLike = async (comment: any) => {
     const response = comment.likedByCurrentUser
       ? await taskApi.unlikeTaskComment(Number(props.id), commentId)
       : await taskApi.likeTaskComment(Number(props.id), commentId)
-    const payload = response as any
-    const nextComment = payload?.data ?? payload ?? {}
+    const nextComment = response as Record<string, any>
     patchCommentLikeState(commentId, Boolean(nextComment.likedByCurrentUser), Number(nextComment.likeCount || 0))
   } catch (error: any) {
     console.error('评论点赞操作失败:', error)
@@ -1192,10 +1189,10 @@ const handleAcceptTask = async () => {
 
   acceptLoading.value = true
   try {
-    const response = await taskApi.acceptTask(Number(props.id)) as any
-    request.value = normalizeTask({
+    const response = await taskApi.acceptTask(Number(props.id)) as Record<string, any>
+    request.value = normalizeRequestTask({
       ...request.value,
-      ...(response?.data ?? response ?? {}),
+      ...response,
       status: 'accepted'
     })
     if (!acceptedTaskIds.value.includes(Number(props.id))) {
@@ -1217,17 +1214,22 @@ const handleUnacceptTask = async () => {
     return
   }
 
-  const confirmed = window.confirm(`确认取消接单“${request.value.title || '这项任务'}”吗？取消后任务会重新变为可接单状态。`)
+  const confirmed = await openConfirm({
+    title: '确认取消接单',
+    message: `确认取消接单“${request.value.title || '这项任务'}”吗？取消后任务会重新变为可接单状态。`,
+    confirmText: '确认取消',
+    tone: 'danger'
+  })
   if (!confirmed) {
     return
   }
 
   acceptLoading.value = true
   try {
-    const response = await taskApi.unacceptTask(Number(props.id)) as any
-    request.value = normalizeTask({
+    const response = await taskApi.unacceptTask(Number(props.id)) as Record<string, any>
+    request.value = normalizeRequestTask({
       ...request.value,
-      ...(response?.data ?? response ?? {}),
+      ...response,
       status: 'pending'
     })
     acceptedTaskIds.value = acceptedTaskIds.value.filter((id) => id !== Number(props.id))
@@ -1248,26 +1250,27 @@ const handleCompleteTask = async () => {
     return
   }
 
-  const confirmed = window.confirm(
-    request.value.status === 'completion_pending'
+  const confirmed = await openConfirm({
+    title: request.value.status === 'completion_pending' ? '确认任务完成' : '提交完成申请',
+    message: request.value.status === 'completion_pending'
       ? `确认“${request.value.title || '这项任务'}”已经完成吗？确认后将正式结束并进入互评。`
-      : `确认提交“${request.value.title || '这项任务'}”的完成申请吗？提交后会等待对方确认。`
-  )
+      : `确认提交“${request.value.title || '这项任务'}”的完成申请吗？提交后会等待对方确认。`,
+    confirmText: '确认'
+  })
   if (!confirmed) {
     return
   }
 
   acceptLoading.value = true
   try {
-    const response = await taskApi.completeTask(Number(props.id)) as any
-    request.value = normalizeTask({
+    const response = await taskApi.completeTask(Number(props.id)) as Record<string, any>
+    request.value = normalizeRequestTask({
       ...request.value,
-      ...(response?.data ?? response ?? {})
+      ...response
     })
     if (request.value.status === 'completed') {
       acceptedTaskIds.value = acceptedTaskIds.value.filter((id) => id !== Number(props.id))
-      const refreshedUser = await taskApi.getTaskById(Number(props.id)) as any
-      request.value = normalizeTask(refreshedUser?.data ?? refreshedUser ?? request.value)
+      request.value = normalizeRequestTask(await taskApi.getTaskById(Number(props.id)))
       setFeedback('双方已确认完成，任务已结束，现在可以互相评价。', 'success')
       await fetchAcceptedTasks()
       await fetchReviews()

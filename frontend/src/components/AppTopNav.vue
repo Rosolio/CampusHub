@@ -67,9 +67,10 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
+import { DEFAULT_AVATAR_URL } from '../constants/assets'
 import { usePreferences } from '../composables/usePreferences'
 import { messageApi } from '../services/api'
-import { getStoredUser, hasValidAuthToken } from '../utils/auth'
+import { hasValidAuthToken, storedUser } from '../utils/auth'
 
 const props = withDefaults(defineProps<{
   avatarUrl?: string
@@ -84,16 +85,13 @@ const { t } = usePreferences()
 const unreadCount = ref(0)
 let unreadTimer: number | null = null
 
-const defaultAvatarUrl = 'https://images.unsplash.com/photo-1522556189639-b150d1e7cd5f?auto=format&fit=crop&w=200&q=80'
-
 const resolvedAvatarUrl = computed(() => {
   if (props.avatarUrl) return props.avatarUrl
 
-  const user = getStoredUser()
-  return user?.avatarUrl || defaultAvatarUrl
+  return storedUser.value?.avatarUrl || DEFAULT_AVATAR_URL
 })
 
-const isAdmin = computed(() => String(getStoredUser()?.role || '').toUpperCase() === 'ADMIN')
+const isAdmin = computed(() => String(storedUser.value?.role || '').toUpperCase() === 'ADMIN')
 const profileLink = computed(() => isAdmin.value ? '/admin/profile' : '/profile')
 const desktopItems = computed(() => (
   isAdmin.value
@@ -139,8 +137,8 @@ const fetchUnreadCount = async () => {
   }
 
   try {
-    const response = await messageApi.getUnreadCount() as any
-    unreadCount.value = Number(response?.count ?? response?.data?.count ?? 0)
+    const response = await messageApi.getUnreadCount() as { count?: number }
+    unreadCount.value = Number(response?.count ?? 0)
   } catch (error) {
     console.error('获取未读消息数量失败:', error)
   }
@@ -151,7 +149,7 @@ onMounted(() => {
     fetchUnreadCount()
     unreadTimer = window.setInterval(() => {
       fetchUnreadCount()
-    }, 15000)
+    }, 60000)
   }
 })
 

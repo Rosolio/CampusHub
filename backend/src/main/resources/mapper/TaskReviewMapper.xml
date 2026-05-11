@@ -44,6 +44,16 @@
         ORDER BY tr.created_at ASC
     </select>
 
+    <select id="countByTaskIds" resultType="map">
+        SELECT task_id AS taskId, COUNT(*) AS reviewCount
+        FROM task_reviews
+        WHERE task_id IN
+        <foreach collection="taskIds" item="taskId" open="(" separator="," close=")">
+            #{taskId}
+        </foreach>
+        GROUP BY task_id
+    </select>
+
     <select id="selectByTaskIdAndReviewerId" resultMap="TaskReviewResultMap">
         SELECT tr.*,
                reviewer.name AS reviewer_name,

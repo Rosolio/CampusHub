@@ -171,6 +171,7 @@ import AppBottomNav from '../components/AppBottomNav.vue'
 import AppTopNav from '../components/AppTopNav.vue'
 import FormField from '../components/FormField.vue'
 import { usePreferences } from '../composables/usePreferences'
+import { showToast } from '../composables/useToast'
 import { taskApi } from '../services/api'
 
 type Mode = 'task' | 'topic'
@@ -255,6 +256,9 @@ const validateForm = () => {
   if (!form.value.location.trim()) return activeConfig.value.mode === 'task' ? '请填写任务地点' : '请填写补充信息'
   if (activeConfig.value.mode === 'topic' && form.value.topicLongTerm) return ''
   if (!form.value.deadline.trim()) return '请填写截止时间'
+  const deadline = new Date(form.value.deadline.trim())
+  if (Number.isNaN(deadline.getTime())) return '截止时间格式不合法'
+  if (deadline.getTime() <= Date.now()) return '截止时间必须晚于当前时间'
   return ''
 }
 
@@ -301,12 +305,12 @@ const submitForm = async () => {
       expiresAt: !isTaskMode && form.value.topicLongTerm ? undefined : form.value.deadline.trim()
     }
 
-    const response = await taskApi.createTask(payload) as any
+    const response = await taskApi.createTask(payload) as Record<string, any>
     if (!response?.id) {
       throw new Error('服务器返回了无效结果')
     }
 
-    alert(activeCategory.value.mode === 'task' ? '接单任务发布成功！' : '话题帖发布成功！')
+    showToast(activeCategory.value.mode === 'task' ? '接单任务发布成功！' : '话题帖发布成功！', 'success')
     router.push(`/detail/${response.id}`)
   } catch (err: any) {
     error.value = err?.response?.data?.message || err?.message || '发布失败，请稍后重试'

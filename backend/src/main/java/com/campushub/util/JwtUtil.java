@@ -32,6 +32,9 @@ public class JwtUtil {
     @PostConstruct
     public void init() {
         try {
+            if (secret == null || secret.trim().length() < 32) {
+                throw new IllegalStateException("JWT_SECRET must be at least 32 characters long");
+            }
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] keyBytes = digest.digest(secret.getBytes(StandardCharsets.UTF_8));
             this.signingKey = Keys.hmacShaKeyFor(keyBytes);

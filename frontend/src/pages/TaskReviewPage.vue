@@ -169,14 +169,17 @@ import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import AppBottomNav from '../components/AppBottomNav.vue'
 import AppTopNav from '../components/AppTopNav.vue'
+import { DEFAULT_AVATAR_URL } from '../constants/assets'
 import { taskApi, userApi } from '../services/api'
+import { setStoredUser, storedUser } from '../utils/auth'
+import { normalizeTask as normalizeTaskRecord } from '../utils/tasks'
 
 type FeedbackType = 'success' | 'error'
 
 const props = defineProps<{ id: string }>()
 
-const defaultAvatarUrl = 'https://lh3.googleusercontent.com/aida-public/AB6AXuDeXWwurmf7TZNlFaxpQ4N9cUqjIOp0LS96VhYcYf185KeqTd4xoDC5zDnZXuyz0rPWpKhC4ba_hynr8lnO8q6p3XV7x3xNlMa2DSut8QJvZfUVM2qf5PC2-N0AYVms42RiY4_P94jUh4mT59Hebcq7dghdwvFEuHsNZnEE-dIvmt6o_lbkR6PbC5eBwdRyiJQDuuP4OpAAMsyQrL-AHsU8Gt5aUDTvEzoe_LNthLkmawY2jV4fB5Kx0E0sooeg65eOCnt0Ldnv1HnC'
-const currentUser = ref<any>(JSON.parse(localStorage.getItem('user') || '{}'))
+const defaultAvatarUrl = DEFAULT_AVATAR_URL
+const currentUser = computed(() => storedUser.value || {})
 const request = ref<any>({})
 const reviews = ref<any[]>([])
 const reviewsLoading = ref(false)
@@ -292,11 +295,9 @@ const setRating = (star: number) => {
 
 const refreshCurrentUser = async () => {
   try {
-    const response = await userApi.getCurrentUser() as any
-    const latestUser = response?.data ?? response ?? null
+    const latestUser = await userApi.getCurrentUser() as Record<string, any>
     if (latestUser) {
-      currentUser.value = latestUser
-      localStorage.setItem('user', JSON.stringify(latestUser))
+      setStoredUser(latestUser)
     }
   } catch (error) {
     console.error('刷新当前用户积分失败:', error)
@@ -322,19 +323,15 @@ const inferCategory = (task: any) => {
 }
 
 const normalizeTask = (task: any) => {
-  const category = task?.category || inferCategory(task)
-  const resolvedTaskMode = ['跑腿代办', '学习辅导'].includes(category) ? 'task' : 'topic'
-  return {
+  return normalizeTaskRecord({
     ...task,
-    category,
-    taskMode: task?.taskMode === resolvedTaskMode ? task.taskMode : resolvedTaskMode
-  }
+    category: task?.category || inferCategory(task)
+  })
 }
 
 const fetchTaskDetail = async () => {
   try {
-    const response = await taskApi.getTaskById(Number(props.id)) as any
-    request.value = normalizeTask(response?.data ?? response ?? {})
+    request.value = normalizeTask(await taskApi.getTaskById(Number(props.id)))
   } catch (error: any) {
     console.error('获取互评页面任务详情失败:', error)
     request.value = {}
@@ -345,8 +342,7 @@ const fetchTaskDetail = async () => {
 const fetchReviews = async () => {
   reviewsLoading.value = true
   try {
-    const response = await taskApi.getTaskReviews(Number(props.id)) as any
-    reviews.value = Array.isArray(response) ? response : Array.isArray(response?.data) ? response.data : []
+    reviews.value = await taskApi.getTaskReviews(Number(props.id)) as any[]
   } catch (error: any) {
     console.error('获取评价失败:', error)
     reviews.value = []

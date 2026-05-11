@@ -59,6 +59,17 @@ public class MessageService {
         if (message == null) {
             throw new RuntimeException("消息不存在");
         }
+        return markAsRead(messageId, message.getReceiverId());
+    }
+
+    public Message markAsRead(Long messageId, Long currentUserId) {
+        Message message = messageMapper.selectById(messageId);
+        if (message == null) {
+            throw new RuntimeException("消息不存在");
+        }
+        if (!currentUserId.equals(message.getReceiverId())) {
+            throw new RuntimeException("无权修改该消息状态");
+        }
         message.setStatus("read");
         messageMapper.update(message);
         return message;

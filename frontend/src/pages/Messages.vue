@@ -279,7 +279,9 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import AppTopNav from '../components/AppTopNav.vue'
 import { usePreferences } from '../composables/usePreferences'
+import { DEFAULT_AVATAR_URL } from '../constants/assets'
 import { messageApi } from '../services/api'
+import { storedUser } from '../utils/auth'
 
 type RawMessage = {
   id: number
@@ -336,8 +338,8 @@ const sendError = ref('')
 const messageViewport = ref<HTMLElement | null>(null)
 const isNearBottom = ref(true)
 const newMessageNoticeCount = ref(0)
-const currentUser = ref<any>(JSON.parse(localStorage.getItem('user') || '{}'))
-const defaultAvatarUrl = 'https://lh3.googleusercontent.com/aida-public/AB6AXuCOQnuGoFcAqeEFMJteUOgHptCQdIyhAtBx2vC2MrMRpF11efp1LrTWSPwS8r6k-OyiHFoF2OfVqZJYwz6b0n-viTFqYK7Rr5uc4W7W06ndrCmcXicExI_d9oIfanXrlq_ZlhNzMCY2HtfdjJj9l5tCfZETmlVGjBeFPzmCWRM7yHZ1zY3MZSOQo2k0HN-SBYXgIoyszTT5b5sOWMDVE8QsA56jc5TS6fZu35fHQgPbAJ4QxjlEXQnGib7bq-h8fUnntaPalmjkoh_m'
+const currentUser = computed(() => storedUser.value || {})
+const defaultAvatarUrl = DEFAULT_AVATAR_URL
 let pollingTimer: number | null = null
 
 const normalizeMessages = (response: any): RawMessage[] => {
@@ -672,7 +674,7 @@ const fetchMessages = async (options?: { silent?: boolean }) => {
   }
 
   try {
-    const response = await messageApi.getMessages() as any
+    const response = await messageApi.getMessages() as RawMessage[]
     const previousSelectedKey = selectedKey.value
     const previousMessageCount = selectedConversation.value?.messages.length ?? 0
     const previousSelectedConversation = selectedConversation.value
@@ -724,14 +726,14 @@ const handleSendMessage = async () => {
   sendError.value = ''
 
   try {
-    const response = await messageApi.sendMessage({
+    const payload = await messageApi.sendMessage({
       receiverId: selectedConversation.value.counterpartId,
       taskId: selectedConversation.value.taskId ?? undefined,
       content: composer.value.trim()
-    }) as any
-    const payload = response?.data ?? response ?? {}
+    }) as Record<string, any>
     messages.value.push({
       ...payload,
+      id: Number(payload.id ?? Date.now()),
       senderId: Number(payload.senderId ?? currentUser.value?.id),
       receiverId: Number(payload.receiverId ?? selectedConversation.value.counterpartId),
       taskId: payload.taskId ?? selectedConversation.value.taskId,

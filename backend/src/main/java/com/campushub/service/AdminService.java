@@ -91,6 +91,7 @@ public class AdminService {
 
         String nextReviewStatus = normalizeReviewStatus(request.getReviewStatus());
         String reviewNote = trimToNull(request.getReviewNote());
+        String previousReviewStatus = task.getReviewStatus();
 
         task.setReviewStatus(nextReviewStatus);
         task.setReviewNote(reviewNote);
@@ -99,7 +100,7 @@ public class AdminService {
         task.setUpdatedAt(LocalDateTime.now());
         taskMapper.update(task);
 
-        if ("rejected".equals(nextReviewStatus)) {
+        if ("rejected".equals(nextReviewStatus) && !"rejected".equals(previousReviewStatus)) {
             userService.adjustScore(task.getRequesterId(), BigDecimal.valueOf(-1));
             String reasonSuffix = reviewNote == null ? "请修改后重新提交。" : "原因：" + reviewNote;
             messageService.sendSystemTaskMessage(
