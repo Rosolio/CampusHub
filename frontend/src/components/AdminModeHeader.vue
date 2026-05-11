@@ -44,15 +44,12 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
-import { clearAuthStorage, getStoredUser } from '../utils/auth'
-
-const router = useRouter()
+import { RouterLink } from 'vue-router'
+import { getStoredUser, logoutAndRedirect } from '../utils/auth'
 
 const displayName = computed(() => getStoredUser()?.name || '管理员')
 
 const logout = async () => {
-  clearAuthStorage()
-  await router.push('/auth?tab=login')
+  logoutAndRedirect()
 }
 </script>

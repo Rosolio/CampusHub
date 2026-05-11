@@ -53,6 +53,17 @@ export const clearAuthStorage = () => {
   emitAuthChanged()
 }
 
+export const redirectToLogin = () => {
+  if (typeof window !== 'undefined') {
+    window.location.replace('/auth?tab=login')
+  }
+}
+
+export const logoutAndRedirect = () => {
+  clearAuthStorage()
+  redirectToLogin()
+}
+
 export const setStoredToken = (token: string) => {
   localStorage.setItem(TOKEN_KEY, token)
   emitAuthChanged()

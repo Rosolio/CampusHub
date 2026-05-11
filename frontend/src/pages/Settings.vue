@@ -48,14 +48,12 @@ import SettingsItem from '../components/SettingsItem.vue'
 import SettingsSection from '../components/SettingsSection.vue'
 import AppTopNav from '../components/AppTopNav.vue'
 import { usePreferences } from '../composables/usePreferences'
+import { logoutAndRedirect } from '../utils/auth'
 
 const router = useRouter()
 const { t } = usePreferences()
 
 const handleLogout = () => {
-  localStorage.removeItem('token')
-  localStorage.removeItem('refreshToken')
-  localStorage.removeItem('user')
-  router.push('/auth?tab=login')
+  logoutAndRedirect()
 }
 </script>
