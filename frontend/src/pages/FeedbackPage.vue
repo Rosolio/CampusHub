@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-surface font-body text-on-surface pb-24 md:pb-0">
-    <AppTopNav :show-avatar="false" />
+    <AppTopNav />
 
     <main class="mx-auto max-w-5xl px-6 pb-12 pt-24">
       <RouterLink to="/home" class="inline-flex items-center gap-2 text-sm font-medium text-on-surface-variant transition hover:text-primary">

@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-surface font-body text-on-surface">
-    <AppTopNav :show-avatar="false" />
+    <AppTopNav />
 
     <main class="mx-auto max-w-7xl px-6 pb-32 pt-24">
       <section class="mb-8 grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">

@@ -1,6 +1,6 @@
 <template>
   <div class="bg-surface font-body text-on-surface min-h-screen pb-24 md:pb-0">
-    <AppTopNav :show-avatar="false" />
+    <AppTopNav />
 
     <main class="pt-24 px-6 max-w-5xl mx-auto">
       <PageBackHeader />

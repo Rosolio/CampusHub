@@ -1,7 +1,7 @@
 <template>
   <div class="bg-background text-on-surface min-h-screen pb-24 md:pb-0 md:pt-20">
     <!-- Top Navigation Bar -->
-    <AppTopNav :show-avatar="false" />
+    <AppTopNav />
 
     <main class="max-w-7xl mx-auto px-6 pt-8 pb-12">
       <h1 class="text-3xl font-bold text-on-surface mb-8">{{ t('settingsTitle') }}</h1>

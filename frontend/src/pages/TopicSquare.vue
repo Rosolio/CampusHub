@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-surface font-body text-on-surface">
-    <AppTopNav :show-avatar="false" />
+    <AppTopNav />
 
     <main class="mx-auto max-w-7xl px-6 pb-32 pt-24">
       <section class="mb-10 overflow-hidden rounded-[2.75rem] bg-gradient-to-br from-teal-950 via-cyan-900 to-sky-700 p-8 text-white shadow-sm md:p-10">
