@@ -18,3 +18,7 @@ CampusHub 是一个面向校园场景的互助服务平台，支持信息发布�
 - 需求分析、设计说明、测试记录等文档位于 `docs`
 
 如需查看更具体的实现或文档，请进入对应目录阅读。
+
+## 许可证
+
+本项目采用 [MIT License](/Users/Zhuanz/Documents/sec-ii-2026/LICENSE:1)。
