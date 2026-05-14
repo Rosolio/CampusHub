@@ -1,21 +1,18 @@
 <template>
-  <div class="min-h-screen bg-background text-on-background pb-24 md:pb-0">
+  <div class="page-shell min-h-screen bg-background text-on-background">
     <AppTopNav :avatar-url="currentUser.avatarUrl || defaultAvatarUrl" />
 
-    <main class="mx-auto max-w-6xl px-6 pb-12 pt-24">
-      <RouterLink to="/" class="mb-8 inline-flex items-center gap-2 font-medium text-on-surface-variant transition-colors hover:text-primary">
-        <span class="material-symbols-outlined text-lg">arrow_back</span>
-        返回列表
-      </RouterLink>
+    <main class="page-shell-main max-w-6xl">
+      <PageBackHeader to="/" label="返回列表" />
 
       <div v-if="feedbackMessage" class="mb-6 rounded-2xl border px-4 py-3 text-sm font-medium" :class="feedbackType === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-rose-200 bg-rose-50 text-rose-700'">
         {{ feedbackMessage }}
       </div>
 
-      <div class="grid gap-8 lg:grid-cols-[1.5fr_0.9fr]">
+      <div class="grid gap-6 lg:grid-cols-[1.45fr_0.95fr]">
         <section class="space-y-8">
           <article class="overflow-hidden rounded-[2rem] shadow-sm" :class="isTopicPost ? topicHeroClass : 'bg-surface-container-lowest'">
-            <div v-if="isTopicPost" class="p-8">
+            <div v-if="isTopicPost" class="p-6 md:p-8">
               <div class="mb-6 flex flex-wrap gap-3">
                 <span class="rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.24em] text-white">
                   话题帖
@@ -51,7 +48,7 @@
                 </p>
               </div>
 
-              <div class="mt-8 grid gap-4 md:grid-cols-3">
+              <div class="mt-6 grid gap-4 md:grid-cols-3">
                 <div class="rounded-3xl bg-white/10 px-5 py-4 text-white">
                   <p class="text-xs font-bold uppercase tracking-[0.22em] text-white/60">补充信息</p>
                   <p class="mt-3 font-semibold">{{ request.locationText || '待补充' }}</p>
@@ -71,7 +68,7 @@
                 <p class="mt-3 whitespace-pre-wrap break-words font-semibold">{{ request.contactInfo }}</p>
               </div>
 
-              <div class="mt-8 rounded-[1.75rem] bg-white/10 p-5 text-white">
+              <div class="mt-6 rounded-[1.75rem] bg-white/10 p-5 text-white">
                 <div class="flex items-start gap-3">
                   <div class="rounded-2xl bg-white p-3 text-teal-900">
                     <span class="material-symbols-outlined">workspace_premium</span>
@@ -86,8 +83,8 @@
               </div>
             </div>
 
-            <div v-else class="p-8">
-              <div class="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
+            <div v-else class="p-6 md:p-8">
+              <div class="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
                 <div>
                   <div class="mb-6 flex flex-wrap gap-3">
                     <span class="rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-[0.24em]" :class="request.badgePrimary === '紧急' ? 'bg-rose-100 text-rose-700' : 'bg-sky-100 text-sky-700'">
@@ -108,7 +105,7 @@
                     {{ request.description || '暂无详细描述。' }}
                   </p>
 
-                  <div class="mt-8 grid gap-4 md:grid-cols-3">
+                  <div class="mt-6 grid gap-4 md:grid-cols-3">
                     <div class="rounded-[1.75rem] bg-teal-900 px-5 py-5 text-white shadow-sm">
                       <p class="text-xs font-bold uppercase tracking-[0.22em] text-white/65">{{ request.rewardTitle || '任务奖励' }}</p>
                       <p class="mt-3 text-2xl font-extrabold leading-tight">{{ request.rewardText || '待补充' }}</p>
@@ -173,7 +170,7 @@
             </div>
           </article>
 
-          <section v-if="isTopicPost" class="rounded-[2rem] bg-surface-container-lowest p-8 shadow-sm">
+          <section v-if="isTopicPost" class="rounded-[2rem] bg-surface-container-lowest p-6 shadow-sm md:p-8">
             <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h2 class="text-2xl font-extrabold text-on-surface">评论区</h2>
@@ -207,7 +204,7 @@
                 :placeholder="replyTarget ? '写下你的回复...' : '写下你的评论，发布后可获得 5 积分...'"
                 :disabled="isExpiredTopic"
               ></textarea>
-              <div class="mt-4 flex items-center justify-between gap-3">
+              <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <p class="text-sm text-on-surface-variant">公开回复会展示在帖子下方，方便其他同学继续参与讨论。</p>
                 <button
                   type="button"
@@ -228,8 +225,8 @@
                 还没有评论，来做第一个互动的人吧。
               </div>
               <div v-for="(comment, index) in commentTree" :key="comment.id" class="rounded-[1.75rem] border border-outline-variant/12 bg-white p-5 shadow-sm">
-                <div class="flex items-start justify-between gap-4">
-                  <div>
+                <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                  <div class="min-w-0">
                     <div class="flex flex-wrap items-center gap-2">
                       <p class="font-bold text-on-surface">{{ comment.authorName || `用户 #${comment.authorId}` }}</p>
                       <span
@@ -244,7 +241,7 @@
                     </div>
                     <p class="mt-1 text-xs text-on-surface-variant">{{ comment.authorMajor || '校园用户' }} · {{ formatDateTime(comment.createdAt) }}</p>
                   </div>
-                  <div class="flex items-center gap-2">
+                  <div class="flex flex-wrap items-center gap-2 md:justify-end">
                     <button
                       type="button"
                       class="inline-flex items-center gap-1 rounded-full px-3 py-2 text-sm font-semibold transition-colors"
@@ -275,8 +272,8 @@
 
                 <div v-if="comment.children.length" class="mt-5 space-y-3 border-l border-surface-container-high pl-4">
                   <div v-for="reply in comment.children" :key="reply.id" class="rounded-2xl bg-surface-container-low px-4 py-4">
-                    <div class="flex items-start justify-between gap-4">
-                      <div>
+                    <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                      <div class="min-w-0">
                         <div class="flex flex-wrap items-center gap-2">
                           <p class="font-bold text-on-surface">
                           {{ reply.authorName || `用户 #${reply.authorId}` }}
@@ -291,10 +288,10 @@
                         </div>
                         <p class="mt-1 text-xs text-on-surface-variant">{{ formatDateTime(reply.createdAt) }}</p>
                       </div>
-                      <div class="flex items-center gap-3">
+                      <div class="flex flex-wrap items-center gap-3 md:justify-end">
                         <button
                           type="button"
-                          class="inline-flex items-center gap-1 text-sm font-semibold transition-colors"
+                          class="inline-flex items-center gap-1 rounded-full bg-white px-3 py-2 text-sm font-semibold transition-colors"
                           :class="reply.likedByCurrentUser ? 'text-rose-600' : 'text-on-surface-variant hover:text-rose-600'"
                           :disabled="isExpiredTopic || isCommentLikeLoading(reply.id) || Number(reply.authorId) === Number(currentUser.id)"
                           @click="toggleCommentLike(reply)"
@@ -302,13 +299,13 @@
                           <span class="material-symbols-outlined text-base">{{ reply.likedByCurrentUser ? 'favorite' : 'favorite_border' }}</span>
                           {{ isCommentLikeLoading(reply.id) ? '处理中...' : (reply.likeCount || 0) }}
                         </button>
-                        <button type="button" class="text-sm font-semibold text-primary disabled:cursor-not-allowed disabled:opacity-50" :disabled="isExpiredTopic" @click="startReply(reply)">
+                        <button type="button" class="rounded-full bg-white px-4 py-2 text-sm font-semibold text-primary disabled:cursor-not-allowed disabled:opacity-50" :disabled="isExpiredTopic" @click="startReply(reply)">
                           回复
                         </button>
                         <button
                           v-if="canDeleteComment(reply)"
                           type="button"
-                          class="text-sm font-semibold text-rose-600 transition-colors hover:text-rose-700 disabled:cursor-not-allowed disabled:opacity-50"
+                          class="rounded-full bg-white px-4 py-2 text-sm font-semibold text-rose-600 transition-colors hover:text-rose-700 disabled:cursor-not-allowed disabled:opacity-50"
                           :disabled="isCommentDeleteLoading(reply.id)"
                           @click="deleteComment(reply)"
                         >
@@ -325,7 +322,7 @@
         </section>
 
         <aside class="space-y-6">
-          <section class="rounded-[2rem] bg-surface-container-lowest p-8 shadow-sm">
+          <section class="rounded-[2rem] bg-surface-container-lowest p-6 shadow-sm md:p-8">
             <div class="mb-6 text-center">
               <div class="relative mb-4 inline-block">
                 <img
@@ -340,7 +337,7 @@
               <p class="text-sm font-medium text-on-surface-variant">{{ profilePanelMajor }}</p>
             </div>
 
-            <div class="mb-8 grid grid-cols-2 gap-4">
+            <div class="mb-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div class="rounded-2xl bg-surface-container-low p-4 text-center">
                 <p class="mb-1 text-xs font-bold uppercase tracking-tight text-on-surface-variant">评分</p>
                 <div class="flex items-center justify-center gap-1 text-primary">
@@ -366,19 +363,19 @@
             </button>
           </section>
 
-          <section class="rounded-[2rem] border border-outline-variant/15 bg-surface-container-high/40 p-8">
-            <p class="mb-6 text-sm font-bold uppercase tracking-widest text-on-surface-variant">当前模式</p>
+          <section class="rounded-[2rem] border border-outline-variant/15 bg-surface-container-high/40 p-6 md:p-8">
+            <p class="mb-5 text-sm font-bold uppercase tracking-[0.18em] text-on-surface-variant">当前模式</p>
             <div v-if="isTopicPost" class="space-y-4">
               <div class="rounded-3xl bg-white px-5 py-4">
                 <p class="text-xs font-bold uppercase tracking-[0.2em] text-on-surface-variant">互动统计</p>
-                <div class="mt-4 grid grid-cols-2 gap-3">
+                <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <div class="rounded-2xl bg-surface-container-low px-4 py-4 text-center">
                     <p class="text-xs font-bold uppercase tracking-[0.18em] text-on-surface-variant">点赞数</p>
-                    <p class="mt-2 text-3xl font-extrabold text-teal-900">{{ topicLikeCount }}</p>
+                    <p class="mt-2 text-2xl font-extrabold text-teal-900">{{ topicLikeCount }}</p>
                   </div>
                   <div class="rounded-2xl bg-surface-container-low px-4 py-4 text-center">
                     <p class="text-xs font-bold uppercase tracking-[0.18em] text-on-surface-variant">评论数</p>
-                    <p class="mt-2 text-3xl font-extrabold text-teal-900">{{ topicCommentCount }}</p>
+                    <p class="mt-2 text-2xl font-extrabold text-teal-900">{{ topicCommentCount }}</p>
                   </div>
                 </div>
                 <p class="mt-3 text-sm text-on-surface-variant">当前帖子累计点赞与评论互动数据。</p>
@@ -416,7 +413,7 @@
 
               <div class="rounded-3xl bg-white px-5 py-4">
                 <p class="text-xs font-bold uppercase tracking-[0.2em] text-on-surface-variant">订单进度</p>
-                <div class="mt-4 grid grid-cols-2 gap-3">
+                <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <div class="rounded-2xl px-4 py-4" :class="isCompletionConfirmedByRequester ? 'bg-emerald-50 text-emerald-800' : 'bg-surface-container-low text-on-surface'">
                     <p class="text-xs font-bold uppercase tracking-[0.18em] text-on-surface-variant">需求方确认</p>
                     <p class="mt-2 font-bold">{{ isCompletionConfirmedByRequester ? '已确认' : '待确认' }}</p>
@@ -520,9 +517,10 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import AppBottomNav from '../components/AppBottomNav.vue'
 import AppTopNav from '../components/AppTopNav.vue'
+import PageBackHeader from '../components/PageBackHeader.vue'
 import { useConfirm } from '../composables/useConfirm'
 import { usePreferences } from '../composables/usePreferences'
 import { DEFAULT_AVATAR_URL } from '../constants/assets'

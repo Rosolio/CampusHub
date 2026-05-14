@@ -13,10 +13,10 @@
 
     <!-- Main Auth Container -->
     <main
-      class="relative z-10 w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-0 overflow-hidden rounded-3xl shadow-[0_24px_48px_rgba(0,52,57,0.08)] bg-surface-container-lowest"
+      class="relative z-10 grid w-full max-w-6xl grid-cols-1 overflow-hidden rounded-[2rem] bg-surface-container-lowest shadow-[0_24px_48px_rgba(0,52,57,0.08)] md:grid-cols-[0.9fr_1.1fr] xl:grid-cols-[0.95fr_1.05fr]"
     >
       <!-- Left Column: Branding & Illustration -->
-      <div class="hidden lg:flex lg:col-span-5 bg-surface-container-low p-12 flex-col justify-between relative overflow-hidden">
+      <div class="relative hidden overflow-hidden bg-surface-container-low p-10 md:flex md:flex-col md:justify-between xl:p-12">
         <div class="relative z-10">
           <div class="flex items-center gap-3 mb-12">
             <div class="w-10 h-10 primary-gradient rounded-xl flex items-center justify-center text-white">
@@ -24,10 +24,10 @@
             </div>
             <span class="font-headline text-2xl font-extrabold tracking-tight text-teal-900">CampusHub</span>
           </div>
-          <h1 class="font-headline text-5xl font-extrabold text-on-surface leading-[1.3] tracking-tight mb-6">
+          <h1 class="mb-6 font-headline text-4xl font-extrabold leading-[1.2] tracking-tight text-on-surface xl:text-5xl">
             校园互助，<br /><span class="text-primary">让生活更美好</span>
           </h1>
-          <p class="text-on-surface-variant text-lg max-w-xs leading-relaxed">
+          <p class="max-w-sm text-base leading-relaxed text-on-surface-variant xl:text-lg">
             加入由学生主导的互助网络，共享资源，互相支持。
           </p>
         </div>
@@ -37,10 +37,10 @@
       </div>
 
       <!-- Right Column: Form Section -->
-      <div class="lg:col-span-7 p-8 md:p-16 flex flex-col justify-center bg-surface-container-lowest">
-        <div class="max-w-md mx-auto w-full">
+      <div class="flex flex-col justify-center bg-surface-container-lowest p-6 sm:p-8 md:px-10 md:py-12 xl:px-16">
+        <div class="mx-auto w-full max-w-md lg:max-w-lg">
           <!-- Header Mobile Logo -->
-          <div class="lg:hidden flex items-center gap-2 mb-8">
+          <div class="mb-8 flex items-center gap-2 md:hidden">
             <div class="w-8 h-8 primary-gradient rounded-lg flex items-center justify-center text-white">
               <span class="material-symbols-outlined text-sm" data-icon="volunteer_activism">volunteer_activism</span>
             </div>
@@ -293,9 +293,9 @@
           </div>
 
           <!-- Third Party Logins -->
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
             <button
-              class="flex items-center justify-center gap-3 py-3.5 px-4 bg-surface-container-low hover:bg-surface-container-high transition-colors rounded-xl ghost-border"
+              class="flex min-h-14 items-center justify-center gap-3 rounded-xl bg-surface-container-low px-4 py-3.5 transition-colors hover:bg-surface-container-high ghost-border"
               type="button"
               @click="openThirdPartyDialog('QQ')"
             >
@@ -303,12 +303,12 @@
               <span class="text-sm font-bold text-on-surface font-headline">QQ</span>
             </button>
             <button
-              class="flex items-center justify-center gap-3 py-3.5 px-4 bg-surface-container-low hover:bg-surface-container-high transition-colors rounded-xl ghost-border"
+              class="flex min-h-14 items-center justify-center gap-3 rounded-xl bg-surface-container-low px-4 py-3.5 text-center transition-colors hover:bg-surface-container-high ghost-border"
               type="button"
               @click="openThirdPartyDialog('SSO')"
             >
               <span class="material-symbols-outlined text-teal-800" data-icon="school">school</span>
-              <span class="text-sm font-bold text-on-surface font-headline">统一身份认证 (SSO)</span>
+              <span class="text-sm font-bold text-on-surface font-headline">统一身份认证 SSO</span>
             </button>
           </div>
 
@@ -411,7 +411,7 @@
     </div>
 
     <!-- Footer Security Note -->
-    <footer class="fixed bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2 text-on-surface-variant/60 text-xs font-medium">
+    <footer class="fixed bottom-6 left-1/2 hidden -translate-x-1/2 items-center gap-2 text-on-surface-variant/60 text-xs font-medium md:flex">
       <span class="material-symbols-outlined text-sm" data-icon="verified_user">verified_user</span>
       <span>由校务系统提供的安全身份验证</span>
     </footer>

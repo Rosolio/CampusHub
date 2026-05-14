@@ -2,7 +2,7 @@
   <div class="h-[100dvh] overflow-hidden bg-surface font-body text-on-surface">
     <AppTopNav :avatar-url="currentUser.avatarUrl || defaultAvatarUrl" />
 
-    <main class="mx-auto flex h-full max-w-7xl flex-col px-4 pb-20 pt-20 sm:px-6 md:pb-6 md:pt-24">
+    <main class="mx-auto flex h-full max-w-7xl flex-col px-4 pb-24 pt-20 sm:px-6 md:pb-6 md:pt-24">
       <div class="mb-3 shrink-0">
         <RouterLink
           to="/"
@@ -37,7 +37,7 @@
         {{ fetchError }}
       </div>
 
-      <div class="grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(180px,32vh)_minmax(0,1fr)] gap-4 overflow-hidden lg:grid-cols-[360px_minmax(0,1fr)] lg:grid-rows-1 lg:gap-6">
+      <div class="grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(220px,34vh)_minmax(0,1fr)] gap-4 overflow-hidden lg:grid-cols-[360px_minmax(0,1fr)] lg:grid-rows-1 lg:gap-6">
         <aside class="flex min-h-0 flex-col rounded-[2rem] bg-surface-container-lowest p-4 shadow-sm md:p-5">
           <div class="mb-3 flex shrink-0 items-center justify-between">
             <div>
@@ -239,44 +239,14 @@
       </div>
     </main>
 
-    <nav
-      class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-6 pb-6 pt-3 bg-white/90 backdrop-blur-lg rounded-t-3xl shadow-[0_-4px_20px_rgba(0,52,57,0.05)]"
-    >
-      <RouterLink
-        to="/"
-        class="flex flex-col items-center justify-center text-teal-800/50 dark:text-teal-400/50"
-      >
-        <span class="material-symbols-outlined mb-1" data-icon="home">home</span>
-        <span class="text-[10px] font-semibold uppercase tracking-wider mt-1">{{ t('navHome') }}</span>
-      </RouterLink>
-      <RouterLink
-        to="/publish"
-        class="flex flex-col items-center justify-center text-teal-800/50 dark:text-teal-400/50"
-      >
-        <span class="material-symbols-outlined mb-1" data-icon="add_circle">add_circle</span>
-        <span class="text-[10px] font-semibold uppercase tracking-wider mt-1">{{ t('navPublish') }}</span>
-      </RouterLink>
-      <RouterLink
-        to="/messages"
-        class="flex flex-col items-center justify-center bg-teal-800 text-white rounded-2xl px-5 py-2 active:scale-90 transition-transform"
-      >
-        <span class="material-symbols-outlined mb-1" data-icon="chat_bubble">chat_bubble</span>
-        <span class="text-[10px] font-semibold uppercase tracking-wider mt-1">{{ t('navMessages') }}</span>
-      </RouterLink>
-      <RouterLink
-        to="/profile"
-        class="flex flex-col items-center justify-center text-teal-800/50 dark:text-teal-400/50"
-      >
-        <span class="material-symbols-outlined mb-1" data-icon="person">person</span>
-        <span class="text-[10px] font-semibold uppercase tracking-wider mt-1">{{ t('navProfile') }}</span>
-      </RouterLink>
-    </nav>
+    <AppBottomNav />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
+import AppBottomNav from '../components/AppBottomNav.vue'
 import AppTopNav from '../components/AppTopNav.vue'
 import { usePreferences } from '../composables/usePreferences'
 import { DEFAULT_AVATAR_URL } from '../constants/assets'
@@ -326,7 +296,7 @@ type MessageGroup = {
 
 const route = useRoute()
 const router = useRouter()
-const { formatLocaleDateLabel, formatLocaleDateTime, t } = usePreferences()
+const { formatLocaleDateLabel, formatLocaleDateTime } = usePreferences()
 const messages = ref<RawMessage[]>([])
 const selectedKey = ref('')
 const composer = ref('')

@@ -2,8 +2,8 @@
   <div class="admin-shell min-h-screen font-body text-slate-900">
     <AdminModeHeader />
 
-    <main class="mx-auto flex max-w-7xl gap-6 px-4 pb-10 pt-6 sm:px-6 lg:px-8">
-      <aside class="admin-panel sticky top-[5.5rem] hidden h-[calc(100dvh-7rem)] w-64 shrink-0 flex-col overflow-hidden lg:flex">
+    <main class="mx-auto flex max-w-7xl gap-5 px-4 pb-10 pt-5 sm:px-6 lg:px-8">
+      <aside class="admin-panel sticky top-[5.5rem] hidden h-[calc(100dvh-7rem)] w-60 shrink-0 flex-col overflow-hidden lg:flex">
         <div class="border-b border-slate-200/80 px-5 py-5">
           <div class="flex items-center gap-3">
             <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-950 text-white">
@@ -73,7 +73,7 @@
               </p>
             </div>
 
-            <div class="flex flex-wrap gap-2">
+            <div class="flex flex-wrap gap-2 lg:max-w-[18rem] lg:justify-end">
               <RouterLink
                 v-for="action in quickActions"
                 :key="action.to"
@@ -87,7 +87,7 @@
           </div>
         </div>
 
-        <nav class="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:hidden">
+        <nav class="mb-4 grid grid-cols-2 gap-2 lg:hidden">
           <RouterLink
             v-for="item in navItems"
             :key="item.to"

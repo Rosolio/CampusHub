@@ -1,16 +1,20 @@
 <template>
-  <div class="bg-surface font-body text-on-surface min-h-screen pb-24 md:pb-0">
+  <div class="page-shell bg-surface font-body text-on-surface">
     <AppTopNav />
 
-    <main class="pt-24 px-6 max-w-5xl mx-auto">
+    <main class="page-shell-main page-shell-main--narrow">
       <PageBackHeader />
 
-      <div class="bg-surface-container-lowest rounded-[2rem] p-8 shadow-sm">
-        <h1 class="text-3xl font-extrabold font-headline text-on-surface mb-6">{{ t('languageTitle') }}</h1>
+      <div class="page-card">
+        <div class="page-card-header">
+          <p class="page-kicker">Language Settings</p>
+          <h1 class="page-title">{{ t('languageTitle') }}</h1>
+          <p class="page-description">把应用语言、地区和时间格式集中管理，切换后立即同步到导航和时间展示。</p>
+        </div>
 
         <div class="space-y-6">
-          <div class="space-y-4">
-            <h2 class="text-xl font-bold text-on-surface">{{ t('languageApp') }}</h2>
+          <div class="space-y-4 page-prose">
+            <h2>{{ t('languageApp') }}</h2>
 
             <div class="space-y-2">
               <div
@@ -36,8 +40,8 @@
             </div>
           </div>
 
-          <div class="space-y-4">
-            <h2 class="text-xl font-bold text-on-surface">{{ t('languageRegion') }}</h2>
+          <div class="space-y-4 page-prose">
+            <h2>{{ t('languageRegion') }}</h2>
 
             <FormField :label="t('languageRegionLabel')">
               <select class="w-full px-4 py-3 rounded-xl bg-surface-container-low border border-outline-variant/15 focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all">

@@ -1,8 +1,8 @@
 <template>
-  <div class="mb-8">
+  <div class="mb-6">
     <RouterLink
       :to="to"
-      class="group inline-flex items-center gap-2 text-sm font-semibold text-on-surface-variant transition-colors hover:text-primary"
+      class="group inline-flex items-center gap-2 rounded-full bg-surface-container-low px-4 py-2 text-sm font-semibold text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-primary"
     >
       <span class="material-symbols-outlined text-lg transition-transform group-hover:-translate-x-1">
         arrow_back
