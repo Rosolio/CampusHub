@@ -19,7 +19,7 @@
         <nav class="min-h-0 flex-1 space-y-1.5 overflow-y-auto p-3">
           <RouterLink
             v-for="item in navItems"
-            :key="item.to"
+            :key="item.id"
             :to="item.to"
             class="group flex items-start gap-3 rounded-xl px-3 py-3 text-sm transition"
             :class="isActiveNav(item)
@@ -76,7 +76,7 @@
             <div class="flex flex-wrap gap-2 lg:max-w-[18rem] lg:justify-end">
               <RouterLink
                 v-for="action in quickActions"
-                :key="action.to"
+                :key="action.id"
                 :to="action.to"
                 class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
               >
@@ -90,7 +90,7 @@
         <nav class="mb-4 grid grid-cols-2 gap-2 lg:hidden">
           <RouterLink
             v-for="item in navItems"
-            :key="item.to"
+            :key="item.id"
             :to="item.to"
             class="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-bold transition"
             :class="isActiveNav(item)
@@ -111,10 +111,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
+import type { RouteLocationRaw } from 'vue-router'
 import AdminModeHeader from '../../components/AdminModeHeader.vue'
 
 type NavItem = {
-  to: string
+  id: string
+  to: RouteLocationRaw
+  routePath: string
   label: string
   eyebrow: string
   icon: string
@@ -125,42 +128,54 @@ const route = useRoute()
 
 const navItems: NavItem[] = [
   {
+    id: 'overview',
     to: '/admin/overview',
+    routePath: '/admin/overview',
     label: '总览',
     eyebrow: 'Overview',
     icon: 'monitoring',
     description: '核心指标、趋势和结构分布'
   },
   {
+    id: 'users',
     to: '/admin/users',
+    routePath: '/admin/users',
     label: '用户管理',
     eyebrow: 'Users',
     icon: 'manage_accounts',
     description: '账号状态、禁用与治理操作'
   },
   {
+    id: 'moderation',
     to: '/admin/moderation',
+    routePath: '/admin/moderation',
     label: '内容审核',
     eyebrow: 'Moderation',
     icon: 'gavel',
     description: '处理待审核内容和违规线索'
   },
   {
-    to: '/home#feedback-queue',
+    id: 'feedback',
+    to: { path: '/admin/community', query: { tab: 'feedback' }, hash: '#feedback-queue' },
+    routePath: '/admin/community',
     label: '反馈处理',
     eyebrow: 'Feedback',
     icon: 'reviews',
     description: '处理用户建议、bug 和追踪状态'
   },
   {
-    to: '/admin/community',
+    id: 'community',
+    to: { path: '/admin/community', query: { tab: 'content' } },
+    routePath: '/admin/community',
     label: '社区动态',
     eyebrow: 'Community',
     icon: 'newspaper',
     description: '在管理模式下查看社区内容'
   },
   {
+    id: 'profile',
     to: '/admin/profile',
+    routePath: '/admin/profile',
     label: '个人中心',
     eyebrow: 'Profile',
     icon: 'badge',
@@ -168,19 +183,32 @@ const navItems: NavItem[] = [
   }
 ]
 
-const isActiveNav = (item: NavItem) => item.to === route.path
+const activeCommunityTab = computed(() => route.path === '/admin/community' ? String(route.query.tab || 'content') : '')
+
+const isActiveNav = (item: NavItem) => {
+  if (item.id === 'feedback') {
+    return route.path === '/admin/community' && activeCommunityTab.value === 'feedback'
+  }
+  if (item.id === 'community') {
+    return route.path === '/admin/community' && activeCommunityTab.value !== 'feedback'
+  }
+  return item.routePath === route.path
+}
 
 const activeNavItem = computed(() => navItems.find(isActiveNav) || navItems[0])
 
 const quickActions = computed(() => {
-  const preferred = ['/home#feedback-queue', '/admin/moderation', '/admin/users']
+  const preferred = ['feedback', 'moderation', 'users']
   return preferred
-    .map((path) => navItems.find((item) => item.to === path))
-    .filter((item): item is NavItem => item !== undefined && item.to !== activeNavItem.value.to)
+    .map((id) => navItems.find((item) => item.id === id))
+    .filter((item): item is NavItem => item !== undefined && item.id !== activeNavItem.value.id)
     .slice(0, 2)
 })
 
 const currentPageTitle = computed(() => {
+  if (route.path === '/admin/community' && activeCommunityTab.value === 'feedback') {
+    return '反馈处理'
+  }
   switch (route.path) {
     case '/admin/community':
       return '社区动态'
@@ -196,9 +224,12 @@ const currentPageTitle = computed(() => {
 })
 
 const currentPageDescription = computed(() => {
+  if (route.path === '/admin/community' && activeCommunityTab.value === 'feedback') {
+    return '把待处理反馈、管理员回复和状态流转放在一个工作面板里，避免再跳回前台页面处理。'
+  }
   switch (route.path) {
     case '/admin/community':
-      return '在管理上下文中查看最新社区内容，减少来回切换普通用户视角造成的干扰。'
+      return '将公告发布、社区内容观察和反馈流转收口到同一块后台工作区，减少跨页面切换。'
     case '/admin/users':
       return '集中查看账号状态和治理动作，把搜索、状态判断和执行操作放在同一工作面板。'
     case '/admin/moderation':

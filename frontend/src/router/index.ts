@@ -81,6 +81,9 @@ router.beforeEach((to) => {
   }
 
   if (authenticated && isAdminUser()) {
+    if (to.path === '/home') {
+      return '/admin/community'
+    }
     if (to.path === '/publish' || to.path === '/messages') {
       return '/home'
     }
