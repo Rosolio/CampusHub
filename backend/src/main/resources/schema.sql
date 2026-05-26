@@ -65,6 +65,7 @@ CREATE TABLE IF NOT EXISTS feedback (
     title VARCHAR(255) NOT NULL,
     content TEXT NOT NULL,
     status VARCHAR(32) NOT NULL DEFAULT 'open',
+    priority VARCHAR(32) NOT NULL DEFAULT 'NORMAL',
     admin_reply TEXT NULL,
     admin_id BIGINT NULL,
     handled_at DATETIME NULL,
@@ -372,6 +373,7 @@ SET @create_feedback_table = IF(
         title VARCHAR(255) NOT NULL,
         content TEXT NOT NULL,
         status VARCHAR(32) NOT NULL DEFAULT ''open'',
+        priority VARCHAR(32) NOT NULL DEFAULT ''NORMAL'',
         admin_reply TEXT NULL,
         admin_id BIGINT NULL,
         handled_at DATETIME NULL,
@@ -385,6 +387,30 @@ SET @create_feedback_table = IF(
 PREPARE stmt FROM @create_feedback_table;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
+
+SET @add_feedback_priority = IF(
+    EXISTS (
+        SELECT 1
+        FROM information_schema.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = 'feedback'
+          AND COLUMN_NAME = 'priority'
+    ),
+    'SELECT 1',
+    'ALTER TABLE feedback ADD COLUMN priority VARCHAR(32) NOT NULL DEFAULT ''NORMAL'' AFTER status'
+);
+PREPARE stmt FROM @add_feedback_priority;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+UPDATE feedback
+SET priority = CASE
+        WHEN type IN ('ACCOUNT_REPORT', 'CONTENT_REPORT', 'TASK_DISPUTE') THEN 'HIGH'
+        WHEN type = 'BUG' THEN 'HIGH'
+        WHEN type = 'SUGGESTION' THEN 'NORMAL'
+        ELSE 'NORMAL'
+    END
+WHERE priority IS NULL OR priority = '';
 
 SET @add_tasks_like_count = IF(
     EXISTS (

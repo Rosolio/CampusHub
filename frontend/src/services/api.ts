@@ -224,7 +224,7 @@ export const adminApi = {
   getAnnouncements: () => requestData(api.get('/admin/announcements')),
   createAnnouncement: (data: { title: string; content: string; pinned?: boolean }) => requestData(api.post('/admin/announcements', data)),
   getFeedback: () => requestData(api.get('/admin/feedback')),
-  updateFeedback: (feedbackId: number, data: { status: 'open' | 'in_progress' | 'resolved'; adminReply?: string }) => requestData(api.put(`/admin/feedback/${feedbackId}`, data))
+  updateFeedback: (feedbackId: number, data: { status: 'open' | 'in_progress' | 'resolved'; priority?: 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT'; adminReply?: string }) => requestData(api.put(`/admin/feedback/${feedbackId}`, data))
 }
 
 export const announcementApi = {
@@ -232,7 +232,7 @@ export const announcementApi = {
 }
 
 export const feedbackApi = {
-  createFeedback: (data: { type: 'BUG' | 'SUGGESTION' | 'OTHER'; title: string; content: string }) => requestData(api.post('/feedback', data)),
+  createFeedback: (data: { type: 'BUG' | 'SUGGESTION' | 'TASK_DISPUTE' | 'ACCOUNT_REPORT' | 'CONTENT_REPORT' | 'OTHER'; priority?: 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT'; title: string; content: string }) => requestData(api.post('/feedback', data)),
   getMyFeedback: () => requestData(api.get('/feedback/my')),
   withdrawFeedback: (feedbackId: number) => requestData(api.delete(`/feedback/${feedbackId}`))
 }

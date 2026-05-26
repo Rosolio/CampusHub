@@ -40,10 +40,12 @@ public class FeedbackService {
 
         Feedback feedback = new Feedback();
         feedback.setUserId(userId);
-        feedback.setType(normalizeType(request.getType()));
+        String type = normalizeType(request.getType());
+        feedback.setType(type);
         feedback.setTitle(title);
         feedback.setContent(content);
         feedback.setStatus("open");
+        feedback.setPriority(normalizePriority(request.getPriority(), type));
         feedback.setAdminReply(null);
         feedback.setAdminId(null);
         feedback.setHandledAt(null);
@@ -86,10 +88,20 @@ public class FeedbackService {
             throw new RuntimeException("反馈不存在");
         }
 
+        String previousStatus = feedback.getStatus();
         String previousReply = trimToNull(feedback.getAdminReply());
         String nextReply = trimToNull(request.getAdminReply());
+        String nextStatus = normalizeStatus(request.getStatus());
+        String nextPriority = request.getPriority() == null
+            ? feedback.getPriority()
+            : normalizePriority(request.getPriority(), feedback.getType());
 
-        feedback.setStatus(normalizeStatus(request.getStatus()));
+        if ("resolved".equals(nextStatus) && nextReply == null && previousReply == null) {
+            throw new RuntimeException("Resolved feedback requires a reply");
+        }
+
+        feedback.setStatus(nextStatus);
+        feedback.setPriority(nextPriority);
         feedback.setAdminReply(nextReply);
         feedback.setAdminId(adminId);
         feedback.setHandledAt(LocalDateTime.now());
@@ -101,11 +113,28 @@ public class FeedbackService {
                 adminId,
                 feedback.getUserId(),
                 null,
-                String.format("【社区反馈回复】你提交的反馈《%s》有了新的管理员回复：%s", feedback.getTitle(), nextReply)
+                String.format("[Feedback Reply] Your feedback \"%s\" has a new admin reply: %s", feedback.getTitle(), nextReply)
+            );
+        } else if (!Objects.equals(previousStatus, nextStatus)) {
+            messageService.sendSystemTaskMessage(
+                adminId,
+                feedback.getUserId(),
+                null,
+                buildStatusUpdateMessage(feedback.getTitle(), nextStatus)
             );
         }
 
         return feedbackMapper.selectById(feedbackId);
+    }
+
+    private String buildStatusUpdateMessage(String title, String status) {
+        if ("resolved".equals(status)) {
+            return String.format("[Feedback Status] Your feedback \"%s\" has been resolved.", title);
+        }
+        if ("in_progress".equals(status)) {
+            return String.format("[Feedback Status] Your feedback \"%s\" is now in progress.", title);
+        }
+        return String.format("[Feedback Status] Your feedback \"%s\" has been reopened.", title);
     }
 
     private void requireAdmin(Long userId) {
@@ -116,10 +145,28 @@ public class FeedbackService {
 
     private String normalizeType(String type) {
         String normalized = type == null ? "" : type.trim().toUpperCase();
-        if ("BUG".equals(normalized) || "SUGGESTION".equals(normalized) || "OTHER".equals(normalized)) {
+        if (
+            "BUG".equals(normalized)
+                || "SUGGESTION".equals(normalized)
+                || "TASK_DISPUTE".equals(normalized)
+                || "ACCOUNT_REPORT".equals(normalized)
+                || "CONTENT_REPORT".equals(normalized)
+                || "OTHER".equals(normalized)
+        ) {
             return normalized;
         }
         return "OTHER";
+    }
+
+    private String normalizePriority(String priority, String type) {
+        String normalized = priority == null ? "" : priority.trim().toUpperCase();
+        if ("LOW".equals(normalized) || "NORMAL".equals(normalized) || "HIGH".equals(normalized) || "URGENT".equals(normalized)) {
+            return normalized;
+        }
+        if ("ACCOUNT_REPORT".equals(type) || "CONTENT_REPORT".equals(type) || "TASK_DISPUTE".equals(type) || "BUG".equals(type)) {
+            return "HIGH";
+        }
+        return "NORMAL";
     }
 
     private String normalizeStatus(String status) {
