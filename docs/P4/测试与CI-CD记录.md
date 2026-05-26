@@ -37,13 +37,16 @@ npm run lint
 
 当前测试文件：
 
-- `AuthTest`
-- `TaskTest`
-- `TaskCommentTest`
-- `TaskReviewTest`
-- `MessageTest`
-- `UserTest`
-- `TaskModeResolverTest`
+- `AuthTest`（3 个测试）
+- `TaskTest`（14 个测试）
+- `TaskCommentTest`（8 个测试）
+- `TaskReviewTest`（3 个测试）
+- `MessageTest`（4 个测试）
+- `UserTest`（5 个测试）
+- `TaskModeResolverTest`（4 个测试，含参数化）
+- `FeedbackTest`（5 个测试）
+
+**测试总数：`46` 个 `@Test` 方法**
 
 ### 3.1 已覆盖的正常流程
 
@@ -61,6 +64,9 @@ npm run lint
 - 普通任务不能走话题评论链路
 - 旧数据 `taskMode` 冲突时的兼容修正
 - 话题评论奖励有每日上限
+- 反馈提交需回复才能解决
+- 反馈优先级按类型自动分配
+- 管理员可调整反馈优先级
 
 ## 4. 集成测试判断
 

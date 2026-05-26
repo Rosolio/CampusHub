@@ -86,7 +86,7 @@
 
 - `TaskTest.testOnlyTaskParticipantsCanCompleteTask` 通过
 
-### Bug 05：CI 流水线质量门不足
+### Bug 05：CI 流水线质量门不足 ✅ 已修复
 
 **问题现象**
 
@@ -99,12 +99,129 @@
 
 **修复方案**
 
-- 文档上已识别缺口
-- 后续应补 `mvn test`、`checkstyle`、`npm run lint` 和覆盖率统计
+- 后端子流水线补 `mvn -B checkstyle:check`、`mvn -B clean verify`（含 JaCoCo 覆盖率）
+- 前端子流水线补 `npm ci && npm run lint`
+- 新增 GitHub Actions 镜像 CI 配置
 
 **验证结果**
 
-- 本地手工验证可通过，但流水线层面仍待补强
+- GitLab CI 后端流水线：checkstyle → test → build 三阶段完整
+- GitLab CI 前端流水线：lint → build 两阶段完整
+- GitHub Actions 同样覆盖 checkstyle、test、build 和 lint、build
+
+### Bug 06：注册限频绕过
+
+**问题现象**
+
+- 用户注册时未调用登录限频检查，可通过重复注册绕过 `auth:login_attempts` 限频
+
+**根因分析**
+
+- `AuthService` 注册流程中隐式登录路径缺少 `enforceLoginRateLimit()` 调用
+
+**修复方案**
+
+- 在注册流程的隐式登录路径中增加限频检查
+
+**验证结果**
+
+- 限频逻辑统一应用于登录和注册两条路径
+
+### Bug 07：JWT token type 缺失导致 refresh token 混用
+
+**问题现象**
+
+- access token 可被当作 refresh token 使用，绕过过期校验
+
+**根因分析**
+
+- `JwtUtil.generateToken()` 和 `generateRefreshToken()` 未在 JWT claims 中区分 token 类型
+
+**修复方案**
+
+- `generateToken()` 写入 `"type": "access"`
+- `generateRefreshToken()` 写入 `"type": "refresh"`
+- `refreshToken()` 校验 `getTokenType()` 必须为 `"refresh"`
+
+**验证结果**
+
+- `AuthTest.testRefreshToken` 通过
+
+### Bug 08：密码哈希通过 API 泄露
+
+**问题现象**
+
+- `/users/me`、`/admin/users` 等接口直接返回 `User` 实体，JSON 序列化包含 `password` 字段
+
+**根因分析**
+
+- `User` 实体未对 `password` 字段做 `@JsonIgnore`，且未使用安全 DTO
+
+**修复方案**
+
+- 创建 `UserVO` DTO，排除 `password` 和 `disabledReason` 字段
+- 所有 Controller 返回 `UserVO` 而非 `User`
+- `User` 实体的 `getPassword()` 方法加 `@JsonIgnore` 兜底
+
+**验证结果**
+
+- API 响应不再包含密码哈希
+
+### Bug 09：JWT 过滤器硬编码角色
+
+**问题现象**
+
+- `JwtAuthenticationFilter` 对所有用户硬编码 `SimpleGrantedAuthority("USER")`，管理员无法被正确识别
+
+**根因分析**
+
+- 过滤器未查询数据库获取用户实际角色
+
+**修复方案**
+
+- 注入 `UserMapper`，调用 `selectRoleById(userId)` 获取实际角色
+- 根据角色设置 `"ADMIN"` 或 `"USER"` authority
+
+**验证结果**
+
+- `SecurityConfig` 中 `.requestMatchers("/admin/**").hasAuthority("ADMIN")` 生效
+
+### Bug 10：管理员路径无权限保护
+
+**问题现象**
+
+- `/admin/**` 接口无 Spring Security 权限校验，普通用户可访问
+
+**根因分析**
+
+- `SecurityConfig` 未对 `/admin/**` 路径添加 `hasAuthority` 限制
+
+**修复方案**
+
+- 添加 `.requestMatchers("/admin/**").hasAuthority("ADMIN")`
+
+**验证结果**
+
+- 普通用户访问 `/admin/**` 返回 403
+
+### Bug 11：GlobalExceptionHandler 不返回 403 状态码
+
+**问题现象**
+
+- "无管理员权限"和"账号已被禁用"等权限类异常返回 400 而非 403
+
+**根因分析**
+
+- `GlobalExceptionHandler` 统一将所有 `RuntimeException` 映射为 400
+
+**修复方案**
+
+- 新增 `AUTHORITY_ERROR_CODES` 映射表，将特定中文错误消息映射为 HTTP 403
+- 增加 SLF4J 日志记录
+
+**验证结果**
+
+- 权限类异常正确返回 403 FORBIDDEN
 
 ## 3. 总结
 
@@ -114,4 +231,6 @@
 2. 业务权限校验
 3. 工程化质量门
 
-前两类已基本通过代码与测试收敛，第三类仍是 P4 材料层面的主要风险。
+前两类已基本通过代码与测试收敛，第三类已通过补充 CI 配置解决。
+
+此外，安全加固（commit `62aa029`）修复了 6 个安全相关缺陷（Bug 06-11），涵盖认证绕过、数据泄露和权限控制。

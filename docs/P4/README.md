@@ -10,7 +10,8 @@
   - 后端 `mvn -B checkstyle:check` 通过
   - 前端 `npm run build` 通过
   - 前端 `npm run lint` 通过
-  - 后端行覆盖率 `61.45%`
+  - 后端 `46` 个测试通过，行覆盖率 `61.45%`
+  - 安全加固：移除第三方登录、`UserVO` 防密码泄露、JWT token type claim、角色鉴权、管理员路径保护、登录限频
 
 ## 交付物索引
 
