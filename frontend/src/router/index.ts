@@ -65,6 +65,7 @@ const router = createRouter({
     { path: '/settings/about', name: 'aboutCampusHub', component: AboutCampusHub, meta: { requiresAuth: true } },
     { path: '/settings/privacy', name: 'privacyPolicy', component: PrivacyPolicy, meta: { requiresAuth: true } },
     { path: '/settings/agreement', name: 'userAgreement', component: UserAgreement, meta: { requiresAuth: true } },
+    { path: '/:pathMatch(.*)*', name: 'notFound', redirect: '/home' },
   ],
 })
 
@@ -85,7 +86,7 @@ router.beforeEach((to) => {
       return '/admin/community'
     }
     if (to.path === '/publish' || to.path === '/messages') {
-      return '/home'
+      return '/admin/community'
     }
     if (to.path === '/profile' || to.path === '/tasks') {
       return '/admin/profile'

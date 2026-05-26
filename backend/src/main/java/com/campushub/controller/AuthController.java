@@ -2,7 +2,6 @@ package com.campushub.controller;
 
 import com.campushub.dto.LoginRequest;
 import com.campushub.dto.RegisterRequest;
-import com.campushub.dto.ThirdPartyLoginRequest;
 import com.campushub.service.AuthService;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,11 +34,6 @@ public class AuthController {
         Map<String, String> result = new java.util.HashMap<>();
         result.put("token", newToken);
         return result;
-    }
-
-    @PostMapping("/third-party")
-    public Map<String, Object> thirdPartyLogin(@RequestBody ThirdPartyLoginRequest request) {
-        return authService.thirdPartyLogin(request);
     }
 
 }

@@ -112,11 +112,9 @@ export const isTokenExpired = (token?: string | null) => {
 
 export const hasValidAuthToken = () => {
   const token = getStoredToken()
-  if (isTokenExpired(token)) {
-    clearAuthStorage()
+  if (!token || isTokenExpired(token)) {
     return false
   }
-
   return true
 }
 

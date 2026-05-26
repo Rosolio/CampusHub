@@ -2,6 +2,7 @@ package com.campushub.service;
 
 import com.campushub.dto.AdminTaskReviewRequest;
 import com.campushub.dto.AdminUserStatusUpdateRequest;
+import com.campushub.dto.UserVO;
 import com.campushub.entity.Task;
 import com.campushub.entity.User;
 import com.campushub.mapper.TaskMapper;
@@ -53,13 +54,13 @@ public class AdminService {
         }
     }
 
-    public List<User> getUsers(Long adminId) {
+    public List<UserVO> getUsers(Long adminId) {
         requireAdmin(adminId);
-        return userMapper.selectAdminUsers();
+        return userMapper.selectAdminUsers().stream().map(UserVO::from).toList();
     }
 
     @Transactional
-    public User updateUserStatus(Long adminId, Long userId, AdminUserStatusUpdateRequest request) {
+    public UserVO updateUserStatus(Long adminId, Long userId, AdminUserStatusUpdateRequest request) {
         requireAdmin(adminId);
         User user = userMapper.selectById(userId);
         if (user == null) {
@@ -73,7 +74,7 @@ public class AdminService {
         String disabledReason = "DISABLED".equals(nextStatus) ? trimToNull(request.getDisabledReason()) : null;
         userMapper.updateUserStatus(userId, nextStatus, disabledReason);
         redisTemplate.delete("users:" + userId);
-        return userMapper.selectById(userId);
+        return UserVO.from(userMapper.selectById(userId));
     }
 
     public List<Task> getTasks(Long adminId) {

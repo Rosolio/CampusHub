@@ -46,6 +46,7 @@ public class JwtUtil {
     public String generateToken(Long userId) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
+        claims.put("type", "access");
         return Jwts.builder()
                 .setClaims(claims)
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
@@ -56,11 +57,18 @@ public class JwtUtil {
     public String generateRefreshToken(Long userId) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
+        claims.put("type", "refresh");
         return Jwts.builder()
                 .setClaims(claims)
                 .setExpiration(new Date(System.currentTimeMillis() + refreshExpiration))
                 .signWith(signingKey, SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    public String getTokenType(String token) {
+        Claims claims = parseToken(token);
+        Object type = claims.get("type");
+        return type == null ? "access" : type.toString();
     }
 
     public Claims parseToken(String token) {

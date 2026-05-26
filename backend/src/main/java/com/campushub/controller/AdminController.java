@@ -4,10 +4,10 @@ import com.campushub.dto.AdminTaskReviewRequest;
 import com.campushub.dto.AdminAnnouncementRequest;
 import com.campushub.dto.AdminFeedbackUpdateRequest;
 import com.campushub.dto.AdminUserStatusUpdateRequest;
+import com.campushub.dto.UserVO;
 import com.campushub.entity.Announcement;
 import com.campushub.entity.Feedback;
 import com.campushub.entity.Task;
-import com.campushub.entity.User;
 import com.campushub.service.AdminService;
 import com.campushub.service.AnnouncementService;
 import com.campushub.service.FeedbackService;
@@ -37,12 +37,12 @@ public class AdminController {
     }
 
     @GetMapping("/users")
-    public List<User> getUsers(Authentication authentication) {
+    public List<UserVO> getUsers(Authentication authentication) {
         return adminService.getUsers(getCurrentUserId(authentication));
     }
 
     @PutMapping("/users/{userId}/status")
-    public User updateUserStatus(
+    public UserVO updateUserStatus(
         @PathVariable Long userId,
         @RequestBody AdminUserStatusUpdateRequest request,
         Authentication authentication

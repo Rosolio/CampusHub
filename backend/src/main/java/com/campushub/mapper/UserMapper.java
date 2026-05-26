@@ -12,6 +12,7 @@ import java.util.Map;
 @Mapper
 public interface UserMapper {
     User selectById(Long id);
+    String selectRoleById(Long id);
     User selectByStudentId(String studentId);
     User selectByLoginIdentifier(String identifier);
     User selectByEmail(String email);

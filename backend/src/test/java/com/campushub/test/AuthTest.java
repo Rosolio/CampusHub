@@ -2,7 +2,6 @@ package com.campushub.test;
 
 import com.campushub.dto.LoginRequest;
 import com.campushub.dto.RegisterRequest;
-import com.campushub.dto.ThirdPartyLoginRequest;
 import com.campushub.service.AuthService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,19 +54,6 @@ public class AuthTest extends IntegrationTestSupport {
         // 测试刷新令牌
         String newToken = authService.refreshToken(refreshToken);
         assertNotNull(newToken);
-    }
-
-    @Test
-    public void testThirdPartyLogin() {
-        ThirdPartyLoginRequest request = new ThirdPartyLoginRequest();
-        request.setProvider("QQ");
-        request.setProviderUserId("qq_20260001");
-        request.setDisplayName("QQ测试用户");
-
-        Map<String, Object> result = authService.thirdPartyLogin(request);
-        assertNotNull(result);
-        assertNotNull(result.get("token"));
-        assertNotNull(result.get("user"));
     }
 
 }

@@ -282,36 +282,6 @@
             </button>
           </form>
 
-          <!-- Divider -->
-          <div class="relative my-10 text-center">
-            <div class="absolute inset-0 flex items-center">
-              <div class="w-full border-t ghost-border"></div>
-            </div>
-            <span class="relative px-4 bg-surface-container-lowest text-xs font-bold text-on-surface-variant/50 uppercase tracking-widest">
-              或通过以下方式连接
-            </span>
-          </div>
-
-          <!-- Third Party Logins -->
-          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
-            <button
-              class="flex min-h-14 items-center justify-center gap-3 rounded-xl bg-surface-container-low px-4 py-3.5 transition-colors hover:bg-surface-container-high ghost-border"
-              type="button"
-              @click="openThirdPartyDialog('QQ')"
-            >
-              <span class="material-symbols-outlined text-blue-500">chat</span>
-              <span class="text-sm font-bold text-on-surface font-headline">QQ</span>
-            </button>
-            <button
-              class="flex min-h-14 items-center justify-center gap-3 rounded-xl bg-surface-container-low px-4 py-3.5 text-center transition-colors hover:bg-surface-container-high ghost-border"
-              type="button"
-              @click="openThirdPartyDialog('SSO')"
-            >
-              <span class="material-symbols-outlined text-teal-800" data-icon="school">school</span>
-              <span class="text-sm font-bold text-on-surface font-headline">统一身份认证 SSO</span>
-            </button>
-          </div>
-
           <p v-if="activeTab === 'login'" class="mt-12 text-center text-sm text-on-surface-variant">
             第一次使用校助？
             <button 
@@ -323,92 +293,6 @@
         </div>
       </div>
     </main>
-
-    <div
-      v-if="showThirdPartyDialog"
-      class="fixed inset-0 z-20 flex items-center justify-center bg-slate-950/45 px-6"
-      @click.self="closeThirdPartyDialog"
-    >
-      <div class="w-full max-w-lg rounded-3xl bg-surface-container-lowest p-8 shadow-[0_24px_48px_rgba(0,52,57,0.2)]">
-        <div class="mb-6 flex items-start justify-between gap-4">
-          <div>
-            <p class="text-sm font-bold uppercase tracking-[0.22em] text-on-surface-variant">第三方登录</p>
-            <h3 class="mt-2 text-2xl font-extrabold text-on-surface">
-              连接 {{ selectedProvider === 'QQ' ? 'QQ' : '统一身份认证 (SSO)' }}
-            </h3>
-            <p class="mt-2 text-sm leading-6 text-on-surface-variant">
-              首次登录会自动创建账号，后续使用同一第三方账号标识可直接登录。
-            </p>
-          </div>
-          <button
-            class="rounded-full p-2 text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface"
-            type="button"
-            @click="closeThirdPartyDialog"
-          >
-            <span class="material-symbols-outlined">close</span>
-          </button>
-        </div>
-
-        <form class="space-y-5" @submit.prevent="handleThirdPartyLogin">
-          <div class="space-y-2">
-            <label class="block text-sm font-semibold text-on-surface-variant ml-1" for="third-party-id">
-              {{ selectedProvider === 'QQ' ? 'QQ 账号标识' : '统一身份认证账号' }}
-            </label>
-            <input
-              id="third-party-id"
-              v-model="thirdPartyForm.providerUserId"
-              type="text"
-              class="w-full rounded-xl bg-surface-container-low px-4 py-3.5 ghost-border outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
-              :placeholder="selectedProvider === 'QQ' ? '例如：qq_20230045' : '例如：20230045@sso'"
-            />
-          </div>
-
-          <div class="space-y-2">
-            <label class="block text-sm font-semibold text-on-surface-variant ml-1" for="third-party-name">
-              昵称（可选）
-            </label>
-            <input
-              id="third-party-name"
-              v-model="thirdPartyForm.displayName"
-              type="text"
-              class="w-full rounded-xl bg-surface-container-low px-4 py-3.5 ghost-border outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
-              placeholder="留空则自动生成默认昵称"
-            />
-          </div>
-
-          <div class="space-y-2">
-            <label class="block text-sm font-semibold text-on-surface-variant ml-1" for="third-party-email">
-              邮箱（可选）
-            </label>
-            <input
-              id="third-party-email"
-              v-model="thirdPartyForm.email"
-              type="email"
-              class="w-full rounded-xl bg-surface-container-low px-4 py-3.5 ghost-border outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
-              placeholder="留空则由系统自动生成绑定邮箱"
-            />
-          </div>
-
-          <div class="flex items-center justify-end gap-3 pt-2">
-            <button
-              class="rounded-xl px-5 py-3 font-semibold text-on-surface-variant transition-colors hover:bg-surface-container-low"
-              type="button"
-              :disabled="loading"
-              @click="closeThirdPartyDialog"
-            >
-              取消
-            </button>
-            <button
-              class="rounded-xl px-6 py-3 primary-gradient font-bold text-white shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
-              type="submit"
-              :disabled="loading"
-            >
-              {{ loading ? '连接中...' : '确认连接并登录' }}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
 
     <!-- Footer Security Note -->
     <footer class="fixed bottom-6 left-1/2 hidden -translate-x-1/2 items-center gap-2 text-on-surface-variant/60 text-xs font-medium md:flex">
@@ -433,8 +317,6 @@ const normalizeTab = (tab: unknown) => tab === 'register' ? 'register' : 'login'
 const activeTab = ref(normalizeTab(route.query.tab))
 const loading = ref(false)
 const error = ref('')
-const showThirdPartyDialog = ref(false)
-const selectedProvider = ref<'QQ' | 'SSO'>('QQ')
 const showLoginPassword = ref(false)
 const showRegisterPassword = ref(false)
 const showRegisterConfirmPassword = ref(false)
@@ -454,24 +336,10 @@ const registerForm = ref({
   agree: false
 })
 
-const thirdPartyForm = ref({
-  providerUserId: '',
-  displayName: '',
-  email: ''
-})
-
 const switchTab = (tab: string) => {
   activeTab.value = tab
   error.value = ''
   router.replace({ path: '/auth', query: { tab } })
-}
-
-const resetThirdPartyForm = () => {
-  thirdPartyForm.value = {
-    providerUserId: '',
-    displayName: '',
-    email: ''
-  }
 }
 
 watch(
@@ -568,57 +436,8 @@ const handleRegister = async () => {
   }
 }
 
-const openThirdPartyDialog = (provider: 'QQ' | 'SSO') => {
-  selectedProvider.value = provider
-  error.value = ''
-  resetThirdPartyForm()
-  if (provider === 'QQ') {
-    thirdPartyForm.value.email = ''
-  }
-  showThirdPartyDialog.value = true
-}
-
-const closeThirdPartyDialog = () => {
-  showThirdPartyDialog.value = false
-  resetThirdPartyForm()
-}
-
 const handleForgotPassword = () => {
   showToast('请联系管理员或校园统一身份认证入口重置密码。', 'info')
 }
 
-const handleThirdPartyLogin = async () => {
-  if (!thirdPartyForm.value.providerUserId.trim()) {
-    error.value = selectedProvider.value === 'QQ' ? '请输入 QQ 账号标识' : '请输入统一身份认证账号'
-    return
-  }
-
-  loading.value = true
-  error.value = ''
-
-  try {
-    const payload = await authApi.thirdPartyLogin({
-      provider: selectedProvider.value,
-      providerUserId: thirdPartyForm.value.providerUserId.trim(),
-      displayName: thirdPartyForm.value.displayName.trim(),
-      email: thirdPartyForm.value.email.trim()
-    }) as Record<string, any>
-    const token = payload?.accessToken ?? payload?.token
-    const refreshToken = payload?.refreshToken
-    const user = payload?.user
-
-    if (token && user) {
-      setAuthSession({ token, refreshToken, user })
-      closeThirdPartyDialog()
-      router.push('/')
-    } else {
-      error.value = payload?.message || '第三方登录失败'
-    }
-  } catch (err: any) {
-    console.error('第三方登录失败:', err)
-    error.value = err.response?.data?.message || '第三方登录失败，请稍后重试'
-  } finally {
-    loading.value = false
-  }
-}
 </script>

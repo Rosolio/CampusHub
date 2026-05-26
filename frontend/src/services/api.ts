@@ -33,6 +33,7 @@ const requestData = async <T>(request: Promise<{ data: T }>) => {
 }
 
 let refreshPromise: Promise<string | null> | null = null
+let isRedirectingToLogin = false
 
 const refreshAccessToken = async () => {
   if (refreshPromise) {
@@ -111,7 +112,8 @@ api.interceptors.response.use(
       }
     }
 
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 && !isRedirectingToLogin) {
+      isRedirectingToLogin = true
       clearAuthStorage()
       window.location.href = '/auth?tab=login'
     }
@@ -130,13 +132,6 @@ export const authApi = {
     email: string
     password: string
   }) => requestData(api.post('/auth/register', data)),
-
-  thirdPartyLogin: (data: {
-    provider: string
-    providerUserId: string
-    displayName?: string
-    email?: string
-  }) => requestData(api.post('/auth/third-party', data)),
 
   refreshToken: (refreshToken: string) => requestData(authApiClient.post('/auth/refresh', { refreshToken }))
 }

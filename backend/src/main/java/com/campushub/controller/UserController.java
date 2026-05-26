@@ -1,5 +1,6 @@
 package com.campushub.controller;
 
+import com.campushub.dto.UserVO;
 import com.campushub.entity.User;
 import com.campushub.entity.UserPointRecord;
 import com.campushub.entity.UserSetting;
@@ -20,8 +21,8 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public User getCurrentUser(Authentication authentication) {
-        return userService.getUserById(getCurrentUserId(authentication));
+    public UserVO getCurrentUser(Authentication authentication) {
+        return UserVO.from(userService.getUserById(getCurrentUserId(authentication)));
     }
 
     @GetMapping("/me/points/records")
@@ -30,13 +31,13 @@ public class UserController {
     }
 
     @PutMapping("/me")
-    public User updateCurrentUser(@RequestBody User user, Authentication authentication) {
-        return userService.updateUser(getCurrentUserId(authentication), user);
+    public UserVO updateCurrentUser(@RequestBody User user, Authentication authentication) {
+        return UserVO.from(userService.updateUser(getCurrentUserId(authentication), user));
     }
 
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable Long id) {
-        return userService.getUserById(id);
+    public UserVO getUserById(@PathVariable Long id) {
+        return UserVO.from(userService.getUserById(id));
     }
 
     @GetMapping("/settings")
