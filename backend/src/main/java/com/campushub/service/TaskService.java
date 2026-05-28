@@ -17,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -82,11 +84,29 @@ public class TaskService {
             tasks = taskMapper.selectAll();
             redisTemplate.opsForValue().set(key, tasks, 5, TimeUnit.MINUTES);
         }
-        return tasks.stream()
+
+        List<Task> visibleTasks = tasks.stream()
             .filter(this::isVisibleInCommunityFeed)
             .map(TaskModeResolver::normalize)
-            .peek(task -> task.setLikedByCurrentUser(isTaskLikedByUser(task, currentUserId)))
             .collect(Collectors.toList());
+
+        if (currentUserId != null && !visibleTasks.isEmpty()) {
+            List<Long> topicTaskIds = visibleTasks.stream()
+                .filter(TaskModeResolver::isTopicTask)
+                .map(Task::getId)
+                .collect(Collectors.toList());
+
+            if (!topicTaskIds.isEmpty()) {
+                Set<Long> likedTaskIds = taskLikeMapper.selectLikedTaskIdsByUserIdAndTaskIds(currentUserId, topicTaskIds);
+                visibleTasks.forEach(task -> {
+                    if (TaskModeResolver.isTopicTask(task)) {
+                        task.setLikedByCurrentUser(likedTaskIds.contains(task.getId()));
+                    }
+                });
+            }
+        }
+
+        return visibleTasks;
     }
 
     public Task getTaskById(Long id) {

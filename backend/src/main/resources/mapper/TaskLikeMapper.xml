@@ -14,6 +14,15 @@
         SELECT * FROM task_likes WHERE task_id = #{taskId} AND user_id = #{userId} LIMIT 1
     </select>
 
+    <select id="selectLikedTaskIdsByUserIdAndTaskIds" resultType="java.lang.Long">
+        SELECT task_id FROM task_likes
+        WHERE user_id = #{userId}
+          AND task_id IN
+        <foreach collection="taskIds" item="taskId" open="(" separator="," close=")">
+            #{taskId}
+        </foreach>
+    </select>
+
     <insert id="insert" parameterType="com.campushub.entity.TaskLike" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO task_likes (task_id, user_id, created_at)
         VALUES (#{taskId}, #{userId}, #{createdAt})
