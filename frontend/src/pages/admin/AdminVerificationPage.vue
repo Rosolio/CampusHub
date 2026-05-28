@@ -155,7 +155,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { verificationApi } from '../../services/api'
-import api from '../../services/api'
 import { getStoredToken } from '../../utils/auth'
 
 const error = ref('')
