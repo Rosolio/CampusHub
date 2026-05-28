@@ -137,7 +137,13 @@ export const authApi = {
 }
 
 export const taskApi = {
-  getTasks: () => requestData(api.get('/tasks')),
+  getTasks: (params?: {
+    mode?: 'recommended' | 'latest'
+    category?: string
+    location?: string
+    availableAt?: string
+    limit?: number
+  }) => requestData(api.get('/tasks', { params })),
   getTaskById: (id: number) => requestData(api.get(`/tasks/${id}`)),
   likeTask: (taskId: number) => requestData(api.post(`/tasks/${taskId}/like`)),
   unlikeTask: (taskId: number) => requestData(api.delete(`/tasks/${taskId}/like`)),

@@ -49,6 +49,11 @@ public final class TaskModeResolver {
         return normalizedTask != null && "topic".equals(normalizedTask.getTaskMode());
     }
 
+    public static boolean isTask(Task task) {
+        Task normalizedTask = normalize(task);
+        return normalizedTask != null && "task".equals(normalizedTask.getTaskMode());
+    }
+
     private static String resolveCategory(Task task) {
         if (task == null) {
             return ERRAND_CATEGORY;

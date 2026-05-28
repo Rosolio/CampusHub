@@ -1,6 +1,7 @@
 package com.campushub.service;
 
 import com.campushub.dto.TaskCreateRequest;
+import com.campushub.dto.TaskRecommendationQuery;
 import com.campushub.entity.Task;
 import com.campushub.entity.TaskLike;
 import com.campushub.entity.TaskParticipant;
@@ -17,10 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -49,6 +48,7 @@ public class TaskService {
     private final TaskReviewMapper taskReviewMapper;
     private final UserService userService;
     private final MessageService messageService;
+    private final TaskRecommendationService taskRecommendationService;
     private final RedisTemplate<String, Object> redisTemplate;
 
     public TaskService(
@@ -60,6 +60,7 @@ public class TaskService {
         TaskReviewMapper taskReviewMapper,
         UserService userService,
         MessageService messageService,
+        TaskRecommendationService taskRecommendationService,
         RedisTemplate<String, Object> redisTemplate
     ) {
         this.taskMapper = taskMapper;
@@ -70,6 +71,7 @@ public class TaskService {
         this.taskReviewMapper = taskReviewMapper;
         this.userService = userService;
         this.messageService = messageService;
+        this.taskRecommendationService = taskRecommendationService;
         this.redisTemplate = redisTemplate;
     }
 
@@ -78,6 +80,10 @@ public class TaskService {
     }
 
     public List<Task> getTasks(Long currentUserId) {
+        return getTasks(currentUserId, new TaskRecommendationQuery());
+    }
+
+    public List<Task> getTasks(Long currentUserId, TaskRecommendationQuery query) {
         String key = "tasks:all";
         List<Task> tasks = (List<Task>) redisTemplate.opsForValue().get(key);
         if (tasks == null) {
@@ -85,9 +91,7 @@ public class TaskService {
             redisTemplate.opsForValue().set(key, tasks, 5, TimeUnit.MINUTES);
         }
 
-        List<Task> visibleTasks = tasks.stream()
-            .filter(this::isVisibleInCommunityFeed)
-            .map(TaskModeResolver::normalize)
+        List<Task> visibleTasks = taskRecommendationService.applyRecommendation(tasks, query, currentUserId).stream()
             .collect(Collectors.toList());
 
         if (currentUserId != null && !visibleTasks.isEmpty()) {

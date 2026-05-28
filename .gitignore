@@ -56,3 +56,6 @@ logs/
 *.pid
 
 .claude/
+
+local-debug/
+.local-tools/
