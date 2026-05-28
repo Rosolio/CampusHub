@@ -15,6 +15,7 @@ public class User {
     private String major;
     private String role;
     private String status;
+    private String verifiedStatus;
     private String disabledReason;
     private BigDecimal score;
     private Integer points;
@@ -93,6 +94,14 @@ public class User {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getVerifiedStatus() {
+        return verifiedStatus;
+    }
+
+    public void setVerifiedStatus(String verifiedStatus) {
+        this.verifiedStatus = verifiedStatus;
     }
 
     public String getDisabledReason() {

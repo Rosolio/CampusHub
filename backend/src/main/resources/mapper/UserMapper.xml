@@ -13,6 +13,7 @@
         <result property="major" column="major"/>
         <result property="role" column="role"/>
         <result property="status" column="status"/>
+        <result property="verifiedStatus" column="verified_status"/>
         <result property="disabledReason" column="disabled_reason"/>
         <result property="score" column="score"/>
         <result property="points" column="points"/>
@@ -62,14 +63,15 @@
     </select>
 
     <insert id="insert" parameterType="com.campushub.entity.User" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO users (student_id, name, email, password, avatar_url, major, role, status, disabled_reason, score, points, last_login_at, created_at, updated_at)
-        VALUES (#{studentId}, #{name}, #{email}, #{password}, #{avatarUrl}, #{major}, #{role}, #{status}, #{disabledReason}, #{score}, #{points}, #{lastLoginAt}, #{createdAt}, #{updatedAt})
+        INSERT INTO users (student_id, name, email, password, avatar_url, major, role, status, verified_status, disabled_reason, score, points, last_login_at, created_at, updated_at)
+        VALUES (#{studentId}, #{name}, #{email}, #{password}, #{avatarUrl}, #{major}, #{role}, #{status}, #{verifiedStatus}, #{disabledReason}, #{score}, #{points}, #{lastLoginAt}, #{createdAt}, #{updatedAt})
     </insert>
 
     <update id="update" parameterType="com.campushub.entity.User">
         UPDATE users
-        SET student_id = #{studentId}, name = #{name}, email = #{email}, password = #{password}, 
+        SET student_id = #{studentId}, name = #{name}, email = #{email}, password = #{password},
             avatar_url = #{avatarUrl}, major = #{major}, role = #{role}, status = #{status},
+            verified_status = #{verifiedStatus},
             disabled_reason = #{disabledReason}, score = #{score}, points = #{points},
             last_login_at = #{lastLoginAt},
             updated_at = #{updatedAt}
@@ -101,6 +103,13 @@
     <update id="updateLastLoginAt">
         UPDATE users
         SET last_login_at = #{lastLoginAt},
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateVerifiedStatus">
+        UPDATE users
+        SET verified_status = #{verifiedStatus},
             updated_at = NOW()
         WHERE id = #{id}
     </update>

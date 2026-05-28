@@ -113,3 +113,104 @@
 - 有历史接单记录的用户，历史高频分类任务优先。
 - 无历史记录的新用户仍能看到合理排序，不能出现空白或异常。
 - 后端测试覆盖分类匹配、历史偏好、过期排除和稳定排序。
+
+## 校园用户认证需求
+
+### 目标
+
+为学生提供可信的身份认证机制。用户上传学生证或校园卡照片，管理员后台人工审核，通过后用户获得全站可见的"已认证"标识，提升社区信任度和信息可信度。
+
+### 范围
+
+认证对象为所有普通用户（`role = 'USER'`），管理员不参与认证流程。认证类型当前仅支持"学生身份认证"（`type = 'STUDENT'`），后续可扩展教职工、校友等类型。
+
+认证流程覆盖：
+- 用户提交认证申请（上传证件照片 + 填写真实姓名/学号）
+- 管理员后台审核（查看照片 → 通过 / 驳回并填写原因）
+- 管理员撤销已通过的认证
+- 驳回后用户可重新提交
+- 认证状态在各页面动态展示
+
+### 数据库设计
+
+新增 `user_verifications` 表：
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | BIGINT | 主键 |
+| user_id | BIGINT | 申请人 ID |
+| type | VARCHAR(20) | 认证类型，默认 `STUDENT` |
+| real_name | VARCHAR(50) | 真实姓名 |
+| student_id | VARCHAR(50) | 学号 |
+| image_urls | JSON | 证件照片文件名数组 |
+| status | VARCHAR(20) | `PENDING` / `APPROVED` / `REJECTED` / `REVOKED` |
+| reviewer_id | BIGINT | 审核人 ID |
+| reject_reason | VARCHAR(500) | 驳回原因 |
+| reviewed_at | DATETIME | 审核时间 |
+
+`users` 表新增字段：
+- `verified_status VARCHAR(20) DEFAULT 'NONE'`：取值 `NONE` / `PENDING` / `VERIFIED`，冗余存储避免每次 JOIN 查询。
+
+### 认证状态流转
+
+```
+用户提交 → PENDING（待审核）
+  ├─ 管理员通过 → APPROVED → 全站显示"已认证"
+  │    └─ 管理员撤销 → REVOKED → 用户可重新申请
+  └─ 管理员驳回 → REJECTED → 用户可重新申请（覆盖旧记录）
+```
+
+每个用户同时只保留一条认证记录，状态变更时覆盖更新而非追加。
+
+### 文件存储
+
+证件照片通过 multipart/form-data 上传，存储至本地磁盘 `${UPLOAD_DIR}/verifications/{userId}/{uuid}.ext`。单张限制 5MB，仅支持 JPG/PNG，最多 3 张。图片通过后端接口代理访问（带 JWT 认证），不暴露直接 URL。
+
+### 通知机制
+
+审核状态变更时，通过已有消息系统（`messages` 表）向申请人发送系统通知：提交成功、审核通过、审核驳回（含原因）、认证撤销。
+
+### API 端点
+
+**用户端（`/api/users/me`）：**
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| POST | `/verification` | 提交认证申请（multipart） |
+| GET | `/verification` | 查询当前认证状态 |
+| GET | `/verification/images/{filename}` | 查看自己上传的证件照片 |
+
+**管理端（`/api/admin`）：**
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | `/verifications` | 列出所有认证申请 |
+| PUT | `/verifications/{id}/review` | 审核通过/驳回 |
+| PUT | `/verifications/{id}/revoke` | 撤销已通过认证 |
+| GET | `/verifications/{id}/images/{filename}` | 查看证件照片 |
+
+### 后端实现拆分
+
+新增或调整：
+- `entity/UserVerification.java`：认证记录实体，含 JOIN 而来的 `userName`、`userStudentId`、`reviewerName` 展示字段。
+- `mapper/UserVerificationMapper.java` 与 `UserVerificationMapper.xml`：认证记录 CRUD。
+- `dto/AdminVerificationReviewRequest.java`：管理员审核请求体。
+- `service/VerificationService.java`：认证业务逻辑（提交/审核/撤销），含 Redis 缓存清除和消息通知。
+- `controller/VerificationController.java`：用户端接口，处理文件上传保存和认证状态查询。
+- `controller/AdminController.java`：新增 4 个管理端认证接口。
+- `entity/User.java`、`dto/UserVO.java`、`mapper/UserMapper.java` 与 `UserMapper.xml`：增加 `verifiedStatus` 字段。
+- `service/AuthService.java`：注册时初始化 `verifiedStatus = 'NONE'`。
+- `resources/schema.sql`：新增 `user_verifications` 表和 `users.verified_status` 列。
+- `resources/application.yml`：新增 `spring.servlet.multipart` 和 `upload.dir` 配置。
+
+### 验收标准
+
+- 普通用户可在个人主页看到"申请认证"入口，已认证用户显示绿色"已认证"徽章，审核中显示黄色"审核中"标签。
+- 用户提交认证申请后，页面立即变为"审核中"，并能看到自己上传的证件照片。
+- 管理员可在后台"认证审核"页面看到所有申请，按状态筛选，展开查看证件照片。
+- 管理员通过认证后，用户个人主页和全站相关位置显示"已认证"标识。
+- 管理员驳回认证时填写原因，用户可看到原因并重新提交。
+- 管理员可撤销已通过的认证，用户恢复未认证状态。
+- 每次状态变更用户收到站内消息通知。
+- 已认证用户无法重复提交申请，待审核用户无法再次提交。
+- 用户修改个人资料不会影响认证状态。

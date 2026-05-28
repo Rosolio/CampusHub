@@ -14,6 +14,7 @@ public class UserVO {
     private String major;
     private String role;
     private String status;
+    private String verifiedStatus;
     private BigDecimal score;
     private Integer points;
     private LocalDateTime lastLoginAt;
@@ -32,6 +33,7 @@ public class UserVO {
         vo.major = user.getMajor();
         vo.role = user.getRole();
         vo.status = user.getStatus();
+        vo.verifiedStatus = user.getVerifiedStatus();
         vo.score = user.getScore();
         vo.points = user.getPoints();
         vo.lastLoginAt = user.getLastLoginAt();
@@ -69,6 +71,10 @@ public class UserVO {
 
     public String getStatus() {
         return status;
+    }
+
+    public String getVerifiedStatus() {
+        return verifiedStatus;
     }
 
     public BigDecimal getScore() {

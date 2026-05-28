@@ -622,3 +622,33 @@ CREATE TABLE IF NOT EXISTS task_reviews (
     KEY idx_task_reviews_task_id (task_id),
     KEY idx_task_reviews_reviewee_id (reviewee_id)
 );
+
+SET @add_users_verified_status = IF(
+    EXISTS (
+        SELECT 1 FROM information_schema.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'verified_status'
+    ),
+    'SELECT 1',
+    'ALTER TABLE users ADD COLUMN verified_status VARCHAR(20) NOT NULL DEFAULT ''NONE'' AFTER status'
+);
+PREPARE stmt FROM @add_users_verified_status;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+CREATE TABLE IF NOT EXISTS user_verifications (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    type VARCHAR(20) NOT NULL DEFAULT 'STUDENT',
+    real_name VARCHAR(50) NULL,
+    student_id VARCHAR(50) NULL,
+    image_urls JSON NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+    reviewer_id BIGINT NULL,
+    reject_reason VARCHAR(500) NULL,
+    reviewed_at DATETIME NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    KEY idx_user_verifications_user_id (user_id),
+    KEY idx_user_verifications_status (status)
+);

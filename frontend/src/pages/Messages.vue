@@ -39,7 +39,7 @@
 
       <div class="grid min-h-0 flex-1 gap-4 overflow-hidden lg:grid-cols-[360px_minmax(0,1fr)] lg:gap-6">
         <aside
-          class="flex min-h-0 flex-col rounded-[2rem] bg-surface-container-lowest p-4 shadow-sm md:p-5"
+          class="flex min-h-0 min-w-0 flex-col rounded-[2rem] bg-surface-container-lowest p-4 shadow-sm md:p-5"
           :class="mobileShowChat ? 'hidden lg:flex' : 'flex'"
         >
           <div class="mb-3 flex shrink-0 items-center justify-between">
@@ -110,7 +110,7 @@
         </aside>
 
         <section
-          class="flex min-h-0 flex-col overflow-hidden rounded-[2rem] bg-surface-container-lowest shadow-sm"
+          class="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-[2rem] bg-surface-container-lowest shadow-sm"
           :class="mobileShowChat ? 'flex' : 'hidden lg:flex'"
         >
           <div v-if="!selectedConversation" class="flex-1 flex items-center justify-center p-8">
@@ -226,7 +226,7 @@
                   <textarea
                     id="message-input"
                     v-model="composer"
-                    class="min-h-28 w-full rounded-3xl border border-outline-variant/20 bg-surface px-5 py-4 text-on-surface outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
+                    class="min-h-28 w-[96%] mx-auto rounded-3xl border border-outline-variant/20 bg-surface px-3 py-4 text-on-surface outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
                     placeholder="输入你想沟通的内容..."
                     @keydown.enter.exact.prevent="handleSendMessage"
                   ></textarea>

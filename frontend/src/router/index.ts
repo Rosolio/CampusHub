@@ -24,6 +24,8 @@ const AdminUsersPage = () => import('../pages/admin/AdminUsersPage.vue')
 const AdminModerationPage = () => import('../pages/admin/AdminModerationPage.vue')
 const AdminProfilePage = () => import('../pages/admin/AdminProfilePage.vue')
 const AdminCommunityFeedPage = () => import('../pages/admin/AdminCommunityFeedPage.vue')
+const AdminVerificationPage = () => import('../pages/admin/AdminVerificationPage.vue')
+const VerificationPage = () => import('../pages/VerificationPage.vue')
 const NotFound = () => import('../pages/NotFound.vue')
 
 const router = createRouter({
@@ -41,6 +43,7 @@ const router = createRouter({
     { path: '/tasks', name: 'tasks', component: Profile, props: { initialTab: 'requests' }, meta: { requiresAuth: true } },
     { path: '/messages', name: 'messages', component: Messages, meta: { requiresAuth: true } },
     { path: '/publish', name: 'publish', component: Publish, meta: { requiresAuth: true } },
+    { path: '/verification', name: 'verification', component: VerificationPage, meta: { requiresAuth: true } },
     { path: '/feedback', name: 'feedback', component: FeedbackPage, meta: { requiresAuth: true } },
     {
       path: '/admin',
@@ -52,6 +55,7 @@ const router = createRouter({
         { path: 'overview', name: 'adminOverview', component: AdminOverviewPage, meta: { requiresAuth: true, requiresAdmin: true } },
         { path: 'users', name: 'adminUsers', component: AdminUsersPage, meta: { requiresAuth: true, requiresAdmin: true } },
         { path: 'moderation', name: 'adminModeration', component: AdminModerationPage, meta: { requiresAuth: true, requiresAdmin: true } },
+        { path: 'verifications', name: 'adminVerifications', component: AdminVerificationPage, meta: { requiresAuth: true, requiresAdmin: true } },
         { path: 'profile', name: 'adminProfile', component: AdminProfilePage, meta: { requiresAuth: true, requiresAdmin: true } },
       ]
     },
@@ -94,6 +98,9 @@ router.beforeEach((to) => {
     }
     if (to.path === '/profile' || to.path === '/tasks') {
       return '/admin/profile'
+    }
+    if (to.path === '/verification') {
+      return '/admin/verifications'
     }
   }
 

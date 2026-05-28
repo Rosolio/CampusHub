@@ -25,5 +25,6 @@ public interface UserMapper {
     int updateScore(@Param("id") Long id, @Param("score") BigDecimal score);
     int updateUserStatus(@Param("id") Long id, @Param("status") String status, @Param("disabledReason") String disabledReason);
     int updateLastLoginAt(@Param("id") Long id, @Param("lastLoginAt") LocalDateTime lastLoginAt);
+    int updateVerifiedStatus(@Param("id") Long id, @Param("verifiedStatus") String verifiedStatus);
     int delete(Long id);
 }

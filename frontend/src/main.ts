@@ -7,4 +7,8 @@ import { initializePreferences } from './composables/usePreferences'
 
 void initializePreferences()
 
+document.fonts.ready.then(() => {
+  document.documentElement.classList.add('fonts-loaded')
+})
+
 createApp(App).use(router).mount('#app')

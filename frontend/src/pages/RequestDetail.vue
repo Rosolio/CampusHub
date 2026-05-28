@@ -22,7 +22,7 @@
       </div>
 
       <div v-if="!detailError" class="grid gap-6 lg:grid-cols-[1.45fr_0.95fr]">
-        <section class="space-y-8">
+        <section class="min-w-0 space-y-8">
           <article class="overflow-hidden rounded-[2rem] shadow-sm" :class="isTopicPost ? topicHeroClass : 'bg-surface-container-lowest'">
             <div v-if="isTopicPost" class="p-6 md:p-8">
               <div class="mb-6 flex flex-wrap gap-3">
@@ -212,7 +212,7 @@
               </div>
               <textarea
                 v-model="commentForm.content"
-                class="min-h-36 w-full rounded-3xl border border-outline-variant/20 bg-surface px-5 py-4 text-on-surface outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
+                class="min-h-36 w-[96%] mx-auto rounded-3xl border border-outline-variant/20 bg-surface px-3 py-4 text-on-surface outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
                 :placeholder="replyTarget ? '写下你的回复...' : '写下你的评论，发布后可获得 5 积分...'"
                 :disabled="isExpiredTopic"
               ></textarea>
@@ -283,7 +283,7 @@
                 </p>
 
                 <div v-if="comment.children.length" class="mt-5 space-y-3 border-l border-surface-container-high pl-4">
-                  <div v-for="reply in comment.children" :key="reply.id" class="rounded-2xl bg-surface-container-low px-4 py-4">
+                  <div v-for="reply in comment.children" :key="reply.id" class="rounded-2xl bg-surface-container-low px-5 py-4">
                     <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                       <div class="min-w-0">
                         <div class="flex flex-wrap items-center gap-2">
@@ -333,7 +333,7 @@
           </section>
         </section>
 
-        <aside class="space-y-6">
+        <aside class="min-w-0 space-y-6">
           <section class="rounded-[2rem] bg-surface-container-lowest p-6 shadow-sm md:p-8">
             <div class="mb-6 text-center">
               <div class="relative mb-4 inline-block">
@@ -381,11 +381,11 @@
               <div class="rounded-3xl bg-white px-5 py-4">
                 <p class="text-xs font-bold uppercase tracking-[0.2em] text-on-surface-variant">互动统计</p>
                 <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <div class="rounded-2xl bg-surface-container-low px-4 py-4 text-center">
+                  <div class="rounded-2xl bg-surface-container-low px-5 py-4 text-center">
                     <p class="text-xs font-bold uppercase tracking-[0.18em] text-on-surface-variant">点赞数</p>
                     <p class="mt-2 text-2xl font-extrabold text-teal-900">{{ topicLikeCount }}</p>
                   </div>
-                  <div class="rounded-2xl bg-surface-container-low px-4 py-4 text-center">
+                  <div class="rounded-2xl bg-surface-container-low px-5 py-4 text-center">
                     <p class="text-xs font-bold uppercase tracking-[0.18em] text-on-surface-variant">评论数</p>
                     <p class="mt-2 text-2xl font-extrabold text-teal-900">{{ topicCommentCount }}</p>
                   </div>
@@ -426,11 +426,11 @@
               <div class="rounded-3xl bg-white px-5 py-4">
                 <p class="text-xs font-bold uppercase tracking-[0.2em] text-on-surface-variant">订单进度</p>
                 <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <div class="rounded-2xl px-4 py-4" :class="isCompletionConfirmedByRequester ? 'bg-emerald-50 text-emerald-800' : 'bg-surface-container-low text-on-surface'">
+                  <div class="rounded-2xl px-5 py-4" :class="isCompletionConfirmedByRequester ? 'bg-emerald-50 text-emerald-800' : 'bg-surface-container-low text-on-surface'">
                     <p class="text-xs font-bold uppercase tracking-[0.18em] text-on-surface-variant">需求方确认</p>
                     <p class="mt-2 font-bold">{{ isCompletionConfirmedByRequester ? '已确认' : '待确认' }}</p>
                   </div>
-                  <div class="rounded-2xl px-4 py-4" :class="isCompletionConfirmedByHelper ? 'bg-emerald-50 text-emerald-800' : 'bg-surface-container-low text-on-surface'">
+                  <div class="rounded-2xl px-5 py-4" :class="isCompletionConfirmedByHelper ? 'bg-emerald-50 text-emerald-800' : 'bg-surface-container-low text-on-surface'">
                     <p class="text-xs font-bold uppercase tracking-[0.18em] text-on-surface-variant">服务方确认</p>
                     <p class="mt-2 font-bold">{{ isCompletionConfirmedByHelper ? '已确认' : '待确认' }}</p>
                   </div>
@@ -507,7 +507,7 @@
         <textarea
           id="contact-message"
           v-model="contactMessage"
-          class="min-h-40 w-full rounded-3xl border border-outline-variant/20 bg-surface px-5 py-4 text-on-surface outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
+          class="min-h-40 w-[96%] mx-auto rounded-3xl border border-outline-variant/20 bg-surface px-3 py-4 text-on-surface outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
           :placeholder="isTopicPost ? '例如：你好，我想进一步了解这条帖子。' : '例如：你好，我对这个需求感兴趣，想确认一下时间和具体地点。'"
         ></textarea>
         <p v-if="contactError" class="mt-3 text-sm font-medium text-rose-600">{{ contactError }}</p>

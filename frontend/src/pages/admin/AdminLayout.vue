@@ -173,6 +173,15 @@ const navItems: NavItem[] = [
     description: '在管理模式下查看社区内容'
   },
   {
+    id: 'verifications',
+    to: '/admin/verifications',
+    routePath: '/admin/verifications',
+    label: '认证审核',
+    eyebrow: 'Verification',
+    icon: 'verified_user',
+    description: '审核学生身份认证申请'
+  },
+  {
     id: 'profile',
     to: '/admin/profile',
     routePath: '/admin/profile',
@@ -216,6 +225,8 @@ const currentPageTitle = computed(() => {
       return '用户管理'
     case '/admin/moderation':
       return '内容审核'
+    case '/admin/verifications':
+      return '认证审核'
     case '/admin/profile':
       return '管理员个人中心'
     default:
@@ -234,6 +245,8 @@ const currentPageDescription = computed(() => {
       return '集中查看账号状态和治理动作，把搜索、状态判断和执行操作放在同一工作面板。'
     case '/admin/moderation':
       return '围绕待处理内容组织审核入口，优先完成需要管理员明确决策的事项。'
+    case '/admin/verifications':
+      return '集中审核学生身份认证申请，查看证件照片并做出通过或驳回的决定。'
     case '/admin/profile':
       return '保留管理员身份信息、核心概况和常用后台入口，作为个人工作面板。'
     default:

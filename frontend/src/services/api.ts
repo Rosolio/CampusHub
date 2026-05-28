@@ -19,6 +19,19 @@ const api = axios.create({
   }
 })
 
+// 文件上传专用实例（不预设 Content-Type，让浏览器自动设置 multipart boundary）
+const uploadApi = axios.create({
+  baseURL: apiBaseUrl,
+  timeout: 30000
+})
+uploadApi.interceptors.request.use((config) => {
+  const token = getStoredToken()
+  if (token && hasValidAuthToken()) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  return config
+})
+
 const authApiClient = axios.create({
   baseURL: apiBaseUrl,
   timeout: 10000,
@@ -236,6 +249,21 @@ export const feedbackApi = {
   createFeedback: (data: { type: 'BUG' | 'SUGGESTION' | 'TASK_DISPUTE' | 'ACCOUNT_REPORT' | 'CONTENT_REPORT' | 'OTHER'; priority?: 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT'; title: string; content: string }) => requestData(api.post('/feedback', data)),
   getMyFeedback: () => requestData(api.get('/feedback/my')),
   withdrawFeedback: (feedbackId: number) => requestData(api.delete(`/feedback/${feedbackId}`))
+}
+
+export const verificationApi = {
+  getMyVerification: () => requestData(api.get('/users/me/verification')),
+  submitVerification: (formData: FormData) =>
+    requestData(uploadApi.post('/users/me/verification', formData)),
+  getVerifications: () => requestData(api.get('/admin/verifications')),
+  reviewVerification: (id: number, data: { status: string; rejectReason?: string }) =>
+    requestData(api.put(`/admin/verifications/${id}/review`, data)),
+  revokeVerification: (id: number) =>
+    requestData(api.put(`/admin/verifications/${id}/revoke`)),
+  getMyVerificationImageUrl: (filename: string) =>
+    `${apiBaseUrl}/users/me/verification/images/${filename}`,
+  getAdminVerificationImageUrl: (id: number, filename: string) =>
+    `${apiBaseUrl}/admin/verifications/${id}/images/${filename}`
 }
 
 export const messageApi = {

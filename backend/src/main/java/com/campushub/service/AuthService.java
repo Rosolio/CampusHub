@@ -137,6 +137,7 @@ public class AuthService {
         user.setPassword(passwordUtil.encryptPassword(request.getPassword()));
         user.setRole("USER");
         user.setStatus("ACTIVE");
+        user.setVerifiedStatus("NONE");
         user.setDisabledReason(null);
         user.setScore(BigDecimal.ZERO);
         user.setPoints(0);

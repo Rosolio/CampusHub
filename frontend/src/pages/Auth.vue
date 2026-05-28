@@ -55,15 +55,15 @@
           <!-- Auth Tabs (Simplified) -->
           <div class="flex gap-8 mb-8">
             <button 
-              class="pb-3 text-sm font-bold font-headline transition-colors" 
+              class="pb-3 text-sm font-bold font-headline transition-colors bg-transparent"
               :class="activeTab === 'login' ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant/60 hover:text-on-surface'"
               type="button"
               @click="switchTab('login')"
             >
               学生登录
             </button>
-            <button 
-              class="pb-3 text-sm font-medium font-headline transition-colors" 
+            <button
+              class="pb-3 text-sm font-medium font-headline transition-colors bg-transparent"
               :class="activeTab === 'register' ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant/60 hover:text-on-surface'"
               type="button"
               @click="switchTab('register')"
@@ -91,7 +91,7 @@
                   >badge</span
                 >
                 <input
-                  class="w-full pl-12 pr-4 py-3.5 bg-surface-container-low ghost-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-on-surface-variant/40"
+                  class="w-[90%] mx-auto pl-10 pr-4 py-3.5 bg-surface-container-low ghost-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-on-surface-variant/40"
                   id="student-id"
                   placeholder="例如：20230045 或 wanppi"
                   type="text"
@@ -103,7 +103,7 @@
             <div class="space-y-2">
               <div class="flex justify-between items-center px-1">
                 <label class="block text-sm font-semibold text-on-surface-variant" for="password">密码</label>
-                <button class="text-xs font-bold text-primary hover:underline" type="button" @click="handleForgotPassword">忘记密码？</button>
+                <button class="text-xs font-bold text-primary hover:underline bg-transparent" type="button" @click="handleForgotPassword">忘记密码？</button>
               </div>
               <div class="relative">
                 <span
@@ -112,14 +112,14 @@
                   >lock</span
                 >
                 <input
-                  class="w-full pl-12 pr-12 py-3.5 bg-surface-container-low ghost-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-on-surface-variant/40"
+                  class="w-[85%] mx-auto pl-10 pr-10 py-3.5 bg-surface-container-low ghost-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-on-surface-variant/40"
                   id="password"
                   placeholder="••••••••"
                   :type="showLoginPassword ? 'text' : 'password'"
                   v-model="loginForm.password"
                 />
                 <button
-                  class="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/50"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/50 bg-transparent"
                   :data-icon="showLoginPassword ? 'visibility_off' : 'visibility'"
                   type="button"
                   :aria-label="showLoginPassword ? '隐藏密码' : '显示密码'"
@@ -162,7 +162,7 @@
                   >badge</span
                 >
                 <input
-                  class="w-full pl-12 pr-4 py-3.5 bg-surface-container-low ghost-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-on-surface-variant/40"
+                  class="w-[90%] mx-auto pl-10 pr-4 py-3.5 bg-surface-container-low ghost-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-on-surface-variant/40"
                   id="reg-student-id"
                   placeholder="例如：20230045"
                   type="text"
@@ -180,7 +180,7 @@
                   >person</span
                 >
                 <input
-                  class="w-full pl-12 pr-4 py-3.5 bg-surface-container-low ghost-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-on-surface-variant/40"
+                  class="w-[90%] mx-auto pl-10 pr-4 py-3.5 bg-surface-container-low ghost-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-on-surface-variant/40"
                   id="reg-name"
                   placeholder="请输入您的昵称"
                   type="text"
@@ -198,7 +198,7 @@
                   >email</span
                 >
                 <input
-                  class="w-full pl-12 pr-4 py-3.5 bg-surface-container-low ghost-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-on-surface-variant/40"
+                  class="w-[90%] mx-auto pl-10 pr-4 py-3.5 bg-surface-container-low ghost-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-on-surface-variant/40"
                   id="reg-email"
                   placeholder="请输入您的邮箱"
                   type="email"
@@ -216,14 +216,14 @@
                   >lock</span
                 >
                 <input
-                  class="w-full pl-12 pr-12 py-3.5 bg-surface-container-low ghost-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-on-surface-variant/40"
+                  class="w-[85%] mx-auto pl-10 pr-10 py-3.5 bg-surface-container-low ghost-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-on-surface-variant/40"
                   id="reg-password"
                   placeholder="••••••••"
                   :type="showRegisterPassword ? 'text' : 'password'"
                   v-model="registerForm.password"
                 />
                 <button
-                  class="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/50"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/50 bg-transparent"
                   :data-icon="showRegisterPassword ? 'visibility_off' : 'visibility'"
                   type="button"
                   :aria-label="showRegisterPassword ? '隐藏密码' : '显示密码'"
@@ -243,14 +243,14 @@
                   >lock</span
                 >
                 <input
-                  class="w-full pl-12 pr-12 py-3.5 bg-surface-container-low ghost-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-on-surface-variant/40"
+                  class="w-[85%] mx-auto pl-10 pr-10 py-3.5 bg-surface-container-low ghost-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-on-surface-variant/40"
                   id="reg-confirm-password"
                   placeholder="••••••••"
                   :type="showRegisterConfirmPassword ? 'text' : 'password'"
                   v-model="registerForm.confirmPassword"
                 />
                 <button
-                  class="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/50"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/50 bg-transparent"
                   :data-icon="showRegisterConfirmPassword ? 'visibility_off' : 'visibility'"
                   type="button"
                   :aria-label="showRegisterConfirmPassword ? '隐藏确认密码' : '显示确认密码'"
@@ -284,8 +284,8 @@
 
           <p v-if="activeTab === 'login'" class="mt-12 text-center text-sm text-on-surface-variant">
             第一次使用校助？
-            <button 
-              class="text-secondary font-bold hover:underline cursor-pointer" 
+            <button
+              class="text-secondary font-bold hover:underline cursor-pointer bg-transparent"
               type="button"
               @click="switchTab('register')"
             >创建学生账号</button>

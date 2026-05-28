@@ -30,10 +30,28 @@
                 <span class="material-symbols-outlined text-lg">workspace_premium</span>
                 {{ creditTier.label }}
               </span>
-              <span class="bg-surface-container-highest/50 px-4 py-1.5 rounded-full text-sm font-semibold flex items-center gap-2">
-                <span class="material-symbols-outlined text-primary text-lg">verified</span>
+              <span
+                v-if="currentUser.verifiedStatus === 'VERIFIED'"
+                class="bg-emerald-100 px-4 py-1.5 rounded-full text-sm font-semibold flex items-center gap-2"
+              >
+                <span class="material-symbols-outlined text-emerald-600 text-lg" style="font-variation-settings:'FILL' 1;">verified</span>
                 身份已验证
               </span>
+              <span
+                v-else-if="currentUser.verifiedStatus === 'PENDING'"
+                class="bg-amber-50 px-4 py-1.5 rounded-full text-sm font-semibold flex items-center gap-2"
+              >
+                <span class="material-symbols-outlined text-amber-500 text-lg">hourglass_top</span>
+                认证审核中
+              </span>
+              <RouterLink
+                v-else
+                to="/verification"
+                class="bg-surface-container-highest/50 px-4 py-1.5 rounded-full text-sm font-semibold flex items-center gap-2 hover:bg-primary/10 hover:text-primary transition-colors"
+              >
+                <span class="material-symbols-outlined text-primary text-lg">verified</span>
+                申请认证
+              </RouterLink>
               <span class="bg-surface-container-highest/50 px-4 py-1.5 rounded-full text-sm font-semibold flex items-center gap-2">
                 <span class="material-symbols-outlined text-primary text-lg">location_on</span>
                 {{ currentUser.email || '未设置邮箱' }}
@@ -79,7 +97,7 @@
             </div>
           </div>
           <p class="text-sm text-on-surface-variant mt-6 leading-relaxed">
-            当前账号的数据库实时信息已加载。当前信用星级为 <span class="text-secondary font-bold">{{ formatScore(currentUser.score) }}</span>/5。
+            当前信用星级 <span class="text-secondary font-bold">{{ formatScore(currentUser.score) }}</span> / 5
           </p>
         </button>
 
