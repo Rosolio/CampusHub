@@ -96,15 +96,61 @@
             </div>
             <div class="flex flex-wrap gap-2">
               <button
+                v-for="mode in recommendationModes"
+                :key="mode.value"
+                type="button"
+                class="flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-all"
+                :class="recommendationMode === mode.value ? 'bg-teal-950 text-white shadow-sm' : 'bg-surface-container-low text-on-surface-variant hover:bg-cyan-50/70'"
+                @click="setRecommendationMode(mode.value)"
+              >
+                <span class="material-symbols-outlined text-lg">{{ mode.icon }}</span>
+                {{ mode.label }}
+              </button>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button
                 v-for="category in categories"
                 :key="category"
                 type="button"
                 class="flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-all"
                 :class="activeCategory === category ? 'bg-primary text-white shadow-sm' : 'bg-surface-container-low text-on-surface-variant hover:bg-cyan-50/70'"
-                @click="activeCategory = category"
+                @click="setCategory(category)"
               >
                 <span class="material-symbols-outlined text-lg">{{ iconForCategory(category) }}</span>
                 {{ category }}
+              </button>
+            </div>
+          </div>
+
+          <div class="mt-5 grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+            <label class="flex items-center gap-3 rounded-2xl bg-surface-container-low px-4 py-3 text-sm font-semibold text-on-surface-variant">
+              <span class="material-symbols-outlined text-xl text-teal-900">location_on</span>
+              <input
+                v-model.trim="selectedLocation"
+                type="text"
+                class="min-w-0 flex-1 bg-transparent text-on-surface outline-none placeholder:text-on-surface-variant/70"
+                placeholder="输入校内位置"
+                @keyup.enter="fetchTasks"
+              >
+              <button
+                type="button"
+                class="rounded-full bg-white px-3 py-1.5 text-xs font-bold text-teal-900 shadow-sm"
+                @click="fetchTasks"
+              >
+                应用
+              </button>
+            </label>
+
+            <div class="flex flex-wrap gap-2">
+              <button
+                v-for="option in availableTimeOptions"
+                :key="option.value"
+                type="button"
+                class="rounded-full px-4 py-2 text-sm font-semibold transition-all"
+                :class="availableTime === option.value ? 'bg-teal-900 text-white shadow-sm' : 'bg-surface-container-low text-on-surface-variant hover:bg-cyan-50/70'"
+                @click="setAvailableTime(option.value)"
+              >
+                {{ option.label }}
               </button>
             </div>
           </div>
@@ -150,6 +196,15 @@
             </div>
             <h2 class="text-2xl font-bold text-teal-900">当前没有可接单任务</h2>
             <p class="mt-3 text-on-surface-variant">稍后再来看看，或者自己先发一条跑腿代办或学习辅导。</p>
+            <button
+              v-if="hasActiveMatchingFilters"
+              type="button"
+              class="mt-5 inline-flex items-center gap-2 rounded-full bg-teal-900 px-5 py-3 text-sm font-bold text-white transition hover:bg-teal-800"
+              @click="clearMatchingFilters"
+            >
+              清空筛选
+              <span class="material-symbols-outlined text-base">filter_alt_off</span>
+            </button>
           </section>
 
           <section v-else class="grid gap-6 lg:grid-cols-2">
@@ -171,6 +226,12 @@
                   </span>
                   <span class="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-amber-700">
                     {{ taskStatusBadge(card.status) }}
+                  </span>
+                  <span
+                    v-if="card.matchScore !== null"
+                    class="rounded-full border border-teal-200 bg-teal-50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-teal-800"
+                  >
+                    匹配度 {{ card.matchScore }}
                   </span>
                 </div>
 
@@ -198,6 +259,17 @@
                     <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-on-surface-variant">截止时间</p>
                     <p class="mt-2 text-sm font-medium">{{ card.timeText || '待补充' }}</p>
                   </div>
+                </div>
+
+                <div v-if="card.matchReasons.length > 0" class="mt-4 flex flex-wrap gap-2">
+                  <span
+                    v-for="reason in card.matchReasons.slice(0, 2)"
+                    :key="reason"
+                    class="inline-flex items-center gap-1 rounded-full bg-cyan-50 px-3 py-1.5 text-xs font-bold text-teal-900"
+                  >
+                    <span class="material-symbols-outlined text-sm">auto_awesome</span>
+                    {{ reason }}
+                  </span>
                 </div>
 
                 <div class="mt-6 flex items-center justify-between gap-3 border-t border-outline-variant/10 pt-4">
@@ -296,8 +368,21 @@ import { announcementApi, taskApi } from '../services/api'
 const router = useRouter()
 const categories = ['全部任务', '跑腿代办', '学习辅导']
 const topicPreviewCategories = ['二手闲置', '恋爱交友', '打听求助', '兼职招聘']
+const recommendationModes = [
+  { value: 'recommended' as const, label: '智能推荐', icon: 'auto_awesome' },
+  { value: 'latest' as const, label: '最新发布', icon: 'schedule' }
+]
+const availableTimeOptions = [
+  { value: 'now', label: '现在' },
+  { value: 'today', label: '今天内' },
+  { value: 'tomorrow', label: '明天' },
+  { value: 'anytime', label: '不限时间' }
+]
 const activeCategory = ref('全部任务')
 const selectedTopicEntryCategory = ref('二手闲置')
+const recommendationMode = ref<'recommended' | 'latest'>('recommended')
+const selectedLocation = ref('')
+const availableTime = ref('now')
 const tasks = ref<any[]>([])
 const announcements = ref<any[]>([])
 const loading = ref(false)
@@ -305,6 +390,9 @@ const error = ref('')
 const taskSection = ref<HTMLElement | null>(null)
 
 const pinnedAnnouncements = computed(() => announcements.value.filter((item) => item.pinned).slice(0, 3))
+const hasActiveMatchingFilters = computed(() => (
+  activeCategory.value !== '全部任务' || selectedLocation.value !== '' || availableTime.value !== 'now'
+))
 
 const iconForCategory = (category: string) => {
   const iconMap: Record<string, string> = {
@@ -352,16 +440,46 @@ const mapTaskToCard = (task: any) => ({
   rewardText: task.rewardText || task.rewardTitle || '待补充',
   locationText: task.locationText,
   timeText: task.timeText,
+  matchScore: Number.isFinite(Number(task.matchScore)) ? Number(task.matchScore) : null,
+  matchReasons: Array.isArray(task.matchReasons) ? task.matchReasons.filter(Boolean) : [],
+  recommendationMode: task.recommendationMode,
   likeCount: Number(task.likeCount || 0),
   commentCount: Number(task.commentCount || 0),
   publisher: task.requesterName || task.publisher || `用户 #${task.requesterId ?? ''}`
 })
 
+const formatLocalDateTime = (date: Date) => {
+  const pad = (value: number) => String(value).padStart(2, '0')
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
+}
+
+const resolveAvailableAt = () => {
+  const now = new Date()
+  if (availableTime.value === 'anytime') return undefined
+  if (availableTime.value === 'today') {
+    const todayEnd = new Date(now)
+    todayEnd.setHours(23, 59, 0, 0)
+    return formatLocalDateTime(todayEnd)
+  }
+  if (availableTime.value === 'tomorrow') {
+    const tomorrowEnd = new Date(now)
+    tomorrowEnd.setDate(tomorrowEnd.getDate() + 1)
+    tomorrowEnd.setHours(23, 59, 0, 0)
+    return formatLocalDateTime(tomorrowEnd)
+  }
+  return formatLocalDateTime(now)
+}
+
 const fetchTasks = async () => {
   loading.value = true
   error.value = ''
   try {
-    const response = await taskApi.getTasks() as any
+    const response = await taskApi.getTasks({
+      mode: recommendationMode.value,
+      category: activeCategory.value === '全部任务' ? undefined : activeCategory.value,
+      location: selectedLocation.value || undefined,
+      availableAt: resolveAvailableAt()
+    }) as any
     const rawTasks = Array.isArray(response) ? response : Array.isArray(response?.data) ? response.data : []
     tasks.value = rawTasks.map(mapTaskToCard)
   } catch (err: any) {
@@ -391,6 +509,28 @@ const filteredCards = computed(() => {
   if (activeCategory.value === '全部任务') return taskCards.value
   return taskCards.value.filter((card) => card.category === activeCategory.value)
 })
+
+const setRecommendationMode = (mode: 'recommended' | 'latest') => {
+  recommendationMode.value = mode
+  fetchTasks()
+}
+
+const setCategory = (category: string) => {
+  activeCategory.value = category
+  fetchTasks()
+}
+
+const setAvailableTime = (value: string) => {
+  availableTime.value = value
+  fetchTasks()
+}
+
+const clearMatchingFilters = () => {
+  activeCategory.value = '全部任务'
+  selectedLocation.value = ''
+  availableTime.value = 'now'
+  fetchTasks()
+}
 
 const hotTopicRanking = computed(() => (
   tasks.value

@@ -1,6 +1,7 @@
 package com.campushub.controller;
 
 import com.campushub.dto.TaskCreateRequest;
+import com.campushub.dto.TaskRecommendationQuery;
 import com.campushub.entity.Task;
 import com.campushub.service.TaskService;
 import org.springframework.security.core.Authentication;
@@ -19,8 +20,8 @@ public class TaskController {
     }
 
     @GetMapping
-    public List<Task> getTasks(Authentication authentication) {
-        return taskService.getTasks(getCurrentUserId(authentication));
+    public List<Task> getTasks(@ModelAttribute TaskRecommendationQuery query, Authentication authentication) {
+        return taskService.getTasks(getCurrentUserId(authentication), query);
     }
 
     @GetMapping("/{id}")

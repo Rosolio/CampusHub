@@ -2,6 +2,7 @@ package com.campushub.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class Task {
     private Long id;
@@ -45,6 +46,10 @@ public class Task {
     private LocalDateTime completedAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private Integer matchScore;
+    private List<String> matchReasons;
+    private String matchedCategory;
+    private String recommendationMode;
 
     public Long getId() {
         return id;
@@ -372,5 +377,37 @@ public class Task {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Integer getMatchScore() {
+        return matchScore;
+    }
+
+    public void setMatchScore(Integer matchScore) {
+        this.matchScore = matchScore;
+    }
+
+    public List<String> getMatchReasons() {
+        return matchReasons;
+    }
+
+    public void setMatchReasons(List<String> matchReasons) {
+        this.matchReasons = matchReasons;
+    }
+
+    public String getMatchedCategory() {
+        return matchedCategory;
+    }
+
+    public void setMatchedCategory(String matchedCategory) {
+        this.matchedCategory = matchedCategory;
+    }
+
+    public String getRecommendationMode() {
+        return recommendationMode;
+    }
+
+    public void setRecommendationMode(String recommendationMode) {
+        this.recommendationMode = recommendationMode;
     }
 }
