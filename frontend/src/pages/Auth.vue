@@ -395,8 +395,21 @@ const handleRegister = async () => {
     error.value = '请输入邮箱'
     return
   }
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(registerForm.value.email)) {
+    error.value = '请输入有效的邮箱地址'
+    return
+  }
   if (!registerForm.value.password) {
     error.value = '请输入密码'
+    return
+  }
+  if (registerForm.value.password.length < 6) {
+    error.value = '密码长度不能少于6位'
+    return
+  }
+  if (registerForm.value.password.length > 32) {
+    error.value = '密码长度不能超过32位'
     return
   }
   if (registerForm.value.password !== registerForm.value.confirmPassword) {

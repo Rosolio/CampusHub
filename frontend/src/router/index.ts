@@ -24,6 +24,7 @@ const AdminUsersPage = () => import('../pages/admin/AdminUsersPage.vue')
 const AdminModerationPage = () => import('../pages/admin/AdminModerationPage.vue')
 const AdminProfilePage = () => import('../pages/admin/AdminProfilePage.vue')
 const AdminCommunityFeedPage = () => import('../pages/admin/AdminCommunityFeedPage.vue')
+const NotFound = () => import('../pages/NotFound.vue')
 
 const router = createRouter({
   history: createWebHistory(),
@@ -65,7 +66,7 @@ const router = createRouter({
     { path: '/settings/about', name: 'aboutCampusHub', component: AboutCampusHub, meta: { requiresAuth: true } },
     { path: '/settings/privacy', name: 'privacyPolicy', component: PrivacyPolicy, meta: { requiresAuth: true } },
     { path: '/settings/agreement', name: 'userAgreement', component: UserAgreement, meta: { requiresAuth: true } },
-    { path: '/:pathMatch(.*)*', name: 'notFound', redirect: '/home' },
+    { path: '/:pathMatch(.*)*', name: 'notFound', component: NotFound },
   ],
 })
 
@@ -82,6 +83,9 @@ router.beforeEach((to) => {
   }
 
   if (authenticated && isAdminUser()) {
+    if (isAuthRoute) {
+      return '/admin/community'
+    }
     if (to.path === '/home') {
       return '/admin/community'
     }

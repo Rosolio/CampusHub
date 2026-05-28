@@ -3,13 +3,7 @@
     <AppTopNav :avatar-url="currentUser.avatarUrl || defaultAvatarUrl" />
 
     <main class="mx-auto max-w-5xl px-6 pb-12 pt-24">
-      <RouterLink
-        :to="`/detail/${props.id}`"
-        class="mb-8 inline-flex items-center gap-2 font-medium text-on-surface-variant transition-colors hover:text-primary"
-      >
-        <span class="material-symbols-outlined text-lg">arrow_back</span>
-        返回需求详情
-      </RouterLink>
+      <PageBackHeader :to="`/detail/${props.id}`" label="返回需求详情" />
 
       <div
         v-if="feedbackMessage"
@@ -166,9 +160,9 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { RouterLink } from 'vue-router'
 import AppBottomNav from '../components/AppBottomNav.vue'
 import AppTopNav from '../components/AppTopNav.vue'
+import PageBackHeader from '../components/PageBackHeader.vue'
 import { DEFAULT_AVATAR_URL } from '../constants/assets'
 import { taskApi, userApi } from '../services/api'
 import { setStoredUser, storedUser } from '../utils/auth'

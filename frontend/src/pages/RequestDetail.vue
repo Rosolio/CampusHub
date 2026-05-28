@@ -9,7 +9,19 @@
         {{ feedbackMessage }}
       </div>
 
-      <div class="grid gap-6 lg:grid-cols-[1.45fr_0.95fr]">
+      <div v-if="detailError" class="mb-6 rounded-2xl border border-rose-200 bg-rose-50 p-6 text-center text-rose-700">
+        <p class="mb-4 text-sm font-medium">{{ detailError }}</p>
+        <button
+          type="button"
+          class="inline-flex items-center gap-2 rounded-full bg-rose-100 px-4 py-2 text-sm font-bold text-rose-800 transition-colors hover:bg-rose-200"
+          @click="fetchTaskDetail"
+        >
+          <span class="material-symbols-outlined text-base">refresh</span>
+          重新加载
+        </button>
+      </div>
+
+      <div v-if="!detailError" class="grid gap-6 lg:grid-cols-[1.45fr_0.95fr]">
         <section class="space-y-8">
           <article class="overflow-hidden rounded-[2rem] shadow-sm" :class="isTopicPost ? topicHeroClass : 'bg-surface-container-lowest'">
             <div v-if="isTopicPost" class="p-6 md:p-8">
@@ -560,6 +572,7 @@ const contactMessage = ref('')
 const contactError = ref('')
 const feedbackMessage = ref('')
 const feedbackType = ref<FeedbackType>('success')
+const detailError = ref('')
 
 const isTopicPost = computed(() => inferTaskMode(request.value) === 'topic')
 
@@ -797,6 +810,7 @@ const sortedComments = computed(() => {
 const commentTree = computed<CommentNode[]>(() => {
   const map = new Map<number, CommentNode>()
   const roots: CommentNode[] = []
+  const MAX_DEPTH = 20
 
   sortedComments.value.forEach((comment) => {
     map.set(comment.id, { ...comment, children: [] })
@@ -805,8 +819,10 @@ const commentTree = computed<CommentNode[]>(() => {
   map.forEach((comment) => {
     if (comment.parentId && map.has(comment.parentId)) {
       let parent = map.get(comment.parentId) || null
-      while (parent?.parentId && map.has(parent.parentId)) {
+      let depth = 0
+      while (parent?.parentId && map.has(parent.parentId) && depth < MAX_DEPTH) {
         parent = map.get(parent.parentId) || parent
+        depth++
       }
       parent?.children.push(comment)
     } else {
@@ -871,6 +887,7 @@ const formatDateTime = (value?: string) => {
 
 const fetchTaskDetail = async () => {
   try {
+    detailError.value = ''
     request.value = normalizeRequestTask(await taskApi.getTaskById(Number(props.id)))
     if (isTopicPost.value) {
       await fetchComments()
@@ -880,10 +897,11 @@ const fetchTaskDetail = async () => {
     } else {
       reviews.value = []
     }
-  } catch (error) {
-    console.error('获取详情失败:', error)
+  } catch (err) {
+    console.error('获取详情失败:', err)
     request.value = {}
     comments.value = []
+    detailError.value = '获取任务详情失败，请稍后重试。'
   }
 }
 
@@ -961,6 +979,15 @@ const deleteComment = async (comment: any) => {
     setFeedback('只有帖主或评论发布者可以删除这条内容。', 'error')
     return
   }
+
+  const confirmed = await openConfirm({
+    title: '确认删除',
+    message: comment.parentId ? '确定要删除这条回复吗？删除后无法恢复。' : '确定要删除这条评论吗？删除后无法恢复。',
+    confirmText: '删除',
+    cancelText: '取消'
+  })
+
+  if (!confirmed) return
 
   const commentId = Number(comment.id)
   commentDeleteLoadingIds.value = [...commentDeleteLoadingIds.value, commentId]
@@ -1298,7 +1325,6 @@ const handleTaskAction = async () => {
 }
 
 onMounted(async () => {
-  await fetchAcceptedTasks()
-  await fetchTaskDetail()
+  await Promise.all([fetchAcceptedTasks(), fetchTaskDetail()])
 })
 </script>

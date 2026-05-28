@@ -44,7 +44,7 @@
         <div class="border-t border-slate-200/80 p-3">
           <RouterLink
             to="/home"
-            class="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm font-bold text-slate-700 transition hover:border-slate-300 hover:bg-white"
+            class="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm font-bold text-slate-700 transition hover:border-slate-300 hover:bg-white dark:hover:bg-white/10"
           >
             <span class="inline-flex items-center gap-2">
               <span class="material-symbols-outlined text-lg">open_in_new</span>

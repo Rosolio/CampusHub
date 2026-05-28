@@ -79,7 +79,7 @@
             v-for="item in quickActions"
             :key="item.to"
             :to="item.to"
-            class="admin-panel-soft flex items-center justify-between px-5 py-4 transition hover:border-slate-300 hover:bg-white"
+            class="admin-panel-soft flex items-center justify-between px-5 py-4 transition hover:border-slate-300 hover:bg-white dark:hover:bg-white/10"
           >
             <div class="flex items-center gap-4">
               <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-slate-700">

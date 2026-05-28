@@ -3,10 +3,7 @@
     <AppTopNav />
 
     <main class="mx-auto max-w-5xl px-6 pb-12 pt-24">
-      <RouterLink to="/home" class="inline-flex items-center gap-2 text-sm font-medium text-on-surface-variant transition hover:text-primary">
-        <span class="material-symbols-outlined text-base">arrow_back</span>
-        返回社区
-      </RouterLink>
+      <PageBackHeader to="/home" label="返回社区" />
 
       <section class="mt-6 overflow-hidden rounded-[2.2rem] bg-[linear-gradient(135deg,#0f3c44_0%,#0d5d68_55%,#66b7ac_100%)] p-7 text-white shadow-[0_24px_70px_rgba(15,23,42,0.12)]">
         <p class="text-[11px] font-extrabold uppercase tracking-[0.28em] text-white/70">Community Feedback</p>
@@ -168,9 +165,9 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { RouterLink } from 'vue-router'
 import AppBottomNav from '../components/AppBottomNav.vue'
 import AppTopNav from '../components/AppTopNav.vue'
+import PageBackHeader from '../components/PageBackHeader.vue'
 import { feedbackApi } from '../services/api'
 
 type FeedbackType = 'BUG' | 'SUGGESTION' | 'TASK_DISPUTE' | 'ACCOUNT_REPORT' | 'CONTENT_REPORT' | 'OTHER'

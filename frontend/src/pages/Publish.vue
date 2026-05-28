@@ -3,10 +3,7 @@
     <AppTopNav />
 
     <main class="mx-auto max-w-4xl px-6 pb-12 pt-24">
-      <RouterLink to="/" class="mb-8 inline-flex items-center gap-2 font-medium text-on-surface-variant transition-colors hover:text-primary">
-        <span class="material-symbols-outlined text-lg">arrow_back</span>
-        返回社区
-      </RouterLink>
+      <PageBackHeader to="/" label="返回社区" />
 
       <section class="mb-8 overflow-hidden rounded-[2rem] bg-gradient-to-br from-teal-900 via-teal-800 to-cyan-700 p-8 text-white shadow-lg">
         <p class="mb-3 text-xs font-bold uppercase tracking-[0.3em] text-cyan-100/80">发布模式</p>
@@ -166,10 +163,11 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import AppBottomNav from '../components/AppBottomNav.vue'
 import AppTopNav from '../components/AppTopNav.vue'
 import FormField from '../components/FormField.vue'
+import PageBackHeader from '../components/PageBackHeader.vue'
 import { usePreferences } from '../composables/usePreferences'
 import { showToast } from '../composables/useToast'
 import { taskApi } from '../services/api'
@@ -194,7 +192,7 @@ const form = ref({
   title: '',
   category: '跑腿代办',
   description: '',
-  reward: '10',
+  reward: 10,
   location: '',
   deadline: '',
   urgent: false,
@@ -242,8 +240,20 @@ const activeConfig = computed(() => {
 })
 
 const handleCategoryChange = (category: string) => {
+  const previousMode = activeCategory.value.mode
+  const newMode = categories.find((c) => c.value === category)?.mode || 'task'
+
   form.value.category = category
-  if (activeCategory.value.mode === 'topic') {
+
+  if (previousMode !== newMode) {
+    form.value.title = ''
+    form.value.description = ''
+    form.value.location = ''
+    form.value.deadline = ''
+    form.value.contactInfo = ''
+  }
+
+  if (newMode === 'topic') {
     form.value.urgent = false
     return
   }
@@ -282,7 +292,7 @@ const submitForm = async () => {
   error.value = ''
 
   try {
-    const rewardAmount = String(Math.max(1, Number.parseInt(form.value.reward, 10) || 10))
+    const rewardAmount = String(Math.max(1, form.value.reward || 10))
     const isTaskMode = activeCategory.value.mode === 'task'
     const deadlineText = !isTaskMode && form.value.topicLongTerm
       ? '长期有效'

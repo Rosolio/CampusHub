@@ -37,8 +37,11 @@
         {{ fetchError }}
       </div>
 
-      <div class="grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(220px,34vh)_minmax(0,1fr)] gap-4 overflow-hidden lg:grid-cols-[360px_minmax(0,1fr)] lg:grid-rows-1 lg:gap-6">
-        <aside class="flex min-h-0 flex-col rounded-[2rem] bg-surface-container-lowest p-4 shadow-sm md:p-5">
+      <div class="grid min-h-0 flex-1 gap-4 overflow-hidden lg:grid-cols-[360px_minmax(0,1fr)] lg:gap-6">
+        <aside
+          class="flex min-h-0 flex-col rounded-[2rem] bg-surface-container-lowest p-4 shadow-sm md:p-5"
+          :class="mobileShowChat ? 'hidden lg:flex' : 'flex'"
+        >
           <div class="mb-3 flex shrink-0 items-center justify-between">
             <div>
               <h2 class="text-lg font-extrabold text-teal-900 md:text-xl">会话列表</h2>
@@ -106,7 +109,10 @@
           </div>
         </aside>
 
-        <section class="flex min-h-0 flex-col overflow-hidden rounded-[2rem] bg-surface-container-lowest shadow-sm">
+        <section
+          class="flex min-h-0 flex-col overflow-hidden rounded-[2rem] bg-surface-container-lowest shadow-sm"
+          :class="mobileShowChat ? 'flex' : 'hidden lg:flex'"
+        >
           <div v-if="!selectedConversation" class="flex-1 flex items-center justify-center p-8">
             <div class="max-w-md rounded-[2rem] bg-surface-container-low p-8 text-center">
               <p class="mb-2 text-xl font-extrabold text-teal-900">选择一个会话</p>
@@ -118,6 +124,13 @@
             <div class="shrink-0 border-b border-outline-variant/15 px-5 py-4 md:px-6 md:py-5">
               <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div class="flex items-center gap-4">
+                  <button
+                    type="button"
+                    class="rounded-full p-2 text-on-surface-variant transition-colors hover:bg-surface-container-high lg:hidden"
+                    @click="mobileShowChat = false"
+                  >
+                    <span class="material-symbols-outlined">arrow_back</span>
+                  </button>
                   <div v-if="selectedConversation.isSystemChannel" class="flex h-14 w-14 items-center justify-center rounded-full border border-amber-200 bg-amber-50 text-amber-700">
                     <span class="material-symbols-outlined text-2xl">notifications_active</span>
                   </div>
@@ -303,6 +316,7 @@ const composer = ref('')
 const loading = ref(false)
 const sending = ref(false)
 const showUnreadOnly = ref(false)
+const mobileShowChat = ref(false)
 const fetchError = ref('')
 const sendError = ref('')
 const messageViewport = ref<HTMLElement | null>(null)
@@ -632,6 +646,7 @@ const markConversationAsRead = async (conversation: Conversation | null) => {
 
 const selectConversation = (key: string) => {
   selectedKey.value = key
+  mobileShowChat.value = true
 }
 
 const fetchMessages = async (options?: { silent?: boolean }) => {

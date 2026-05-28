@@ -30,7 +30,7 @@
               </button>
               <RouterLink
                 to="/publish"
-                class="inline-flex items-center gap-2 rounded-full border border-teal-200 bg-white/80 px-5 py-3 text-sm font-bold text-teal-900 transition-colors hover:bg-white"
+                class="inline-flex items-center gap-2 rounded-full border border-teal-200 bg-white/80 px-5 py-3 text-sm font-bold text-teal-900 transition-colors hover:bg-white dark:hover:bg-white/10"
               >
                 发布需求
                 <span class="material-symbols-outlined text-base">add</span>
@@ -78,7 +78,7 @@
                   {{ category }}
                 </button>
               </div>
-              <div class="mt-5 inline-flex items-center gap-2 text-sm font-bold text-teal-900 transition-all group-hover:gap-3">
+              <div class="mt-5 inline-flex items-center gap-2 text-sm font-bold text-teal-900 transition-all group-hover:gap-3" @click="goToTopicSquare(selectedTopicEntryCategory)">
                 进入全部话题页
                 <span class="material-symbols-outlined text-base">arrow_forward</span>
               </div>
@@ -133,7 +133,15 @@
           </section>
 
           <section v-else-if="error" class="rounded-[2rem] border border-rose-200 bg-rose-50 p-10 text-center text-rose-700">
-            {{ error }}
+            <p class="mb-4">{{ error }}</p>
+            <button
+              type="button"
+              class="inline-flex items-center gap-2 rounded-full bg-rose-100 px-4 py-2 text-sm font-bold text-rose-800 transition-colors hover:bg-rose-200"
+              @click="fetchTasks"
+            >
+              <span class="material-symbols-outlined text-base">refresh</span>
+              重新加载
+            </button>
           </section>
 
           <section v-else-if="filteredCards.length === 0" class="rounded-[2rem] bg-surface-container-low p-10 text-center">
