@@ -1,4 +1,8 @@
 # 配置仅供参考！
+workflow:
+  rules:
+    - when: always
+
 stages:
   - quality
   - test
@@ -20,6 +24,8 @@ cache:
 backend-checkstyle:
   stage: quality
   image: maven:3.9.9-eclipse-temurin-17
+  rules:
+    - when: on_success
   script:
     - cd backend
     - mvn -B checkstyle:check
@@ -27,6 +33,8 @@ backend-checkstyle:
 backend-test:
   stage: test
   image: maven:3.9.9-eclipse-temurin-17
+  rules:
+    - when: on_success
   services:
     - name: mysql:8.0
       alias: mysql
@@ -110,6 +118,8 @@ backend-test:
 backend-build:
   stage: build
   image: maven:3.9.9-eclipse-temurin-17
+  rules:
+    - when: on_success
   needs:
     - backend-checkstyle
     - backend-test
