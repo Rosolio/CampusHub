@@ -21,7 +21,11 @@
         </button>
       </div>
 
-      <div v-if="!detailError" class="grid gap-6 lg:grid-cols-[1.45fr_0.95fr]">
+      <div v-if="detailLoading" class="rounded-[2rem] bg-surface-container-low p-10 text-center text-on-surface-variant">
+        正在加载内容详情...
+      </div>
+
+      <div v-else-if="!detailError" class="grid gap-6 lg:grid-cols-[1.45fr_0.95fr]">
         <section class="min-w-0 space-y-8">
           <article class="overflow-hidden rounded-[2rem] shadow-sm" :class="isTopicPost ? topicHeroClass : 'bg-surface-container-lowest'">
             <div v-if="isTopicPost" class="p-6 md:p-8">
@@ -573,6 +577,7 @@ const contactError = ref('')
 const feedbackMessage = ref('')
 const feedbackType = ref<FeedbackType>('success')
 const detailError = ref('')
+const detailLoading = ref(true)
 
 const isTopicPost = computed(() => inferTaskMode(request.value) === 'topic')
 
@@ -888,6 +893,7 @@ const formatDateTime = (value?: string) => {
 const fetchTaskDetail = async () => {
   try {
     detailError.value = ''
+    detailLoading.value = true
     request.value = normalizeRequestTask(await taskApi.getTaskById(Number(props.id)))
     if (isTopicPost.value) {
       await fetchComments()
@@ -902,6 +908,8 @@ const fetchTaskDetail = async () => {
     request.value = {}
     comments.value = []
     detailError.value = '获取任务详情失败，请稍后重试。'
+  } finally {
+    detailLoading.value = false
   }
 }
 
