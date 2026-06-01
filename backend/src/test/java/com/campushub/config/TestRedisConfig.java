@@ -5,12 +5,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 @TestConfiguration
 public class TestRedisConfig {
@@ -22,7 +22,7 @@ public class TestRedisConfig {
         Map<String, Object> store = new ConcurrentHashMap<>();
         ValueOperations<String, Object> valueOperations = createValueOperations(store);
 
-        return new RedisTemplate<>() {
+        RedisTemplate<String, Object> template = new RedisTemplate<>() {
             @Override
             public void afterPropertiesSet() {
                 // Skip RedisConnectionFactory validation in tests.
@@ -38,6 +38,9 @@ public class TestRedisConfig {
                 return store.remove(key) != null;
             }
         };
+        template.setKeySerializer(StringRedisSerializer.UTF_8);
+        template.setValueSerializer(StringRedisSerializer.UTF_8);
+        return template;
     }
 
     @SuppressWarnings("unchecked")
@@ -57,6 +60,14 @@ public class TestRedisConfig {
         if ("set".equals(methodName) && args != null && (args.length == 2 || args.length == 4)) {
             store.put((String) args[0], args[1]);
             return null;
+        }
+        if ("increment".equals(methodName) && args != null && args.length == 1) {
+            String key = (String) args[0];
+            Object current = store.get(key);
+            long value = current instanceof Number ? ((Number) current).longValue() : 0L;
+            long next = value + 1;
+            store.put(key, next);
+            return next;
         }
         if ("getOperations".equals(methodName)) {
             return null;

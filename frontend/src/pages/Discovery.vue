@@ -741,7 +741,9 @@ const fetchTasks = async () => {
       mode: recommendationMode.value,
       category: activeCategory.value === '全部任务' ? undefined : activeCategory.value,
       location: selectedLocation.value || undefined,
-      availableAt: resolveAvailableAt()
+      availableAt: resolveAvailableAt(),
+      taskMode: 'task',
+      size: 50
     }) as any
     const rawTasks = Array.isArray(response) ? response : Array.isArray(response?.data) ? response.data : []
     tasks.value = rawTasks.map(mapTaskToCard)
@@ -768,11 +770,13 @@ const fetchTopicPosts = async () => {
   topicLoading.value = true
   topicError.value = ''
   try {
-    const response = await taskApi.getTasks() as any
+    const response = await taskApi.getTasks({
+      taskMode: 'topic',
+      mode: 'latest',
+      size: 200
+    }) as any
     const rawTasks = Array.isArray(response) ? response : Array.isArray(response?.data) ? response.data : []
-    topicPosts.value = rawTasks
-      .map(mapTopicToCard)
-      .filter((card: any) => card.taskMode === 'topic')
+    topicPosts.value = rawTasks.map(mapTopicToCard)
   } catch (err: any) {
     topicError.value = err?.response?.data?.message || '获取话题帖失败，请稍后重试'
     topicPosts.value = []
@@ -781,9 +785,7 @@ const fetchTopicPosts = async () => {
   }
 }
 
-const taskCards = computed(() => (
-  tasks.value.filter((card) => card.taskMode === 'task' && (card.status === 'pending' || card.status === 'accepted'))
-))
+const taskCards = computed(() => tasks.value)
 
 const filteredCards = computed(() => {
   if (activeCategory.value === '全部任务') return taskCards.value

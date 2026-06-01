@@ -88,7 +88,7 @@
                helper.avatar_url AS helper_avatar_url,
                helper.score AS helper_score,
                helper.points AS helper_points,
-               COALESCE(tc.comment_count, 0) AS comment_count
+               COALESCE((SELECT COUNT(*) FROM task_comments tc WHERE tc.task_id = t.id), 0) AS comment_count
         FROM tasks t
         LEFT JOIN users u ON t.requester_id = u.id
         LEFT JOIN task_participants helper_tp
@@ -96,11 +96,6 @@
               AND helper_tp.role = 'helper'
               AND helper_tp.status != 'canceled'
         LEFT JOIN users helper ON helper_tp.participant_id = helper.id
-        LEFT JOIN (
-            SELECT task_id, COUNT(*) AS comment_count
-            FROM task_comments
-            GROUP BY task_id
-        ) tc ON tc.task_id = t.id
         ORDER BY t.created_at DESC
     </select>
 
@@ -117,7 +112,7 @@
                helper.avatar_url AS helper_avatar_url,
                helper.score AS helper_score,
                helper.points AS helper_points,
-               COALESCE(tc.comment_count, 0) AS comment_count
+               COALESCE((SELECT COUNT(*) FROM task_comments tc WHERE tc.task_id = t.id), 0) AS comment_count
         FROM tasks t
         LEFT JOIN users u ON t.requester_id = u.id
         LEFT JOIN task_participants helper_tp
@@ -125,11 +120,6 @@
               AND helper_tp.role = 'helper'
               AND helper_tp.status != 'canceled'
         LEFT JOIN users helper ON helper_tp.participant_id = helper.id
-        LEFT JOIN (
-            SELECT task_id, COUNT(*) AS comment_count
-            FROM task_comments
-            GROUP BY task_id
-        ) tc ON tc.task_id = t.id
         WHERE t.requester_id = #{requesterId}
         ORDER BY t.created_at DESC
     </select>
@@ -147,7 +137,7 @@
                helper.avatar_url AS helper_avatar_url,
                helper.score AS helper_score,
                helper.points AS helper_points,
-               COALESCE(tc.comment_count, 0) AS comment_count
+               COALESCE((SELECT COUNT(*) FROM task_comments tc WHERE tc.task_id = t.id), 0) AS comment_count
         FROM tasks t
         INNER JOIN task_participants tp ON tp.task_id = t.id
         LEFT JOIN users u ON t.requester_id = u.id
@@ -156,11 +146,6 @@
               AND helper_tp.role = 'helper'
               AND helper_tp.status != 'canceled'
         LEFT JOIN users helper ON helper_tp.participant_id = helper.id
-        LEFT JOIN (
-            SELECT task_id, COUNT(*) AS comment_count
-            FROM task_comments
-            GROUP BY task_id
-        ) tc ON tc.task_id = t.id
         WHERE tp.participant_id = #{helperId}
           AND tp.role = 'helper'
           AND tp.status != 'canceled'
@@ -180,7 +165,7 @@
                helper.avatar_url AS helper_avatar_url,
                helper.score AS helper_score,
                helper.points AS helper_points,
-               COALESCE(tc.comment_count, 0) AS comment_count
+               COALESCE((SELECT COUNT(*) FROM task_comments tc WHERE tc.task_id = t.id), 0) AS comment_count
         FROM tasks t
         LEFT JOIN users u ON t.requester_id = u.id
         LEFT JOIN task_participants helper_tp
@@ -188,13 +173,88 @@
               AND helper_tp.role = 'helper'
               AND helper_tp.status != 'canceled'
         LEFT JOIN users helper ON helper_tp.participant_id = helper.id
-        LEFT JOIN (
-            SELECT task_id, COUNT(*) AS comment_count
-            FROM task_comments
-            GROUP BY task_id
-        ) tc ON tc.task_id = t.id
         WHERE t.status = #{status}
         ORDER BY t.created_at DESC
+    </select>
+
+    <select id="selectFeedTasks" resultMap="TaskResultMap">
+        SELECT t.*,
+               u.name AS requester_name,
+               u.major AS requester_major,
+               u.avatar_url AS requester_avatar_url,
+               u.score AS requester_score,
+               u.points AS requester_points,
+               helper.id AS helper_id,
+               helper.name AS helper_name,
+               helper.major AS helper_major,
+               helper.avatar_url AS helper_avatar_url,
+               helper.score AS helper_score,
+               helper.points AS helper_points,
+               COALESCE((SELECT COUNT(*) FROM task_comments tc WHERE tc.task_id = t.id), 0) AS comment_count
+        FROM tasks t
+        LEFT JOIN users u ON t.requester_id = u.id
+        LEFT JOIN task_participants helper_tp
+               ON helper_tp.task_id = t.id
+              AND helper_tp.role = 'helper'
+              AND helper_tp.status != 'canceled'
+        LEFT JOIN users helper ON helper_tp.participant_id = helper.id
+        WHERE t.review_status = 'approved'
+        <if test="query.taskMode == 'task'">
+            AND t.task_mode = 'task'
+            AND t.status IN ('pending', 'accepted')
+            AND (t.expires_at IS NULL OR t.expires_at <![CDATA[>]]> #{now})
+        </if>
+        <if test="query.taskMode == 'topic'">
+            AND t.task_mode = 'topic'
+            AND t.status NOT IN ('canceled', 'completed')
+        </if>
+        <if test="query.taskMode == null or query.taskMode == ''">
+            AND (
+                (t.task_mode = 'task' AND t.status IN ('pending', 'accepted') AND (t.expires_at IS NULL OR t.expires_at <![CDATA[>]]> #{now}))
+                OR
+                (t.task_mode = 'topic' AND t.status NOT IN ('canceled', 'completed'))
+            )
+        </if>
+        <if test="query.category != null and query.category != ''">
+            AND t.category = #{query.category}
+        </if>
+        ORDER BY t.created_at DESC
+        LIMIT #{query.effectiveSize} OFFSET #{query.effectiveOffset}
+    </select>
+
+    <select id="countFeedTasks" resultType="int">
+        SELECT COUNT(*)
+        FROM tasks t
+        WHERE t.review_status = 'approved'
+        <if test="query.taskMode == 'task'">
+            AND t.task_mode = 'task'
+            AND t.status IN ('pending', 'accepted')
+            AND (t.expires_at IS NULL OR t.expires_at <![CDATA[>]]> #{now})
+        </if>
+        <if test="query.taskMode == 'topic'">
+            AND t.task_mode = 'topic'
+            AND t.status NOT IN ('canceled', 'completed')
+        </if>
+        <if test="query.taskMode == null or query.taskMode == ''">
+            AND (
+                (t.task_mode = 'task' AND t.status IN ('pending', 'accepted') AND (t.expires_at IS NULL OR t.expires_at <![CDATA[>]]> #{now}))
+                OR
+                (t.task_mode = 'topic' AND t.status NOT IN ('canceled', 'completed'))
+            )
+        </if>
+        <if test="query.category != null and query.category != ''">
+            AND t.category = #{query.category}
+        </if>
+    </select>
+
+    <select id="selectCategoryHistoryByHelperId" resultMap="TaskResultMap">
+        SELECT DISTINCT t.id, t.category, t.status, t.task_mode
+        FROM tasks t
+        INNER JOIN task_participants tp ON tp.task_id = t.id
+        WHERE tp.participant_id = #{helperId}
+          AND tp.role = 'helper'
+          AND tp.status != 'canceled'
+        LIMIT 200
     </select>
 
     <select id="selectAdminTasks" resultMap="TaskResultMap">
@@ -210,7 +270,7 @@
                helper.avatar_url AS helper_avatar_url,
                helper.score AS helper_score,
                helper.points AS helper_points,
-               COALESCE(tc.comment_count, 0) AS comment_count
+               COALESCE((SELECT COUNT(*) FROM task_comments tc WHERE tc.task_id = t.id), 0) AS comment_count
         FROM tasks t
         LEFT JOIN users u ON t.requester_id = u.id
         LEFT JOIN task_participants helper_tp
@@ -218,11 +278,6 @@
               AND helper_tp.role = 'helper'
               AND helper_tp.status != 'canceled'
         LEFT JOIN users helper ON helper_tp.participant_id = helper.id
-        LEFT JOIN (
-            SELECT task_id, COUNT(*) AS comment_count
-            FROM task_comments
-            GROUP BY task_id
-        ) tc ON tc.task_id = t.id
         ORDER BY
             CASE t.review_status
                 WHEN 'pending_review' THEN 0

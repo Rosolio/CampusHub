@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 public class AdminService {
@@ -112,7 +113,10 @@ public class AdminService {
             );
         }
 
-        redisTemplate.delete("tasks:all");
+        Set<String> feedKeys = redisTemplate.keys("tasks:feed:*");
+        if (feedKeys != null && !feedKeys.isEmpty()) {
+            redisTemplate.delete(feedKeys);
+        }
         redisTemplate.delete("tasks:" + taskId);
         return taskMapper.selectById(taskId);
     }

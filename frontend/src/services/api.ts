@@ -156,6 +156,9 @@ export const taskApi = {
     location?: string
     availableAt?: string
     limit?: number
+    page?: number
+    size?: number
+    taskMode?: 'task' | 'topic'
   }) => requestData(api.get('/tasks', { params })),
   getTaskById: (id: number) => requestData(api.get(`/tasks/${id}`)),
   likeTask: (taskId: number) => requestData(api.post(`/tasks/${taskId}/like`)),

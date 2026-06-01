@@ -40,16 +40,16 @@ public class TaskRecommendationService {
         long totalHistory = categoryHistory.values().stream().mapToLong(Long::longValue).sum();
         LocalDateTime availableAt = parseAvailableAt(normalizedQuery.getAvailableAt());
         LocalDateTime now = LocalDateTime.now();
-        int limit = normalizeLimit(normalizedQuery.getLimit());
 
+        // Score and sort all task-mode candidates (limit applied by caller via pagination)
         List<Task> rankedTasks = sourceTasks.stream()
             .map(TaskModeResolver::normalize)
             .filter(task -> isVisibleCandidate(task, normalizedQuery, currentUserId, now, mode))
             .peek(task -> applyRecommendationFields(task, normalizedQuery, mode, categoryHistory, totalHistory, availableAt, now))
             .sorted(comparatorFor(mode))
-            .limit(limit)
             .collect(Collectors.toList());
 
+        // Add topic tasks as-is (only relevant when taskMode is not pre-filtered)
         List<Task> untouchedTopics = sourceTasks.stream()
             .map(TaskModeResolver::normalize)
             .filter(TaskModeResolver::isTopicTask)
@@ -213,7 +213,8 @@ public class TaskRecommendationService {
             return Map.of();
         }
         Map<String, Long> history = new HashMap<>();
-        taskMapper.selectByHelperId(currentUserId).stream()
+        // Use lightweight query — no comment count, no helper join, limited to 200 rows
+        taskMapper.selectCategoryHistoryByHelperId(currentUserId).stream()
             .map(TaskModeResolver::normalize)
             .filter(task -> TaskModeResolver.isTask(task) && isHistoricalHelperTask(task))
             .forEach(task -> history.merge(normalizeText(task.getCategory()), 1L, Long::sum));
