@@ -266,7 +266,7 @@
                 type="checkbox"
                 v-model="registerForm.agree"
               />
-              <label class="text-sm font-medium text-on-surface-variant cursor-pointer" for="reg-agree">我已阅读并同意 <RouterLink class="text-primary hover:underline" to="/settings/agreement">用户协议</RouterLink> 和 <RouterLink class="text-primary hover:underline" to="/settings/privacy">隐私政策</RouterLink></label>
+              <label class="text-sm font-medium text-on-surface-variant cursor-pointer" for="reg-agree">我已阅读并同意 <RouterLink class="text-primary hover:underline" to="/agreement">用户协议</RouterLink> 和 <RouterLink class="text-primary hover:underline" to="/privacy">隐私政策</RouterLink></label>
             </div>
 
             <button

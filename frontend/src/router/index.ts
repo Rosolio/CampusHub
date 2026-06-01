@@ -17,6 +17,8 @@ const LanguageSettings = () => import('../pages/settings/LanguageSettings.vue')
 const AboutCampusHub = () => import('../pages/settings/AboutCampusHub.vue')
 const PrivacyPolicy = () => import('../pages/settings/PrivacyPolicy.vue')
 const UserAgreement = () => import('../pages/settings/UserAgreement.vue')
+const PrivacyPolicyPage = () => import('../pages/PrivacyPolicyPage.vue')
+const UserAgreementPage = () => import('../pages/UserAgreementPage.vue')
 const AdminLayout = () => import('../pages/admin/AdminLayout.vue')
 const AdminOverviewPage = () => import('../pages/admin/AdminOverviewPage.vue')
 const AdminUsersPage = () => import('../pages/admin/AdminUsersPage.vue')
@@ -67,8 +69,10 @@ const router = createRouter({
     { path: '/settings/theme', name: 'themeSettings', component: ThemeSettings, meta: { requiresAuth: true } },
     { path: '/settings/language', name: 'languageSettings', component: LanguageSettings, meta: { requiresAuth: true } },
     { path: '/settings/about', name: 'aboutCampusHub', component: AboutCampusHub, meta: { requiresAuth: true } },
-    { path: '/settings/privacy', name: 'privacyPolicy', component: PrivacyPolicy },
-    { path: '/settings/agreement', name: 'userAgreement', component: UserAgreement },
+    { path: '/privacy', name: 'privacyPage', component: PrivacyPolicyPage },
+    { path: '/agreement', name: 'agreementPage', component: UserAgreementPage },
+    { path: '/settings/privacy', name: 'privacyPolicy', component: PrivacyPolicy, meta: { requiresAuth: true } },
+    { path: '/settings/agreement', name: 'userAgreement', component: UserAgreement, meta: { requiresAuth: true } },
     { path: '/:pathMatch(.*)*', name: 'notFound', component: NotFound },
   ],
 })
