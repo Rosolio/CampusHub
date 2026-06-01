@@ -65,8 +65,8 @@ public class AuthService {
         ensureUserEnabled(user);
         clearLoginFailures(loginIdentifier == null ? identifier : loginIdentifier.trim());
 
-        String token = jwtUtil.generateToken(user.getId());
-        String refreshToken = jwtUtil.generateRefreshToken(user.getId());
+        String token = jwtUtil.generateToken(user.getId(), user.getRole());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getId(), user.getRole());
         recordLogin(user.getId(), "PASSWORD");
 
         Map<String, Object> result = new HashMap<>();
@@ -115,8 +115,8 @@ public class AuthService {
                 enforceLoginRateLimit(existingUser.getStudentId());
                 clearLoginFailures(existingUser.getStudentId());
 
-                String token = jwtUtil.generateToken(existingUser.getId());
-                String refreshToken = jwtUtil.generateRefreshToken(existingUser.getId());
+                String token = jwtUtil.generateToken(existingUser.getId(), existingUser.getRole());
+                String refreshToken = jwtUtil.generateRefreshToken(existingUser.getId(), existingUser.getRole());
                 recordLogin(existingUser.getId(), "PASSWORD");
 
                 Map<String, Object> result = new HashMap<>();
@@ -155,8 +155,8 @@ public class AuthService {
         userSetting.setUpdatedAt(LocalDateTime.now());
         userSettingMapper.insert(userSetting);
 
-        String token = jwtUtil.generateToken(user.getId());
-        String refreshToken = jwtUtil.generateRefreshToken(user.getId());
+        String token = jwtUtil.generateToken(user.getId(), user.getRole());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getId(), user.getRole());
         recordLogin(user.getId(), "REGISTER");
 
         Map<String, Object> result = new HashMap<>();
@@ -173,7 +173,8 @@ public class AuthService {
                 throw new RuntimeException("令牌类型无效");
             }
             Long userId = jwtUtil.getUserIdFromToken(refreshToken);
-            return jwtUtil.generateToken(userId);
+            String role = jwtUtil.getRoleFromToken(refreshToken);
+            return jwtUtil.generateToken(userId, role);
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {

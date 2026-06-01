@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { hasValidAuthToken, isAdminUser } from '../utils/auth'
 
 const HomeGateway = () => import('../pages/HomeGateway.vue')
-const TopicSquare = () => import('../pages/TopicSquare.vue')
 const RequestDetail = () => import('../pages/RequestDetail.vue')
 const TaskReviewPage = () => import('../pages/TaskReviewPage.vue')
 const Profile = () => import('../pages/Profile.vue')
@@ -36,7 +35,7 @@ const router = createRouter({
       redirect: () => hasValidAuthToken() ? '/home' : '/auth?tab=login'
     },
     { path: '/home', name: 'home', component: HomeGateway, meta: { requiresAuth: true } },
-    { path: '/topics', name: 'topics', component: TopicSquare, meta: { requiresAuth: true } },
+    { path: '/topics', redirect: '/home?tab=topic' },
     { path: '/detail/:id', name: 'detail', component: RequestDetail, props: true, meta: { requiresAuth: true } },
     { path: '/detail/:id/review', name: 'taskReview', component: TaskReviewPage, props: true, meta: { requiresAuth: true } },
     { path: '/profile', name: 'profile', component: Profile, meta: { requiresAuth: true } },

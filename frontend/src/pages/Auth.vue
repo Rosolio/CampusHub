@@ -1,17 +1,15 @@
 <template>
   <div
-    class="bg-background font-body text-on-background selection:bg-primary-container selection:text-on-primary-container min-h-screen flex items-center justify-center p-6 md:p-12 overflow-x-hidden"
+    class="bg-background font-body text-on-background selection:bg-primary-container selection:text-on-primary-container min-h-screen flex items-center justify-center p-6 md:p-12 overflow-x-hidden relative"
   >
-    <!-- Hero Background Element (Visual Anchor) -->
-    <div class="fixed inset-0 z-0 opacity-40 pointer-events-none">
-      <img
-        class="w-full h-full object-cover"
-        data-alt="Soft watercolor illustration of a modern university campus with green spaces, students walking, and architectural arches in teal and amber tones"
-        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBnOkqlNyus7BDNlmH2W-SKkyulg3w6IeHnUiiTmdpQ-oRA8Gk7MgF-uK_IidPd6BhjYyraFqxmEuFOY89BJVIUrXqL2HH6QPwMUvfF4qO0uriY1a8rdRWg7b902or12VIoDK98-pdi2e8OF3YnUIz5-658-pLmy29-0TGbWgNirWPK5fwzF1d7EHPKhsGWeYMcsVdNLMJ6yk3oj0uf_4Ccr7DJCAfKb31fyjCe1iXBKF8_BzzMMhDXQXWZPHX8xxwhf2HnYRvBI5Ac"
-      />
+    <!-- Decorative CSS background -->
+    <div class="fixed inset-0 z-0 pointer-events-none">
+      <div class="absolute inset-0 bg-gradient-to-br from-teal-50/60 via-amber-50/30 to-sky-50/60"></div>
+      <div class="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-teal-200/20 blur-3xl"></div>
+      <div class="absolute -bottom-32 -left-32 w-80 h-80 rounded-full bg-amber-200/20 blur-3xl"></div>
+      <div class="absolute top-1/3 left-1/4 w-64 h-64 rounded-full bg-sky-200/15 blur-3xl"></div>
     </div>
 
-    <!-- Main Auth Container -->
     <main
       class="relative z-10 grid w-full max-w-6xl grid-cols-1 overflow-hidden rounded-[2rem] bg-surface-container-lowest shadow-[0_24px_48px_rgba(0,52,57,0.08)] md:grid-cols-[0.9fr_1.1fr] xl:grid-cols-[0.95fr_1.05fr]"
     >
@@ -120,12 +118,12 @@
                 />
                 <button
                   class="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/50 bg-transparent"
-                  :data-icon="showLoginPassword ? 'visibility_off' : 'visibility'"
+                  :data-icon="showLoginPassword ? 'visibility' : 'visibility_off'"
                   type="button"
                   :aria-label="showLoginPassword ? '隐藏密码' : '显示密码'"
                   @click="showLoginPassword = !showLoginPassword"
                 >
-                  {{ showLoginPassword ? 'visibility_off' : 'visibility' }}
+                  {{ showLoginPassword ? 'visibility' : 'visibility_off' }}
                 </button>
               </div>
             </div>
@@ -224,12 +222,12 @@
                 />
                 <button
                   class="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/50 bg-transparent"
-                  :data-icon="showRegisterPassword ? 'visibility_off' : 'visibility'"
+                  :data-icon="showRegisterPassword ? 'visibility' : 'visibility_off'"
                   type="button"
                   :aria-label="showRegisterPassword ? '隐藏密码' : '显示密码'"
                   @click="showRegisterPassword = !showRegisterPassword"
                 >
-                  {{ showRegisterPassword ? 'visibility_off' : 'visibility' }}
+                  {{ showRegisterPassword ? 'visibility' : 'visibility_off' }}
                 </button>
               </div>
             </div>
@@ -251,12 +249,12 @@
                 />
                 <button
                   class="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/50 bg-transparent"
-                  :data-icon="showRegisterConfirmPassword ? 'visibility_off' : 'visibility'"
+                  :data-icon="showRegisterConfirmPassword ? 'visibility' : 'visibility_off'"
                   type="button"
                   :aria-label="showRegisterConfirmPassword ? '隐藏确认密码' : '显示确认密码'"
                   @click="showRegisterConfirmPassword = !showRegisterConfirmPassword"
                 >
-                  {{ showRegisterConfirmPassword ? 'visibility_off' : 'visibility' }}
+                  {{ showRegisterConfirmPassword ? 'visibility' : 'visibility_off' }}
                 </button>
               </div>
             </div>

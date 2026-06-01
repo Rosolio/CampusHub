@@ -1,6 +1,5 @@
 package com.campushub.config;
 
-import com.campushub.mapper.UserMapper;
 import com.campushub.util.JwtUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
@@ -21,11 +20,9 @@ import java.util.List;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final UserMapper userMapper;
 
-    public JwtAuthenticationFilter(JwtUtil jwtUtil, UserMapper userMapper) {
+    public JwtAuthenticationFilter(JwtUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
-        this.userMapper = userMapper;
     }
 
     @Override
@@ -42,11 +39,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String username = null;
         String jwt = null;
+        Claims claims = null;
 
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             jwt = authorizationHeader.substring(7);
             try {
-                Claims claims = jwtUtil.parseToken(jwt);
+                claims = jwtUtil.parseToken(jwt);
                 username = claims.get("userId").toString();
             } catch (Exception e) {
                 logger.error("Unable to validate JWT token", e);
@@ -55,8 +53,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             try {
-                Long userId = Long.parseLong(username);
-                String role = userMapper.selectRoleById(userId);
+                String role = claims != null && claims.get("role") != null ? claims.get("role").toString() : "USER";
                 String authority = "ADMIN".equalsIgnoreCase(role) ? "ADMIN" : "USER";
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                     username, null, List.of(new SimpleGrantedAuthority(authority))
