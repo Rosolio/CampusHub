@@ -633,14 +633,15 @@ const markConversationAsRead = async (conversation: Conversation | null) => {
   const unreadIncoming = conversation.messages.filter((message) => message.direction === 'incoming' && message.status === 'unread')
   if (unreadIncoming.length === 0) return
 
-  for (const message of unreadIncoming) {
-    try {
-      await messageApi.markAsRead(message.id)
-      const target = messages.value.find((item) => item.id === message.id)
+  const ids = unreadIncoming.map(m => m.id)
+  try {
+    await messageApi.markAsReadBatch(ids)
+    for (const id of ids) {
+      const target = messages.value.find((item) => item.id === id)
       if (target) target.status = 'read'
-    } catch (error) {
-      console.error('标记已读失败:', error)
     }
+  } catch (error) {
+    console.error('标记已读失败:', error)
   }
 }
 
@@ -762,10 +763,25 @@ watch(
   { immediate: true }
 )
 
-onMounted(() => {
-  fetchMessages()
-  pollingTimer = window.setInterval(() => {
-    fetchMessages({ silent: true })
+let lastUnreadCount = 0
+
+onMounted(async () => {
+  await fetchMessages()
+  try {
+    const res = await messageApi.getUnreadCount() as any
+    lastUnreadCount = res?.count ?? 0
+  } catch { /* ignore */ }
+
+  // Poll unread count (lightweight), only refetch full messages when count changes
+  pollingTimer = window.setInterval(async () => {
+    try {
+      const res = await messageApi.getUnreadCount() as any
+      const currentCount = res?.count ?? 0
+      if (currentCount !== lastUnreadCount) {
+        lastUnreadCount = currentCount
+        await fetchMessages({ silent: true })
+      }
+    } catch { /* ignore polling errors */ }
   }, 5000)
 })
 

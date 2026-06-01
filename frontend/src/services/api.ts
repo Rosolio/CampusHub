@@ -277,7 +277,8 @@ export const messageApi = {
     content: string
     taskId?: number
   }) => requestData(api.post('/messages', data)),
-  markAsRead: (messageId: number) => requestData(api.put(`/messages/${messageId}/read`))
+  markAsRead: (messageId: number) => requestData(api.put(`/messages/${messageId}/read`)),
+  markAsReadBatch: (ids: number[]) => requestData(api.put('/messages/read', { ids }))
 }
 
 export default api

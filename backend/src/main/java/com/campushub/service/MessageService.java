@@ -55,7 +55,7 @@ public class MessageService {
     }
 
     public Message markAsRead(Long messageId) {
-        Message message = messageMapper.selectById(messageId);
+        Message message = messageMapper.selectByIdLight(messageId);
         if (message == null) {
             throw new RuntimeException("消息不存在");
         }
@@ -63,16 +63,22 @@ public class MessageService {
     }
 
     public Message markAsRead(Long messageId, Long currentUserId) {
-        Message message = messageMapper.selectById(messageId);
+        // Use lightweight query — no JOINs needed for status update
+        Message message = messageMapper.selectByIdLight(messageId);
         if (message == null) {
             throw new RuntimeException("消息不存在");
         }
         if (!currentUserId.equals(message.getReceiverId())) {
             throw new RuntimeException("无权修改该消息状态");
         }
+        messageMapper.updateStatus(messageId, "read");
         message.setStatus("read");
-        messageMapper.update(message);
         return message;
+    }
+
+    public int markAsReadBatch(List<Long> messageIds, Long currentUserId) {
+        if (messageIds == null || messageIds.isEmpty()) return 0;
+        return messageMapper.markAsReadBatch(messageIds);
     }
 
     public int getUnreadCount(Long receiverId) {
