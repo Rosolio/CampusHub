@@ -174,36 +174,34 @@
       </section>
 
       <section class="space-y-6">
-        <div class="flex justify-center">
-          <div class="inline-flex items-center rounded-2xl bg-surface-container-low p-1.5 shadow-sm">
-            <button
-              @click="activeTab = 'requests'"
-              class="flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold transition-all"
-              :class="activeTab === 'requests' ? 'bg-teal-900 text-white shadow-sm' : 'text-on-surface-variant hover:text-on-surface'"
-              type="button"
-            >
-              <span class="material-symbols-outlined text-lg">assignment</span>
-              我的需求
-            </button>
-            <button
-              @click="activeTab = 'topics'"
-              class="flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold transition-all"
-              :class="activeTab === 'topics' ? 'bg-teal-900 text-white shadow-sm' : 'text-on-surface-variant hover:text-on-surface'"
-              type="button"
-            >
-              <span class="material-symbols-outlined text-lg">forum</span>
-              我的话题帖
-            </button>
-            <button
-              @click="activeTab = 'services'"
-              class="flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold transition-all"
-              :class="activeTab === 'services' ? 'bg-teal-900 text-white shadow-sm' : 'text-on-surface-variant hover:text-on-surface'"
-              type="button"
-            >
-              <span class="material-symbols-outlined text-lg">volunteer_activism</span>
-              我的服务
-            </button>
-          </div>
+        <div class="flex justify-center gap-3">
+          <button
+            @click="activeTab = 'requests'"
+            class="flex items-center gap-2 rounded-2xl px-6 py-3 text-sm font-bold transition-all shadow-sm"
+            :class="activeTab === 'requests' ? 'bg-teal-900 text-white' : 'bg-surface-container-low text-on-surface-variant hover:text-on-surface'"
+            type="button"
+          >
+            <span class="material-symbols-outlined text-lg">assignment</span>
+            我的需求
+          </button>
+          <button
+            @click="activeTab = 'topics'"
+            class="flex items-center gap-2 rounded-2xl px-6 py-3 text-sm font-bold transition-all shadow-sm"
+            :class="activeTab === 'topics' ? 'bg-teal-900 text-white' : 'bg-surface-container-low text-on-surface-variant hover:text-on-surface'"
+            type="button"
+          >
+            <span class="material-symbols-outlined text-lg">forum</span>
+            我的话题帖
+          </button>
+          <button
+            @click="activeTab = 'services'"
+            class="flex items-center gap-2 rounded-2xl px-6 py-3 text-sm font-bold transition-all shadow-sm"
+            :class="activeTab === 'services' ? 'bg-teal-900 text-white' : 'bg-surface-container-low text-on-surface-variant hover:text-on-surface'"
+            type="button"
+          >
+            <span class="material-symbols-outlined text-lg">volunteer_activism</span>
+            我的服务
+          </button>
         </div>
 
         <div v-if="activeTab !== 'topics'" class="rounded-[1.75rem] bg-surface-container-lowest p-4 shadow-sm">

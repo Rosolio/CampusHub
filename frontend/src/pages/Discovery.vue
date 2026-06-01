@@ -117,31 +117,29 @@
         </div>
       </section>
 
-      <div ref="tabBarRef" class="sticky top-16 z-30 mb-8 flex justify-center">
-        <div class="inline-flex items-center rounded-2xl bg-surface-container-low p-1.5 shadow-sm">
-          <button
-            type="button"
-            class="flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold transition-all"
-            :class="activeTab === 'demand'
-              ? 'bg-teal-900 text-white shadow-sm'
-              : 'text-on-surface-variant hover:text-on-surface'"
-            @click="setTab('demand')"
-          >
-            <span class="material-symbols-outlined text-lg">assignment</span>
-            需求广场
-          </button>
-          <button
-            type="button"
-            class="flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold transition-all"
-            :class="activeTab === 'topic'
-              ? 'bg-teal-900 text-white shadow-sm'
-              : 'text-on-surface-variant hover:text-on-surface'"
-            @click="setTab('topic')"
-          >
-            <span class="material-symbols-outlined text-lg">forum</span>
-            话题广场
-          </button>
-        </div>
+      <div ref="tabBarRef" class="sticky top-16 z-30 mb-8 flex justify-center gap-3">
+        <button
+          type="button"
+          class="flex items-center gap-2 rounded-2xl px-6 py-3 text-sm font-bold transition-all shadow-sm"
+          :class="activeTab === 'demand'
+            ? 'bg-teal-900 text-white'
+            : 'bg-surface-container-low text-on-surface-variant hover:text-on-surface'"
+          @click="setTab('demand')"
+        >
+          <span class="material-symbols-outlined text-lg">assignment</span>
+          需求广场
+        </button>
+        <button
+          type="button"
+          class="flex items-center gap-2 rounded-2xl px-6 py-3 text-sm font-bold transition-all shadow-sm"
+          :class="activeTab === 'topic'
+            ? 'bg-teal-900 text-white'
+            : 'bg-surface-container-low text-on-surface-variant hover:text-on-surface'"
+          @click="setTab('topic')"
+        >
+          <span class="material-symbols-outlined text-lg">forum</span>
+          话题广场
+        </button>
       </div>
 
       <div v-if="activeTab === 'demand'" class="mb-6 grid gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
