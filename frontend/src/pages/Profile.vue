@@ -174,31 +174,36 @@
       </section>
 
       <section class="space-y-6">
-        <div class="flex gap-6 overflow-x-auto border-b border-outline-variant/15 px-1 pb-1">
-          <button
-            @click="activeTab = 'requests'"
-            class="shrink-0 pb-4 text-lg font-bold tracking-tight transition-all md:text-xl"
-            :class="activeTab === 'requests' ? 'border-b-4 border-primary text-primary' : 'border-b-4 border-transparent text-on-surface-variant/50 hover:text-on-surface-variant'"
-            type="button"
-          >
-            我的需求
-          </button>
-          <button
-            @click="activeTab = 'topics'"
-            class="shrink-0 pb-4 text-lg font-bold tracking-tight transition-all md:text-xl"
-            :class="activeTab === 'topics' ? 'border-b-4 border-primary text-primary' : 'border-b-4 border-transparent text-on-surface-variant/50 hover:text-on-surface-variant'"
-            type="button"
-          >
-            我的话题帖
-          </button>
-          <button
-            @click="activeTab = 'services'"
-            class="shrink-0 pb-4 text-lg font-bold tracking-tight transition-all md:text-xl"
-            :class="activeTab === 'services' ? 'border-b-4 border-primary text-primary' : 'border-b-4 border-transparent text-on-surface-variant/50 hover:text-on-surface-variant'"
-            type="button"
-          >
-            我的服务
-          </button>
+        <div class="flex justify-center">
+          <div class="inline-flex items-center rounded-2xl bg-surface-container-low p-1.5 shadow-sm">
+            <button
+              @click="activeTab = 'requests'"
+              class="flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold transition-all"
+              :class="activeTab === 'requests' ? 'bg-teal-900 text-white shadow-sm' : 'text-on-surface-variant hover:text-on-surface'"
+              type="button"
+            >
+              <span class="material-symbols-outlined text-lg">assignment</span>
+              我的需求
+            </button>
+            <button
+              @click="activeTab = 'topics'"
+              class="flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold transition-all"
+              :class="activeTab === 'topics' ? 'bg-teal-900 text-white shadow-sm' : 'text-on-surface-variant hover:text-on-surface'"
+              type="button"
+            >
+              <span class="material-symbols-outlined text-lg">forum</span>
+              我的话题帖
+            </button>
+            <button
+              @click="activeTab = 'services'"
+              class="flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold transition-all"
+              :class="activeTab === 'services' ? 'bg-teal-900 text-white shadow-sm' : 'text-on-surface-variant hover:text-on-surface'"
+              type="button"
+            >
+              <span class="material-symbols-outlined text-lg">volunteer_activism</span>
+              我的服务
+            </button>
+          </div>
         </div>
 
         <div v-if="activeTab !== 'topics'" class="rounded-[1.75rem] bg-surface-container-lowest p-4 shadow-sm">
@@ -818,23 +823,18 @@ const fetchReviewStatuses = async (requestTasks: any[], serviceTasks: any[]) => 
     return
   }
 
-  const currentUserId = Number(currentUser.value?.id)
   try {
-    const [reviewCounts, receivedReviews] = await Promise.all([
-      taskApi.getTaskReviewsBatch(completedTaskIds) as Promise<Record<string, number>>,
-      Promise.all(completedTaskIds.map((taskId) => taskApi.getTaskReviews(taskId)))
-    ])
+    // Single batch call: returns review counts per task
+    const reviewCounts = await taskApi.getTaskReviewsBatch(completedTaskIds) as Record<string, number>
 
     taskReviewStatusMap.value = Object.fromEntries(
       completedTaskIds.map((taskId) => [taskId, Number(reviewCounts?.[taskId] ?? 0) >= 2 ? 'completed' : 'pending'] as const)
     )
 
-    const flattenedReviews = receivedReviews.flatMap((reviews) => normalizeResponseList(reviews))
-    const ownReviews = flattenedReviews.filter((review) => Number(review?.revieweeId) === currentUserId)
-    receivedReviewCount.value = ownReviews.length
-    receivedReviewAverage.value = ownReviews.length === 0
-      ? 0
-      : ownReviews.reduce((sum, review) => sum + Number(review?.rating || 0), 0) / ownReviews.length
+    // For average stars, fetch only one task's reviews as a sample (not all)
+    // The review score is already on the user object from getCurrentUser
+    receivedReviewCount.value = Object.values(reviewCounts || {}).reduce((sum, c) => sum + Number(c ?? 0), 0)
+    receivedReviewAverage.value = Number(currentUser.value?.score || 0)
   } catch (error) {
     console.error('批量获取互评状态失败:', error)
     taskReviewStatusMap.value = {}

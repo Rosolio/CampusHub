@@ -122,6 +122,7 @@
         LEFT JOIN users helper ON helper_tp.participant_id = helper.id
         WHERE t.requester_id = #{requesterId}
         ORDER BY t.created_at DESC
+        LIMIT 200
     </select>
 
     <select id="selectByHelperId" resultMap="TaskResultMap">
@@ -150,6 +151,7 @@
           AND tp.role = 'helper'
           AND tp.status != 'canceled'
         ORDER BY t.created_at DESC
+        LIMIT 200
     </select>
 
     <select id="selectByStatus" resultMap="TaskResultMap">
