@@ -9,6 +9,7 @@ public class Feedback {
     private String title;
     private String content;
     private String status;
+    private String priority;
     private String adminReply;
     private Long adminId;
     private LocalDateTime handledAt;
@@ -72,6 +73,14 @@ public class Feedback {
 
     public void setAdminReply(String adminReply) {
         this.adminReply = adminReply;
+    }
+
+    public String getPriority() {
+        return priority;
+    }
+
+    public void setPriority(String priority) {
+        this.priority = priority;
     }
 
     public Long getAdminId() {

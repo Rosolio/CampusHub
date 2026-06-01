@@ -1,13 +1,16 @@
 <template>
-  <div class="bg-surface font-body text-on-surface min-h-screen pb-24 md:pb-0">
+  <div class="page-shell bg-surface font-body text-on-surface">
     <AppTopNav :avatar-url="form.avatarUrl || defaultAvatarUrl" />
 
-    <main class="pt-24 px-6 max-w-5xl mx-auto">
+    <main class="page-shell-main page-shell-main--narrow">
       <PageBackHeader />
 
-      <div class="bg-surface-container-lowest rounded-[2rem] p-8 shadow-sm">
-        <h1 class="text-3xl font-extrabold font-headline text-teal-900 mb-2">个人资料设置</h1>
-        <p class="mb-6 text-sm text-on-surface-variant">支持更换头像，并同步更新个人中心与资料页展示。</p>
+      <div class="page-card">
+        <div class="page-card-header">
+          <p class="page-kicker">Profile Settings</p>
+          <h1 class="page-title">个人资料设置</h1>
+          <p class="page-description">支持更换头像，并同步更新个人中心与资料页展示。</p>
+        </div>
 
         <div
           v-if="feedback.message"
@@ -53,7 +56,7 @@
             <p class="text-xs text-on-surface-variant">建议使用方形图片，保存后会同步显示到个人中心。</p>
           </div>
 
-          <div class="space-y-4">
+          <div class="space-y-5">
             <FormField label="昵称">
               <input
                 v-model="form.name"

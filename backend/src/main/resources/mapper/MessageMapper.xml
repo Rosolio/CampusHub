@@ -33,20 +33,50 @@
     </select>
 
     <select id="selectByUserId" resultMap="MessageResultMap">
-        SELECT m.*,
-               sender.name AS sender_name,
-               sender.avatar_url AS sender_avatar_url,
-               receiver.name AS receiver_name,
-               receiver.avatar_url AS receiver_avatar_url,
-               t.title AS task_title
-        FROM messages m
-        LEFT JOIN users sender ON m.sender_id = sender.id
-        LEFT JOIN users receiver ON m.receiver_id = receiver.id
-        LEFT JOIN tasks t ON m.task_id = t.id
-        WHERE m.sender_id = #{userId} OR m.receiver_id = #{userId}
-        ORDER BY m.created_at DESC
+        SELECT * FROM (
+            SELECT m.*,
+                   sender.name AS sender_name,
+                   sender.avatar_url AS sender_avatar_url,
+                   receiver.name AS receiver_name,
+                   receiver.avatar_url AS receiver_avatar_url,
+                   t.title AS task_title
+            FROM messages m
+            LEFT JOIN users sender ON m.sender_id = sender.id
+            LEFT JOIN users receiver ON m.receiver_id = receiver.id
+            LEFT JOIN tasks t ON m.task_id = t.id
+            WHERE m.sender_id = #{userId}
+            UNION ALL
+            SELECT m.*,
+                   sender.name AS sender_name,
+                   sender.avatar_url AS sender_avatar_url,
+                   receiver.name AS receiver_name,
+                   receiver.avatar_url AS receiver_avatar_url,
+                   t.title AS task_title
+            FROM messages m
+            LEFT JOIN users sender ON m.sender_id = sender.id
+            LEFT JOIN users receiver ON m.receiver_id = receiver.id
+            LEFT JOIN tasks t ON m.task_id = t.id
+            WHERE m.receiver_id = #{userId}
+        ) sub
+        ORDER BY created_at DESC
         LIMIT 200
     </select>
+
+    <!-- Lightweight query: no JOINs, used for ownership check in mark-as-read -->
+    <select id="selectByIdLight" resultType="com.campushub.entity.Message">
+        SELECT id, receiver_id AS receiverId, status
+        FROM messages WHERE id = #{id}
+    </select>
+
+    <!-- Batch mark messages as read -->
+    <update id="markAsReadBatch">
+        UPDATE messages SET status = 'read'
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+          AND status = 'unread'
+    </update>
 
     <select id="selectBySenderId" resultMap="MessageResultMap">
         SELECT m.*,
@@ -61,6 +91,7 @@
         LEFT JOIN tasks t ON m.task_id = t.id
         WHERE m.sender_id = #{senderId}
         ORDER BY m.created_at DESC
+        LIMIT 200
     </select>
 
     <select id="selectByReceiverId" resultMap="MessageResultMap">
@@ -76,6 +107,7 @@
         LEFT JOIN tasks t ON m.task_id = t.id
         WHERE m.receiver_id = #{receiverId}
         ORDER BY m.created_at DESC
+        LIMIT 200
     </select>
 
     <select id="selectByTaskId" resultMap="MessageResultMap">
@@ -116,9 +148,13 @@
 
     <update id="update" parameterType="com.campushub.entity.Message">
         UPDATE messages
-        SET sender_id = #{senderId}, receiver_id = #{receiverId}, task_id = #{taskId}, 
+        SET sender_id = #{senderId}, receiver_id = #{receiverId}, task_id = #{taskId},
             content = #{content}, status = #{status}
         WHERE id = #{id}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE messages SET status = #{status} WHERE id = #{id}
     </update>
 
     <delete id="delete" parameterType="java.lang.Long">

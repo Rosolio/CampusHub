@@ -2,55 +2,61 @@
   <div class="min-h-screen bg-surface font-body text-on-surface">
     <AppTopNav />
 
-    <main class="mx-auto max-w-7xl px-6 pb-32 pt-24">
-      <section class="mb-10 overflow-hidden rounded-[2.75rem] bg-gradient-to-br from-teal-950 via-cyan-900 to-sky-700 p-8 text-white shadow-sm md:p-10">
-        <div class="grid gap-8 xl:grid-cols-[1.05fr_0.95fr]">
+    <main class="mx-auto max-w-7xl px-6 pb-24 pt-24">
+      <section class="mb-8 overflow-hidden rounded-[2rem] bg-gradient-to-br from-teal-950 via-cyan-900 to-sky-700 p-6 text-white shadow-sm md:p-8">
+        <div class="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
           <div>
-            <div class="mb-6 flex flex-wrap items-center gap-3">
-              <RouterLink to="/home" class="rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-white transition-colors hover:bg-white/15">
+            <div class="mb-5 flex flex-wrap items-center gap-3">
+              <RouterLink to="/home" class="rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-bold tracking-[0.12em] text-white transition-colors hover:bg-white/15">
                 返回任务首页
               </RouterLink>
-              <span class="rounded-full bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-cyan-50">话题帖独立页面</span>
+              <span class="rounded-full bg-white/10 px-4 py-2 text-xs font-bold text-cyan-50">公开互动区</span>
             </div>
 
-            <h1 class="max-w-4xl text-4xl font-extrabold leading-[1.08] tracking-tight md:text-6xl">
+            <h1 class="max-w-4xl text-4xl font-extrabold leading-[1.08] tracking-tight md:text-5xl">
               社区话题广场
             </h1>
-            <p class="mt-6 max-w-3xl text-lg leading-8 text-cyan-50/82">
+            <p class="mt-4 max-w-3xl text-base leading-7 text-cyan-50/82 md:text-lg md:leading-8">
               这里集中展示二手闲置、恋爱交友、打听求助和兼职招聘。学习辅导已进入任务接单区，更适合一对一协作。
             </p>
           </div>
 
           <div class="grid gap-4 sm:grid-cols-2">
-            <div class="rounded-[1.8rem] bg-white/10 p-5 ring-1 ring-white/10">
-              <p class="text-xs font-bold uppercase tracking-[0.22em] text-cyan-100/70">公开互动</p>
-              <p class="mt-3 text-2xl font-extrabold">评论 / 回复</p>
-              <p class="mt-2 text-sm leading-6 text-cyan-50/75">适合公开讨论、持续跟进和围绕内容补充信息。</p>
+            <div class="rounded-[1.5rem] bg-white/10 p-5 ring-1 ring-white/10">
+              <p class="text-xs font-bold uppercase tracking-[0.18em] text-cyan-100/70">公开互动</p>
+              <p class="mt-3 text-xl font-extrabold">评论 / 回复</p>
+              <p class="mt-2 text-sm leading-6 text-cyan-50/75">更适合公开讨论、持续跟进和围绕内容补充信息。</p>
             </div>
-            <div class="rounded-[1.8rem] bg-white/10 p-5 ring-1 ring-white/10">
-              <p class="text-xs font-bold uppercase tracking-[0.22em] text-cyan-100/70">互动奖励</p>
-              <p class="mt-3 text-3xl font-extrabold">+5</p>
+            <div class="rounded-[1.5rem] bg-white/10 p-5 ring-1 ring-white/10">
+              <p class="text-xs font-bold uppercase tracking-[0.18em] text-cyan-100/70">互动奖励</p>
+              <p class="mt-3 text-2xl font-extrabold">评论 +5 分</p>
               <p class="mt-2 text-sm leading-6 text-cyan-50/75">发布一条评论即可获得 5 积分，鼓励优质交流。</p>
             </div>
           </div>
         </div>
       </section>
 
-      <section class="mb-8 space-y-4">
-        <div class="flex flex-wrap gap-3">
-          <button
-            v-for="category in categories"
-            :key="category"
-            type="button"
-            class="rounded-full px-5 py-2 text-sm font-semibold transition-all"
-            :class="activeCategory === category ? 'scale-95 bg-primary text-white shadow-sm' : 'bg-surface-container-high text-on-surface-variant hover:bg-cyan-50/60'"
-            @click="setActiveCategory(category)"
-          >
-            {{ category }}
-          </button>
+      <section class="mb-6 rounded-[1.75rem] bg-surface-container-lowest p-4 shadow-sm sm:p-5">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p class="text-sm font-bold uppercase tracking-[0.14em] text-teal-700/65">筛选话题帖</p>
+            <h2 class="mt-2 text-2xl font-extrabold text-teal-950">先分类，再搜索</h2>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button
+              v-for="category in categories"
+              :key="category"
+              type="button"
+              class="rounded-full px-4 py-2 text-sm font-semibold transition-all"
+              :class="activeCategory === category ? 'bg-primary text-white shadow-sm' : 'bg-surface-container-low text-on-surface-variant hover:bg-cyan-50/60'"
+              @click="setActiveCategory(category)"
+            >
+              {{ category }}
+            </button>
+          </div>
         </div>
 
-        <label class="flex w-full items-center gap-3 rounded-[1.5rem] bg-surface-container-low px-4 py-3 text-sm text-on-surface shadow-sm lg:max-w-xl">
+        <label class="mt-4 flex w-full items-center gap-3 rounded-[1.25rem] bg-surface-container-low px-4 py-3 text-sm text-on-surface lg:max-w-xl">
           <span class="material-symbols-outlined text-lg text-on-surface-variant">search</span>
           <input
             v-model.trim="keyword"
@@ -86,30 +92,30 @@
         <p class="mt-3 text-on-surface-variant">{{ emptyStateDescription }}</p>
       </section>
 
-      <section v-else class="space-y-3">
+      <section v-else class="space-y-4">
         <article
           v-for="card in pagedTopics"
           :key="card.id"
-          class="rounded-[1.25rem] border border-outline-variant/12 bg-surface-container-lowest p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md md:p-5"
+          class="rounded-[1.5rem] border border-outline-variant/12 bg-surface-container-lowest p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
         >
-          <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div class="min-w-0 flex-1">
-              <div class="mb-2 flex flex-wrap items-center gap-2">
-                <span class="rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em]" :class="topicCategoryBadgeClass(card.category)">
+              <div class="mb-3 flex flex-wrap items-center gap-2">
+                <span class="rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em]" :class="topicCategoryBadgeClass(card.category)">
                   {{ card.category }}
                 </span>
-                <span class="rounded-full bg-surface-container-low px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-on-surface-variant">话题帖</span>
+                <span class="rounded-full bg-surface-container-low px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-on-surface-variant">话题帖</span>
                 <span class="text-xs font-semibold text-on-surface-variant">{{ card.publisher }}</span>
               </div>
 
-              <h2 class="truncate text-xl font-extrabold text-teal-950">
+              <h2 class="text-xl font-extrabold text-teal-950">
                 {{ card.title }}
               </h2>
-              <p class="mt-2 line-clamp-2 text-sm leading-6 text-on-surface-variant">
+              <p class="mt-2 line-clamp-3 text-sm leading-7 text-on-surface-variant">
                 {{ card.description }}
               </p>
 
-              <div class="mt-3 flex flex-wrap items-center gap-3 text-xs font-semibold text-on-surface-variant">
+              <div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-semibold text-on-surface-variant">
                 <span class="inline-flex items-center gap-1">
                   <span class="material-symbols-outlined text-sm">place</span>
                   {{ card.locationText || '待补充' }}
@@ -129,13 +135,15 @@
               </div>
             </div>
 
-            <RouterLink
-              :to="`/detail/${card.id}`"
-              class="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-teal-900 px-5 py-3 text-sm font-bold text-white transition-all hover:bg-teal-800"
-            >
-              进入帖子
-              <span class="material-symbols-outlined text-base">arrow_forward</span>
-            </RouterLink>
+            <div class="shrink-0 border-t border-outline-variant/10 pt-4 md:border-t-0 md:pt-0">
+              <RouterLink
+                :to="`/detail/${card.id}`"
+                class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-teal-900 px-5 py-3 text-sm font-bold text-white transition-all hover:bg-teal-800 md:w-auto"
+              >
+                进入帖子
+                <span class="material-symbols-outlined text-base">arrow_forward</span>
+              </RouterLink>
+            </div>
           </div>
         </article>
 
@@ -155,7 +163,7 @@
       </section>
     </main>
 
-    <RouterLink to="/publish" class="group fixed bottom-32 right-8 z-40 flex h-16 w-16 items-center justify-center rounded-full bg-primary text-on-primary shadow-[0_12px_40px_rgba(0,52,57,0.15)] transition-all hover:scale-105 active:scale-95">
+    <RouterLink to="/publish" class="group fixed bottom-24 right-6 z-40 hidden h-14 w-14 items-center justify-center rounded-full bg-primary text-on-primary shadow-[0_12px_40px_rgba(0,52,57,0.15)] transition-all hover:scale-105 active:scale-95 md:flex">
       <span class="material-symbols-outlined text-3xl">add</span>
       <span class="absolute right-full mr-4 whitespace-nowrap rounded-xl bg-teal-900 px-4 py-2 text-sm font-headline text-white opacity-0 transition-opacity group-hover:opacity-100">发布话题帖</span>
     </RouterLink>

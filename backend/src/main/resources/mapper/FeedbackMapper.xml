@@ -10,6 +10,7 @@
         <result property="title" column="title"/>
         <result property="content" column="content"/>
         <result property="status" column="status"/>
+        <result property="priority" column="priority"/>
         <result property="adminReply" column="admin_reply"/>
         <result property="adminId" column="admin_id"/>
         <result property="handledAt" column="handled_at"/>
@@ -45,6 +46,12 @@
                 WHEN 'in_progress' THEN 1
                 ELSE 2
             END,
+            CASE f.priority
+                WHEN 'URGENT' THEN 0
+                WHEN 'HIGH' THEN 1
+                WHEN 'NORMAL' THEN 2
+                ELSE 3
+            END,
             f.created_at DESC
     </select>
 
@@ -61,8 +68,8 @@
     </select>
 
     <insert id="insert" parameterType="com.campushub.entity.Feedback" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO feedback (user_id, type, title, content, status, admin_reply, admin_id, handled_at, created_at, updated_at)
-        VALUES (#{userId}, #{type}, #{title}, #{content}, #{status}, #{adminReply}, #{adminId}, #{handledAt}, #{createdAt}, #{updatedAt})
+        INSERT INTO feedback (user_id, type, title, content, status, priority, admin_reply, admin_id, handled_at, created_at, updated_at)
+        VALUES (#{userId}, #{type}, #{title}, #{content}, #{status}, #{priority}, #{adminReply}, #{adminId}, #{handledAt}, #{createdAt}, #{updatedAt})
     </insert>
 
     <update id="update" parameterType="com.campushub.entity.Feedback">
@@ -71,6 +78,7 @@
             title = #{title},
             content = #{content},
             status = #{status},
+            priority = #{priority},
             admin_reply = #{adminReply},
             admin_id = #{adminId},
             handled_at = #{handledAt},

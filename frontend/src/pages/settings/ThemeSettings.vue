@@ -1,16 +1,20 @@
 <template>
-  <div class="bg-surface font-body text-on-surface min-h-screen pb-24 md:pb-0">
+  <div class="page-shell bg-surface font-body text-on-surface">
     <AppTopNav />
 
-    <main class="pt-24 px-6 max-w-5xl mx-auto">
+    <main class="page-shell-main page-shell-main--narrow">
       <PageBackHeader />
 
-      <div class="bg-surface-container-lowest rounded-[2rem] p-8 shadow-sm">
-        <h1 class="text-3xl font-extrabold font-headline text-on-surface mb-6">{{ t('themeTitle') }}</h1>
+      <div class="page-card">
+        <div class="page-card-header">
+          <p class="page-kicker">Theme Settings</p>
+          <h1 class="page-title">{{ t('themeTitle') }}</h1>
+          <p class="page-description">统一控制浅色、深色与跟随系统三种模式，立即预览页面变化。</p>
+        </div>
 
         <div class="space-y-6">
-          <div class="space-y-4">
-            <h2 class="text-xl font-bold text-on-surface">{{ t('themeMode') }}</h2>
+          <div class="space-y-4 page-prose">
+            <h2>{{ t('themeMode') }}</h2>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div

@@ -43,9 +43,11 @@ public class JwtUtil {
         }
     }
 
-    public String generateToken(Long userId) {
+    public String generateToken(Long userId, String role) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
+        claims.put("role", role);
+        claims.put("type", "access");
         return Jwts.builder()
                 .setClaims(claims)
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
@@ -53,14 +55,22 @@ public class JwtUtil {
                 .compact();
     }
 
-    public String generateRefreshToken(Long userId) {
+    public String generateRefreshToken(Long userId, String role) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
+        claims.put("role", role);
+        claims.put("type", "refresh");
         return Jwts.builder()
                 .setClaims(claims)
                 .setExpiration(new Date(System.currentTimeMillis() + refreshExpiration))
                 .signWith(signingKey, SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    public String getTokenType(String token) {
+        Claims claims = parseToken(token);
+        Object type = claims.get("type");
+        return type == null ? "access" : type.toString();
     }
 
     public Claims parseToken(String token) {
@@ -74,6 +84,12 @@ public class JwtUtil {
     public Long getUserIdFromToken(String token) {
         Claims claims = parseToken(token);
         return Long.parseLong(claims.get("userId").toString());
+    }
+
+    public String getRoleFromToken(String token) {
+        Claims claims = parseToken(token);
+        Object role = claims.get("role");
+        return role == null ? "USER" : role.toString();
     }
 
     public boolean isTokenExpired(String token) {

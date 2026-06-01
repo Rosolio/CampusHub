@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.campushub.mapper.UserVerificationMapper">
+    <resultMap id="UserVerificationResultMap" type="com.campushub.entity.UserVerification">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="type" column="type"/>
+        <result property="realName" column="real_name"/>
+        <result property="studentId" column="student_id"/>
+        <result property="imageUrls" column="image_urls"/>
+        <result property="status" column="status"/>
+        <result property="reviewerId" column="reviewer_id"/>
+        <result property="rejectReason" column="reject_reason"/>
+        <result property="reviewedAt" column="reviewed_at"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="userName" column="user_name"/>
+        <result property="userStudentId" column="user_student_id"/>
+        <result property="reviewerName" column="reviewer_name"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="UserVerificationResultMap">
+        SELECT v.*, u.name AS user_name, u.student_id AS user_student_id, r.name AS reviewer_name
+        FROM user_verifications v
+        LEFT JOIN users u ON v.user_id = u.id
+        LEFT JOIN users r ON v.reviewer_id = r.id
+        WHERE v.id = #{id}
+    </select>
+
+    <select id="selectByUserId" resultMap="UserVerificationResultMap">
+        SELECT v.*, u.name AS user_name, u.student_id AS user_student_id, r.name AS reviewer_name
+        FROM user_verifications v
+        LEFT JOIN users u ON v.user_id = u.id
+        LEFT JOIN users r ON v.reviewer_id = r.id
+        WHERE v.user_id = #{userId}
+    </select>
+
+    <select id="selectAll" resultMap="UserVerificationResultMap">
+        SELECT v.*, u.name AS user_name, u.student_id AS user_student_id, r.name AS reviewer_name
+        FROM user_verifications v
+        LEFT JOIN users u ON v.user_id = u.id
+        LEFT JOIN users r ON v.reviewer_id = r.id
+        ORDER BY v.created_at DESC
+    </select>
+
+    <insert id="insert" parameterType="com.campushub.entity.UserVerification" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_verifications (user_id, type, real_name, student_id, image_urls, status, reviewer_id, reject_reason, reviewed_at, created_at, updated_at)
+        VALUES (#{userId}, #{type}, #{realName}, #{studentId}, #{imageUrls}, #{status}, #{reviewerId}, #{rejectReason}, #{reviewedAt}, #{createdAt}, #{updatedAt})
+    </insert>
+
+    <update id="update" parameterType="com.campushub.entity.UserVerification">
+        UPDATE user_verifications
+        SET type = #{type}, real_name = #{realName}, student_id = #{studentId},
+            image_urls = #{imageUrls}, status = #{status},
+            reviewer_id = #{reviewerId}, reject_reason = #{rejectReason},
+            reviewed_at = #{reviewedAt},
+            updated_at = #{updatedAt}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE FROM user_verifications WHERE id = #{id}
+    </delete>
+</mapper>

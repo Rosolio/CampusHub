@@ -1,6 +1,7 @@
 package com.campushub.service;
 
 import com.campushub.dto.TaskCreateRequest;
+import com.campushub.dto.TaskRecommendationQuery;
 import com.campushub.entity.Task;
 import com.campushub.entity.TaskLike;
 import com.campushub.entity.TaskParticipant;
@@ -17,13 +18,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
-import java.util.Set;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
 public class TaskService {
+    private static final String FEED_CACHE_PREFIX = "tasks:feed:";
     private static final Set<String> TOPIC_CATEGORIES = Set.of("二手闲置", "恋爱交友", "打听求助", "兼职招聘");
     private static final Set<String> TASK_CATEGORIES = Set.of("跑腿代办", "学习辅导");
     private static final Set<String> REVIEW_KEYWORDS = Set.of(
@@ -47,6 +49,7 @@ public class TaskService {
     private final TaskReviewMapper taskReviewMapper;
     private final UserService userService;
     private final MessageService messageService;
+    private final TaskRecommendationService taskRecommendationService;
     private final RedisTemplate<String, Object> redisTemplate;
 
     public TaskService(
@@ -58,6 +61,7 @@ public class TaskService {
         TaskReviewMapper taskReviewMapper,
         UserService userService,
         MessageService messageService,
+        TaskRecommendationService taskRecommendationService,
         RedisTemplate<String, Object> redisTemplate
     ) {
         this.taskMapper = taskMapper;
@@ -68,6 +72,7 @@ public class TaskService {
         this.taskReviewMapper = taskReviewMapper;
         this.userService = userService;
         this.messageService = messageService;
+        this.taskRecommendationService = taskRecommendationService;
         this.redisTemplate = redisTemplate;
     }
 
@@ -76,17 +81,84 @@ public class TaskService {
     }
 
     public List<Task> getTasks(Long currentUserId) {
-        String key = "tasks:all";
-        List<Task> tasks = (List<Task>) redisTemplate.opsForValue().get(key);
-        if (tasks == null) {
-            tasks = taskMapper.selectAll();
-            redisTemplate.opsForValue().set(key, tasks, 5, TimeUnit.MINUTES);
+        return getTasks(currentUserId, new TaskRecommendationQuery());
+    }
+
+    public List<Task> getTasks(Long currentUserId, TaskRecommendationQuery query) {
+        // Build parameterized cache key
+        String cacheKey = FEED_CACHE_PREFIX + query.toCacheKey();
+        @SuppressWarnings("unchecked")
+        List<Task> tasks = (List<Task>) redisTemplate.opsForValue().get(cacheKey);
+        if (tasks != null) {
+            attachLikeStatus(tasks, currentUserId);
+            return tasks;
         }
-        return tasks.stream()
-            .filter(this::isVisibleInCommunityFeed)
-            .map(TaskModeResolver::normalize)
-            .peek(task -> task.setLikedByCurrentUser(isTaskLikedByUser(task, currentUserId)))
+
+        LocalDateTime now = LocalDateTime.now();
+
+        boolean isRecommended = "recommended".equals(query.getMode()) && !"topic".equals(query.getTaskMode());
+
+        if (isRecommended) {
+            // Fetch all eligible task-mode tasks for scoring, then paginate in memory
+            TaskRecommendationQuery fetchQuery = copyForFetchAll(query);
+            List<Task> allTasks = taskMapper.selectFeedTasks(fetchQuery, now);
+            List<Task> scored = taskRecommendationService.applyRecommendation(allTasks, query, currentUserId);
+            // Paginate the scored results
+            int offset = query.getEffectiveOffset();
+            int size = query.getEffectiveSize();
+            tasks = scored.stream().skip(offset).limit(size).collect(Collectors.toList());
+        } else {
+            // Latest or topic mode: paginate at DB level
+            tasks = taskMapper.selectFeedTasks(query, now);
+            tasks = tasks.stream().map(TaskModeResolver::normalize).collect(Collectors.toList());
+        }
+
+        attachLikeStatus(tasks, currentUserId);
+
+        redisTemplate.opsForValue().set(cacheKey, tasks, 2, TimeUnit.MINUTES);
+        return tasks;
+    }
+
+    private TaskRecommendationQuery copyForFetchAll(TaskRecommendationQuery query) {
+        TaskRecommendationQuery copy = new TaskRecommendationQuery();
+        copy.setMode(query.getMode());
+        copy.setCategory(query.getCategory());
+        copy.setLocation(query.getLocation());
+        copy.setAvailableAt(query.getAvailableAt());
+        copy.setTaskMode(query.getTaskMode());
+        // Fetch up to 500 tasks for scoring; effective page/size limits the final output
+        copy.setPage(1);
+        copy.setSize(500);
+        return copy;
+    }
+
+    private void invalidateFeedCache() {
+        try {
+            Set<String> keys = redisTemplate.keys(FEED_CACHE_PREFIX + "*");
+            if (keys != null && !keys.isEmpty()) {
+                redisTemplate.delete(keys);
+            }
+        } catch (Exception ignored) {
+            // Cache invalidation failure is non-critical; TTL handles cleanup
+        }
+    }
+
+    private void attachLikeStatus(List<Task> tasks, Long currentUserId) {
+        if (currentUserId == null || tasks.isEmpty()) return;
+
+        List<Long> topicTaskIds = tasks.stream()
+            .filter(TaskModeResolver::isTopicTask)
+            .map(Task::getId)
             .collect(Collectors.toList());
+
+        if (!topicTaskIds.isEmpty()) {
+            Set<Long> likedTaskIds = taskLikeMapper.selectLikedTaskIdsByUserIdAndTaskIds(currentUserId, topicTaskIds);
+            tasks.forEach(task -> {
+                if (TaskModeResolver.isTopicTask(task)) {
+                    task.setLikedByCurrentUser(likedTaskIds.contains(task.getId()));
+                }
+            });
+        }
     }
 
     public Task getTaskById(Long id) {
@@ -157,7 +229,7 @@ public class TaskService {
         taskParticipantMapper.insert(participant);
 
         // 清除缓存
-        redisTemplate.delete("tasks:all");
+        invalidateFeedCache();
 
         if (requiresManualReview) {
             notifyTaskEvent(
@@ -209,7 +281,7 @@ public class TaskService {
         }
 
         // 清除缓存
-        redisTemplate.delete("tasks:all");
+        invalidateFeedCache();
         redisTemplate.delete("tasks:" + taskId);
 
         notifyTaskEvent(
@@ -343,7 +415,7 @@ public class TaskService {
         }
 
         // 清除缓存
-        redisTemplate.delete("tasks:all");
+        invalidateFeedCache();
         redisTemplate.delete("tasks:" + taskId);
 
         return TaskModeResolver.normalize(task);
@@ -377,7 +449,7 @@ public class TaskService {
         });
 
         // 清除缓存
-        redisTemplate.delete("tasks:all");
+        invalidateFeedCache();
         redisTemplate.delete("tasks:" + taskId);
 
         return TaskModeResolver.normalize(task);

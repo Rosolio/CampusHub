@@ -34,12 +34,18 @@ public class MessageController {
         return messageService.markAsRead(id, getCurrentUserId(authentication));
     }
 
+    /** Batch mark messages as read — single request for multiple messages */
+    @PutMapping("/read")
+    public Map<String, Object> markAsReadBatch(@RequestBody Map<String, List<Long>> body, Authentication authentication) {
+        List<Long> ids = body.getOrDefault("ids", List.of());
+        int count = messageService.markAsReadBatch(ids, getCurrentUserId(authentication));
+        return Map.of("count", count);
+    }
+
     @GetMapping("/unread/count")
     public Map<String, Integer> getUnreadCount(Authentication authentication) {
         int count = messageService.getUnreadCount(getCurrentUserId(authentication));
-        Map<String, Integer> result = new java.util.HashMap<>();
-        result.put("count", count);
-        return result;
+        return Map.of("count", count);
     }
 
     private Long getCurrentUserId(Authentication authentication) {

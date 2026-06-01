@@ -1,13 +1,13 @@
 <template>
-  <nav class="app-bottom-nav fixed bottom-0 left-0 z-50 flex w-full items-center justify-around rounded-t-[2rem] border-t border-white/70 bg-[rgba(255,255,255,0.88)] px-6 pb-6 pt-3 shadow-[0_-10px_36px_rgba(15,23,42,0.08)] backdrop-blur-xl md:hidden">
+  <nav class="app-bottom-nav fixed bottom-0 left-0 z-50 flex w-full items-center justify-around rounded-t-[1.75rem] border-t border-white/70 bg-[rgba(255,255,255,0.9)] px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-2.5 shadow-[0_-10px_30px_rgba(15,23,42,0.08)] backdrop-blur-xl md:hidden">
     <RouterLink
       v-for="item in items"
       :key="item.to"
       :to="item.to"
-      class="flex flex-col items-center justify-center rounded-2xl px-5 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] transition-all duration-200"
-      :class="isActive(item.to) ? 'scale-95 bg-teal-900 text-white shadow-sm' : 'text-teal-900/45'"
+      class="flex min-w-[4.5rem] flex-col items-center justify-center rounded-2xl px-3 py-2 text-[11px] font-semibold tracking-[0.12em] transition-all duration-200"
+      :class="isActive(item.to) ? 'bg-teal-900 text-white shadow-sm' : 'text-teal-900/50'"
     >
-      <span class="material-symbols-outlined mb-1" :data-weight="isActive(item.to) ? 'fill' : 'regular'">
+      <span class="material-symbols-outlined mb-1 text-[1.35rem]" :data-weight="isActive(item.to) ? 'fill' : 'regular'">
         {{ item.icon }}
       </span>
       <span>{{ resolveItemLabel(item) }}</span>

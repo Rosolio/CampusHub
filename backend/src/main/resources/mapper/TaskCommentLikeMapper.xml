@@ -14,6 +14,15 @@
         SELECT * FROM task_comment_likes WHERE comment_id = #{commentId} AND user_id = #{userId} LIMIT 1
     </select>
 
+    <select id="selectLikedCommentIds" resultType="long">
+        SELECT comment_id FROM task_comment_likes
+        WHERE comment_id IN
+        <foreach collection="commentIds" item="commentId" open="(" separator="," close=")">
+            #{commentId}
+        </foreach>
+        AND user_id = #{userId}
+    </select>
+
     <insert id="insert" parameterType="com.campushub.entity.TaskCommentLike" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO task_comment_likes (comment_id, user_id, created_at)
         VALUES (#{commentId}, #{userId}, #{createdAt})

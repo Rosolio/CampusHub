@@ -39,11 +39,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String username = null;
         String jwt = null;
+        Claims claims = null;
 
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             jwt = authorizationHeader.substring(7);
             try {
-                Claims claims = jwtUtil.parseToken(jwt);
+                claims = jwtUtil.parseToken(jwt);
                 username = claims.get("userId").toString();
             } catch (Exception e) {
                 logger.error("Unable to validate JWT token", e);
@@ -51,11 +52,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                username, null, List.of(new SimpleGrantedAuthority("USER"))
-            );
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            try {
+                String role = claims != null && claims.get("role") != null ? claims.get("role").toString() : "USER";
+                String authority = "ADMIN".equalsIgnoreCase(role) ? "ADMIN" : "USER";
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                    username, null, List.of(new SimpleGrantedAuthority(authority))
+                );
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            } catch (NumberFormatException e) {
+                logger.error("Invalid userId in JWT: " + username, e);
+            }
         }
 
         filterChain.doFilter(request, response);

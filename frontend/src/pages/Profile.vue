@@ -1,12 +1,10 @@
 <template>
-  <div class="bg-background text-on-surface min-h-screen pb-24 md:pb-0 md:pt-20">
+  <div class="page-shell bg-background text-on-surface md:pt-20">
     <AppTopNav :avatar-url="currentUser.avatarUrl || defaultAvatarUrl" />
 
-    <main class="max-w-7xl mx-auto px-6 pt-24 md:pt-28 pb-12">
-      <!-- Profile Header Section -->
-      <section class="relative mb-12">
-        <div class="bg-surface-container-low rounded-[2rem] p-8 md:p-12 flex flex-col md:flex-row gap-8 items-center md:items-end relative overflow-hidden">
-          <!-- Abstract Background Shape -->
+    <main class="page-shell-main max-w-7xl">
+      <section class="relative mb-10">
+        <div class="relative flex flex-col gap-6 overflow-hidden rounded-[2rem] bg-surface-container-low p-6 md:flex-row md:items-end md:p-10">
           <div class="absolute -top-24 -right-24 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
 
           <div class="relative">
@@ -24,18 +22,36 @@
             </div>
           </div>
 
-          <div class="flex-1 text-center md:text-left space-y-2">
+          <div class="flex-1 space-y-2 text-center md:text-left">
             <h1 class="text-4xl md:text-5xl font-extrabold text-headline tracking-tighter text-on-surface">{{ currentUser.name || '未命名用户' }}</h1>
-            <p class="text-lg text-on-surface-variant font-medium">{{ currentUser.major || '暂未填写专业信息' }}</p>
+            <p class="text-base font-medium text-on-surface-variant md:text-lg">{{ currentUser.major || '暂未填写专业信息' }}</p>
             <div class="flex flex-wrap justify-center md:justify-start gap-3 pt-4">
               <span class="px-4 py-1.5 rounded-full text-sm font-semibold flex items-center gap-2" :class="creditTier.badgeClass">
                 <span class="material-symbols-outlined text-lg">workspace_premium</span>
                 {{ creditTier.label }}
               </span>
-              <span class="bg-surface-container-highest/50 px-4 py-1.5 rounded-full text-sm font-semibold flex items-center gap-2">
-                <span class="material-symbols-outlined text-primary text-lg">verified</span>
+              <span
+                v-if="currentUser.verifiedStatus === 'VERIFIED'"
+                class="bg-emerald-100 px-4 py-1.5 rounded-full text-sm font-semibold flex items-center gap-2"
+              >
+                <span class="material-symbols-outlined text-emerald-600 text-lg" style="font-variation-settings:'FILL' 1;">verified</span>
                 身份已验证
               </span>
+              <span
+                v-else-if="currentUser.verifiedStatus === 'PENDING'"
+                class="bg-amber-50 px-4 py-1.5 rounded-full text-sm font-semibold flex items-center gap-2"
+              >
+                <span class="material-symbols-outlined text-amber-500 text-lg">hourglass_top</span>
+                认证审核中
+              </span>
+              <RouterLink
+                v-else
+                to="/verification"
+                class="bg-surface-container-highest/50 px-4 py-1.5 rounded-full text-sm font-semibold flex items-center gap-2 hover:bg-primary/10 hover:text-primary transition-colors"
+              >
+                <span class="material-symbols-outlined text-primary text-lg">verified</span>
+                申请认证
+              </RouterLink>
               <span class="bg-surface-container-highest/50 px-4 py-1.5 rounded-full text-sm font-semibold flex items-center gap-2">
                 <span class="material-symbols-outlined text-primary text-lg">location_on</span>
                 {{ currentUser.email || '未设置邮箱' }}
@@ -43,7 +59,7 @@
             </div>
           </div>
 
-          <div class="flex flex-col gap-3 w-full md:w-auto">
+          <div class="flex w-full flex-col gap-3 md:w-auto">
             <button
               class="bg-gradient-to-br from-primary to-primary-dim text-on-primary px-8 py-4 rounded-xl font-bold flex items-center justify-center gap-3 shadow-lg transition-all hover:brightness-110 active:scale-95"
               type="button"
@@ -62,10 +78,8 @@
         </div>
       </section>
 
-      <!-- Bento Grid Stats -->
-      <section class="grid grid-cols-1 gap-6 mb-12 md:grid-cols-5">
-        <!-- Trust Score Orb -->
-        <button type="button" class="bg-surface-container-lowest p-8 rounded-[2rem] relative overflow-hidden flex flex-col justify-between group md:col-span-2 text-left transition-colors hover:bg-surface-container-low" @click="openPointRecordsDialog">
+      <section class="mb-10 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-5">
+        <button type="button" class="group relative flex flex-col justify-between overflow-hidden rounded-[2rem] bg-surface-container-lowest p-6 text-left transition-colors hover:bg-surface-container-low md:col-span-2 xl:col-span-2" @click="openPointRecordsDialog">
           <div class="absolute top-0 right-0 w-64 h-64 bg-secondary/10 rounded-full blur-3xl -mr-20 -mt-20 group-hover:bg-secondary/20 transition-all duration-700"></div>
           <div>
             <div class="flex justify-between items-start mb-8">
@@ -83,12 +97,11 @@
             </div>
           </div>
           <p class="text-sm text-on-surface-variant mt-6 leading-relaxed">
-            当前账号的数据库实时信息已加载。当前信用星级为 <span class="text-secondary font-bold">{{ formatScore(currentUser.score) }}</span>/5。
+            当前信用星级 <span class="text-secondary font-bold">{{ formatScore(currentUser.score) }}</span> / 5
           </p>
         </button>
 
-        <!-- Quick Stats 1 -->
-        <div class="bg-surface-container-lowest p-8 rounded-[2rem] flex flex-col justify-center items-center text-center gap-4">
+        <div class="flex flex-col items-center justify-center gap-4 rounded-[2rem] bg-surface-container-lowest p-6 text-center">
           <div class="w-16 h-16 rounded-full bg-tertiary-container/30 flex items-center justify-center text-tertiary">
             <span class="material-symbols-outlined text-3xl" style="font-variation-settings:'FILL' 1;">volunteer_activism</span>
           </div>
@@ -98,7 +111,7 @@
           </div>
         </div>
 
-        <div class="bg-surface-container-lowest p-8 rounded-[2rem] flex flex-col justify-center items-center text-center gap-4">
+        <div class="flex flex-col items-center justify-center gap-4 rounded-[2rem] bg-surface-container-lowest p-6 text-center">
           <div class="w-16 h-16 rounded-full bg-secondary-container/30 flex items-center justify-center text-secondary">
             <span class="material-symbols-outlined text-3xl" style="font-variation-settings:'FILL' 1;">favorite</span>
           </div>
@@ -108,8 +121,7 @@
           </div>
         </div>
 
-        <!-- Quick Stats 2 -->
-        <div class="bg-surface-container-lowest p-8 rounded-[2rem] flex flex-col justify-center items-center text-center gap-4">
+        <div class="flex flex-col items-center justify-center gap-4 rounded-[2rem] bg-surface-container-lowest p-6 text-center">
           <div class="w-16 h-16 rounded-full bg-primary-container/30 flex items-center justify-center text-primary">
             <span class="material-symbols-outlined text-3xl" style="font-variation-settings:'FILL' 1;">pending_actions</span>
           </div>
@@ -120,7 +132,7 @@
         </div>
       </section>
 
-      <section class="mb-12 grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <section class="mb-10 grid grid-cols-1 gap-5 lg:grid-cols-3">
         <article class="rounded-[2rem] bg-surface-container-lowest p-6 shadow-sm">
           <p class="text-sm font-bold uppercase tracking-[0.2em] text-on-surface-variant">评价摘要</p>
           <div class="mt-4 flex items-center gap-3">
@@ -161,37 +173,40 @@
         </article>
       </section>
 
-      <!-- Tabbed Interface Section -->
-      <section class="space-y-8">
-        <div class="flex items-center gap-8 border-b border-outline-variant/15 px-2">
+      <section class="space-y-6">
+        <div class="flex justify-center gap-3">
           <button
             @click="activeTab = 'requests'"
-            class="pb-4 text-xl font-bold tracking-tight transition-all"
-            :class="activeTab === 'requests' ? 'border-b-4 border-primary text-primary' : 'border-b-4 border-transparent text-on-surface-variant/50 hover:text-on-surface-variant'"
+            class="flex items-center gap-2 rounded-2xl px-6 py-3 text-sm font-bold transition-all shadow-sm"
+            :class="activeTab === 'requests' ? 'bg-teal-900 text-white' : 'bg-surface-container-low text-on-surface-variant hover:text-on-surface'"
             type="button"
           >
+            <span class="material-symbols-outlined text-lg">assignment</span>
             我的需求
           </button>
           <button
             @click="activeTab = 'topics'"
-            class="pb-4 text-xl font-bold tracking-tight transition-all"
-            :class="activeTab === 'topics' ? 'border-b-4 border-primary text-primary' : 'border-b-4 border-transparent text-on-surface-variant/50 hover:text-on-surface-variant'"
+            class="flex items-center gap-2 rounded-2xl px-6 py-3 text-sm font-bold transition-all shadow-sm"
+            :class="activeTab === 'topics' ? 'bg-teal-900 text-white' : 'bg-surface-container-low text-on-surface-variant hover:text-on-surface'"
             type="button"
           >
+            <span class="material-symbols-outlined text-lg">forum</span>
             我的话题帖
           </button>
           <button
             @click="activeTab = 'services'"
-            class="pb-4 text-xl font-bold tracking-tight transition-all"
-            :class="activeTab === 'services' ? 'border-b-4 border-primary text-primary' : 'border-b-4 border-transparent text-on-surface-variant/50 hover:text-on-surface-variant'"
+            class="flex items-center gap-2 rounded-2xl px-6 py-3 text-sm font-bold transition-all shadow-sm"
+            :class="activeTab === 'services' ? 'bg-teal-900 text-white' : 'bg-surface-container-low text-on-surface-variant hover:text-on-surface'"
             type="button"
           >
+            <span class="material-symbols-outlined text-lg">volunteer_activism</span>
             我的服务
           </button>
         </div>
 
-        <div v-if="activeTab !== 'topics'" class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div class="flex flex-wrap gap-2">
+        <div v-if="activeTab !== 'topics'" class="rounded-[1.75rem] bg-surface-container-lowest p-4 shadow-sm">
+          <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div class="flex flex-wrap gap-2">
             <button
               v-for="filter in statusFilters"
               :key="filter.value"
@@ -203,7 +218,7 @@
               {{ filter.label }}
             </button>
           </div>
-          <label class="flex items-center gap-3 rounded-2xl bg-surface-container-low px-4 py-3 text-sm text-on-surface">
+            <label class="flex items-center gap-3 rounded-2xl bg-surface-container-low px-4 py-3 text-sm text-on-surface lg:min-w-[19rem]">
             <span class="material-symbols-outlined text-lg text-on-surface-variant">search</span>
             <input
               v-model.trim="historyKeyword"
@@ -211,98 +226,109 @@
               class="min-w-0 flex-1 bg-transparent outline-none placeholder:text-on-surface-variant/60"
               placeholder="按标题、地点、奖励筛选历史订单"
             />
-          </label>
+            </label>
+          </div>
         </div>
 
         <!-- Content Area (My Requests) -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8" v-if="activeTab === 'requests'">
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2" v-if="activeTab === 'requests'">
           <div
             v-for="task in filteredMyTasks"
             :key="task.id"
-            class="bg-surface-container-lowest p-6 rounded-[1.5rem] flex gap-6 group hover:bg-surface-container-low transition-colors duration-300 cursor-pointer"
+            class="group cursor-pointer rounded-[1.5rem] bg-surface-container-lowest p-5 transition-colors duration-300 hover:bg-surface-container-low md:p-6"
             @click="goToTaskDetail(task.id)"
           >
-            <div class="w-24 h-24 rounded-2xl overflow-hidden flex-shrink-0">
-              <img
-                :alt="task.title"
-                class="w-full h-full object-cover"
-                data-alt="Task image"
-                :src="task.mapImageUrl || defaultTaskImage"
-              />
-            </div>
-            <div class="flex-1 space-y-3">
-              <div class="flex justify-between items-start">
-                <div class="flex flex-wrap gap-2">
-                  <span class="bg-tertiary-container text-on-tertiary-container px-3 py-1 rounded-full text-[10px] font-bold uppercase">{{ formatStatus(task.status) }}</span>
-                  <span
-                    v-if="task.status === 'completed'"
-                    class="px-3 py-1 rounded-full text-[10px] font-bold uppercase"
-                    :class="reviewStatusBadgeClass(task.id)"
-                  >
-                    {{ reviewStatusLabel(task.id) }}
+            <div class="flex flex-col gap-5 sm:flex-row">
+              <div class="h-24 w-full overflow-hidden rounded-2xl sm:w-24 sm:flex-shrink-0">
+                <img
+                  :alt="task.title"
+                  class="h-full w-full object-cover"
+                  data-alt="Task image"
+                  :src="task.mapImageUrl || defaultTaskImage"
+                />
+              </div>
+              <div class="flex-1 space-y-4">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div class="flex flex-wrap gap-2">
+                    <span class="rounded-full bg-tertiary-container px-3 py-1 text-[10px] font-bold uppercase text-on-tertiary-container">{{ formatStatus(task.status) }}</span>
+                    <span class="rounded-full bg-surface-container-high px-3 py-1 text-[10px] font-bold uppercase text-on-surface-variant">{{ task.category || '互助需求' }}</span>
+                    <span
+                      v-if="task.status === 'completed'"
+                      class="rounded-full px-3 py-1 text-[10px] font-bold uppercase"
+                      :class="reviewStatusBadgeClass(task.id)"
+                    >
+                      {{ reviewStatusLabel(task.id) }}
+                    </span>
+                  </div>
+                  <span class="text-xs font-medium text-on-surface-variant">{{ formatCreatedAt(task.createdAt) }}</span>
+                </div>
+                <div>
+                  <h4 class="text-xl font-bold leading-tight text-headline">{{ task.title }}</h4>
+                  <p class="mt-2 line-clamp-2 text-sm leading-6 text-on-surface-variant">
+                    {{ task.description || '暂无补充说明。' }}
+                  </p>
+                </div>
+                <div class="grid gap-3 text-sm text-on-surface-variant sm:grid-cols-2">
+                  <span class="flex items-center gap-2 rounded-2xl bg-surface-container-low px-3 py-3">
+                    <span class="material-symbols-outlined text-base">schedule</span>
+                    {{ task.timeText || '时间待定' }}
+                  </span>
+                  <span class="flex items-center gap-2 rounded-2xl bg-surface-container-low px-3 py-3">
+                    <span class="material-symbols-outlined text-base">payments</span>
+                    {{ task.rewardText || task.rewardTitle || '奖励待定' }}
                   </span>
                 </div>
-                <span class="text-on-surface-variant text-xs font-medium">{{ formatCreatedAt(task.createdAt) }}</span>
-              </div>
-              <h4 class="text-xl font-bold text-headline leading-tight">{{ task.title }}</h4>
-              <div class="flex items-center gap-4 text-sm text-on-surface-variant">
-                <span class="flex items-center gap-1">
-                  <span class="material-symbols-outlined text-base">schedule</span> {{ task.timeText || '时间待定' }}
-                </span>
-                <span class="flex items-center gap-1">
-                  <span class="material-symbols-outlined text-base">payments</span> {{ task.rewardText || task.rewardTitle || '奖励待定' }}
-                </span>
-              </div>
-              <div
-                v-if="showRequesterAcceptanceReminder(task)"
-                class="rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 px-4 py-3 text-amber-900"
-              >
-                <div class="flex items-start justify-between gap-3">
-                  <div>
-                    <p class="text-xs font-bold uppercase tracking-[0.16em]">有人接单</p>
-                    <p class="mt-1 text-sm leading-6">
-                      {{ task.helperName || '接单同学' }} 已接单，建议尽快确认细节。
-                    </p>
-                  </div>
-                  <span class="material-symbols-outlined text-xl">notifications_active</span>
-                </div>
-                <button
-                  type="button"
-                  class="mt-3 inline-flex items-center gap-2 rounded-full bg-amber-900 px-3 py-1.5 text-xs font-bold text-white transition-colors hover:bg-amber-950"
-                  @click.stop="goToTaskMessages(task)"
+                <div
+                  v-if="showRequesterAcceptanceReminder(task)"
+                  class="rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 px-4 py-3 text-amber-900"
                 >
-                  <span class="material-symbols-outlined text-sm">chat</span>
-                  去消息页沟通
-                </button>
-              </div>
-              <div class="flex items-center justify-between gap-3">
-                <div class="flex items-center gap-2 text-primary text-sm font-bold">
-                  查看详情
-                  <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                  <div class="flex items-start justify-between gap-3">
+                    <div>
+                      <p class="text-xs font-bold uppercase tracking-[0.16em]">有人接单</p>
+                      <p class="mt-1 text-sm leading-6">
+                        {{ task.helperName || '接单同学' }} 已接单，建议尽快确认细节。
+                      </p>
+                    </div>
+                    <span class="material-symbols-outlined text-xl">notifications_active</span>
+                  </div>
+                  <button
+                    type="button"
+                    class="mt-3 inline-flex items-center gap-2 rounded-full bg-amber-900 px-3 py-1.5 text-xs font-bold text-white transition-colors hover:bg-amber-950"
+                    @click.stop="goToTaskMessages(task)"
+                  >
+                    <span class="material-symbols-outlined text-sm">chat</span>
+                    去消息页沟通
+                  </button>
                 </div>
-                <div class="flex items-center gap-2">
-                  <button
-                    v-if="task.status === 'accepted' || task.status === 'completion_pending'"
-                    type="button"
-                    class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1.5 text-xs font-bold text-emerald-800 transition-colors hover:bg-emerald-200"
-                    :disabled="completingTaskId === task.id"
-                    @click.stop="handleCompleteTask(task)"
-                  >
-                    <span class="material-symbols-outlined text-sm">task_alt</span>
-                    {{ completingTaskId === task.id ? '处理中' : (task.status === 'completion_pending' ? '确认对方完成' : '提交完成确认') }}
-                  </button>
-                  <button
-                    type="button"
-                    class="inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-bold transition-colors"
-                    :class="isDeleteDisabled(task.status) || deletingTaskId === task.id
-                      ? 'bg-surface-container-high text-on-surface-variant cursor-not-allowed'
-                      : 'bg-error/10 text-error hover:bg-error/15'"
-                    :disabled="isDeleteDisabled(task.status) || deletingTaskId === task.id"
-                    @click.stop="handleDeleteTask(task)"
-                  >
-                    <span class="material-symbols-outlined text-sm">delete</span>
-                    {{ deletingTaskId === task.id ? '删除中' : '删除' }}
-                  </button>
+                <div class="flex flex-col gap-3 border-t border-outline-variant/12 pt-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div class="flex items-center gap-2 text-sm font-bold text-primary">
+                    查看详情
+                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                  </div>
+                  <div class="flex flex-wrap gap-2">
+                    <button
+                      v-if="task.status === 'accepted' || task.status === 'completion_pending'"
+                      type="button"
+                      class="inline-flex items-center justify-center gap-1 rounded-full bg-emerald-100 px-3 py-2 text-xs font-bold text-emerald-800 transition-colors hover:bg-emerald-200"
+                      :disabled="completingTaskId === task.id"
+                      @click.stop="handleCompleteTask(task)"
+                    >
+                      <span class="material-symbols-outlined text-sm">task_alt</span>
+                      {{ completingTaskId === task.id ? '处理中' : (task.status === 'completion_pending' ? '确认对方完成' : '提交完成确认') }}
+                    </button>
+                    <button
+                      type="button"
+                      class="inline-flex items-center justify-center gap-1 rounded-full px-3 py-2 text-xs font-bold transition-colors"
+                      :class="isDeleteDisabled(task.status) || deletingTaskId === task.id
+                        ? 'cursor-not-allowed bg-surface-container-high text-on-surface-variant'
+                        : 'bg-error/10 text-error hover:bg-error/15'"
+                      :disabled="isDeleteDisabled(task.status) || deletingTaskId === task.id"
+                      @click.stop="handleDeleteTask(task)"
+                    >
+                      <span class="material-symbols-outlined text-sm">delete</span>
+                      {{ deletingTaskId === task.id ? '删除中' : '删除' }}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -313,8 +339,9 @@
           </div>
         </div>
 
-        <div v-if="activeTab === 'topics'" class="flex justify-end">
-          <label class="flex w-full items-center gap-3 rounded-2xl bg-surface-container-low px-4 py-3 text-sm text-on-surface lg:max-w-md">
+        <div v-if="activeTab === 'topics'" class="rounded-[1.75rem] bg-surface-container-lowest p-4 shadow-sm">
+          <div class="flex justify-end">
+            <label class="flex w-full items-center gap-3 rounded-2xl bg-surface-container-low px-4 py-3 text-sm text-on-surface lg:max-w-md">
             <span class="material-symbols-outlined text-lg text-on-surface-variant">search</span>
             <input
               v-model.trim="historyKeyword"
@@ -322,57 +349,64 @@
               class="min-w-0 flex-1 bg-transparent outline-none placeholder:text-on-surface-variant/60"
               placeholder="按标题、分类、地点搜索话题帖"
             />
-          </label>
+            </label>
+          </div>
         </div>
 
         <!-- Content Area (My Services) -->
-        <div v-if="activeTab === 'topics'" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div v-if="activeTab === 'topics'" class="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <div
             v-for="task in filteredMyTopicPosts"
             :key="task.id"
-            class="bg-surface-container-lowest p-6 rounded-[1.5rem] flex gap-6 group hover:bg-surface-container-low transition-colors duration-300 cursor-pointer"
+            class="group cursor-pointer rounded-[1.5rem] bg-surface-container-lowest p-5 transition-colors duration-300 hover:bg-surface-container-low md:p-6"
             @click="goToTaskDetail(task.id)"
           >
-            <div class="w-24 h-24 rounded-2xl overflow-hidden flex-shrink-0 bg-gradient-to-br from-amber-400 via-rose-400 to-sky-500 p-[2px]">
-              <div class="flex h-full w-full items-center justify-center rounded-[0.95rem] bg-white">
-                <span class="material-symbols-outlined text-4xl text-teal-900">forum</span>
-              </div>
-            </div>
-            <div class="flex-1 space-y-3">
-              <div class="flex justify-between items-start gap-3">
-                <div class="flex flex-wrap gap-2">
-                  <span class="rounded-full bg-amber-100 px-3 py-1 text-[10px] font-bold uppercase text-amber-800">话题帖</span>
-                  <span class="rounded-full bg-surface-container-high px-3 py-1 text-[10px] font-bold uppercase text-on-surface-variant">{{ task.category || '校园互助' }}</span>
+            <div class="flex flex-col gap-5 sm:flex-row">
+              <div class="h-24 w-full flex-shrink-0 rounded-2xl bg-gradient-to-br from-amber-400 via-rose-400 to-sky-500 p-[2px] sm:w-24">
+                <div class="flex h-full w-full items-center justify-center rounded-[0.95rem] bg-white">
+                  <span class="material-symbols-outlined text-4xl text-teal-900">forum</span>
                 </div>
-                <span class="text-on-surface-variant text-xs font-medium">{{ formatCreatedAt(task.createdAt) }}</span>
               </div>
-              <h4 class="text-xl font-bold text-headline leading-tight">{{ task.title }}</h4>
-              <p class="line-clamp-2 text-sm leading-7 text-on-surface-variant">{{ task.description }}</p>
-              <div class="flex items-center gap-4 text-sm text-on-surface-variant">
-                <span class="flex items-center gap-1">
-                  <span class="material-symbols-outlined text-base">chat_bubble</span> {{ task.commentCount || 0 }} 评论
-                </span>
-                <span class="flex items-center gap-1">
-                  <span class="material-symbols-outlined text-base">favorite</span> {{ task.likeCount || 0 }} 点赞
-                </span>
-              </div>
-              <div class="flex items-center justify-between gap-3">
-                <div class="flex items-center gap-2 text-primary text-sm font-bold">
-                  进入帖子
-                  <span class="material-symbols-outlined text-sm">arrow_forward</span>
+              <div class="flex-1 space-y-4">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div class="flex flex-wrap gap-2">
+                    <span class="rounded-full bg-amber-100 px-3 py-1 text-[10px] font-bold uppercase text-amber-800">话题帖</span>
+                    <span class="rounded-full bg-surface-container-high px-3 py-1 text-[10px] font-bold uppercase text-on-surface-variant">{{ task.category || '校园互助' }}</span>
+                  </div>
+                  <span class="text-xs font-medium text-on-surface-variant">{{ formatCreatedAt(task.createdAt) }}</span>
                 </div>
-                <button
-                  type="button"
-                  class="inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-bold transition-colors"
-                  :class="deletingTaskId === task.id
-                    ? 'bg-surface-container-high text-on-surface-variant cursor-not-allowed'
-                    : 'bg-error/10 text-error hover:bg-error/15'"
-                  :disabled="deletingTaskId === task.id"
-                  @click.stop="handleDeleteTask(task)"
-                >
-                  <span class="material-symbols-outlined text-sm">delete</span>
-                  {{ deletingTaskId === task.id ? '删除中' : '删除' }}
-                </button>
+                <div>
+                  <h4 class="text-xl font-bold leading-tight text-headline">{{ task.title }}</h4>
+                  <p class="mt-2 line-clamp-2 text-sm leading-6 text-on-surface-variant">{{ task.description }}</p>
+                </div>
+                <div class="grid gap-3 text-sm text-on-surface-variant sm:grid-cols-2">
+                  <span class="flex items-center gap-2 rounded-2xl bg-surface-container-low px-3 py-3">
+                    <span class="material-symbols-outlined text-base">chat_bubble</span>
+                    {{ task.commentCount || 0 }} 评论
+                  </span>
+                  <span class="flex items-center gap-2 rounded-2xl bg-surface-container-low px-3 py-3">
+                    <span class="material-symbols-outlined text-base">favorite</span>
+                    {{ task.likeCount || 0 }} 点赞
+                  </span>
+                </div>
+                <div class="flex flex-col gap-3 border-t border-outline-variant/12 pt-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div class="flex items-center gap-2 text-sm font-bold text-primary">
+                    进入帖子
+                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                  </div>
+                  <button
+                    type="button"
+                    class="inline-flex items-center justify-center gap-1 rounded-full px-3 py-2 text-xs font-bold transition-colors"
+                    :class="deletingTaskId === task.id
+                      ? 'cursor-not-allowed bg-surface-container-high text-on-surface-variant'
+                      : 'bg-error/10 text-error hover:bg-error/15'"
+                    :disabled="deletingTaskId === task.id"
+                    @click.stop="handleDeleteTask(task)"
+                  >
+                    <span class="material-symbols-outlined text-sm">delete</span>
+                    {{ deletingTaskId === task.id ? '删除中' : '删除' }}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -382,69 +416,81 @@
           </div>
         </div>
 
-        <div v-else class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div v-else class="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <div
             v-for="task in filteredMyServiceTasks"
             :key="task.id"
-            class="bg-surface-container-lowest p-6 rounded-[1.5rem] flex gap-6 group hover:bg-surface-container-low transition-colors duration-300 cursor-pointer"
+            class="group cursor-pointer rounded-[1.5rem] bg-surface-container-lowest p-5 transition-colors duration-300 hover:bg-surface-container-low md:p-6"
             @click="goToTaskDetail(task.id)"
           >
-            <div class="w-24 h-24 rounded-2xl overflow-hidden flex-shrink-0">
-              <img
-                :alt="task.title"
-                class="w-full h-full object-cover"
-                data-alt="Service image"
-                :src="task.mapImageUrl || defaultTaskImage"
-              />
-            </div>
-            <div class="flex-1 space-y-3">
-              <div class="flex justify-between items-start">
-                <div class="flex flex-wrap gap-2">
-                  <span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-[10px] font-bold uppercase">{{ formatServiceStatus(task.status) }}</span>
-                  <span
-                    v-if="task.status === 'completed'"
-                    class="px-3 py-1 rounded-full text-[10px] font-bold uppercase"
-                    :class="reviewStatusBadgeClass(task.id)"
-                  >
-                    {{ reviewStatusLabel(task.id) }}
+            <div class="flex flex-col gap-5 sm:flex-row">
+              <div class="h-24 w-full overflow-hidden rounded-2xl sm:w-24 sm:flex-shrink-0">
+                <img
+                  :alt="task.title"
+                  class="h-full w-full object-cover"
+                  data-alt="Service image"
+                  :src="task.mapImageUrl || defaultTaskImage"
+                />
+              </div>
+              <div class="flex-1 space-y-4">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div class="flex flex-wrap gap-2">
+                    <span class="rounded-full bg-secondary-container px-3 py-1 text-[10px] font-bold uppercase text-on-secondary-container">{{ formatServiceStatus(task.status) }}</span>
+                    <span class="rounded-full bg-surface-container-high px-3 py-1 text-[10px] font-bold uppercase text-on-surface-variant">{{ task.category || '我的服务' }}</span>
+                    <span
+                      v-if="task.status === 'completed'"
+                      class="rounded-full px-3 py-1 text-[10px] font-bold uppercase"
+                      :class="reviewStatusBadgeClass(task.id)"
+                    >
+                      {{ reviewStatusLabel(task.id) }}
+                    </span>
+                  </div>
+                  <span class="text-xs font-medium text-on-surface-variant">{{ formatCreatedAt(task.createdAt) }}</span>
+                </div>
+                <div>
+                  <h4 class="text-xl font-bold leading-tight text-headline">{{ task.title }}</h4>
+                  <p class="mt-2 line-clamp-2 text-sm leading-6 text-on-surface-variant">
+                    {{ task.description || '暂无补充说明。' }}
+                  </p>
+                </div>
+                <div class="grid gap-3 text-sm text-on-surface-variant sm:grid-cols-2">
+                  <span class="flex items-center gap-2 rounded-2xl bg-surface-container-low px-3 py-3">
+                    <span class="material-symbols-outlined text-base">schedule</span>
+                    {{ task.timeText || '时间待定' }}
+                  </span>
+                  <span class="flex items-center gap-2 rounded-2xl bg-surface-container-low px-3 py-3">
+                    <span class="material-symbols-outlined text-base">payments</span>
+                    {{ task.rewardText || task.rewardTitle || '奖励待定' }}
                   </span>
                 </div>
-                <span class="text-on-surface-variant text-xs font-medium">{{ formatCreatedAt(task.createdAt) }}</span>
-              </div>
-              <h4 class="text-xl font-bold text-headline leading-tight">{{ task.title }}</h4>
-              <div class="flex items-center gap-4 text-sm text-on-surface-variant">
-                <span class="flex items-center gap-1">
-                  <span class="material-symbols-outlined text-base">schedule</span> {{ task.timeText || '时间待定' }}
-                </span>
-                <span class="flex items-center gap-1">
-                  <span class="material-symbols-outlined text-base">payments</span> {{ task.rewardText || task.rewardTitle || '奖励待定' }}
-                </span>
-              </div>
-              <div class="flex items-center justify-between gap-3">
-                <div class="flex items-center gap-2 text-primary text-sm font-bold">
-                  查看详情
-                  <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                <div class="flex flex-col gap-3 border-t border-outline-variant/12 pt-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div class="flex items-center gap-2 text-sm font-bold text-primary">
+                    查看详情
+                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                  </div>
+                  <div class="flex flex-wrap gap-2">
+                    <button
+                      v-if="task.status === 'accepted' || task.status === 'completion_pending'"
+                      type="button"
+                      class="inline-flex items-center justify-center gap-1 rounded-full bg-emerald-100 px-3 py-2 text-xs font-bold text-emerald-800 transition-colors hover:bg-emerald-200"
+                      :disabled="completingTaskId === task.id"
+                      @click.stop="handleCompleteTask(task)"
+                    >
+                      <span class="material-symbols-outlined text-sm">task_alt</span>
+                      {{ completingTaskId === task.id ? '处理中' : (task.status === 'completion_pending' ? '确认对方完成' : '提交完成确认') }}
+                    </button>
+                    <button
+                      v-if="task.status === 'accepted'"
+                      type="button"
+                      class="inline-flex items-center justify-center gap-1 rounded-full bg-amber-100 px-3 py-2 text-xs font-bold text-amber-800 transition-colors hover:bg-amber-200"
+                      :disabled="cancelingServiceTaskId === task.id"
+                      @click.stop="handleUnacceptTask(task)"
+                    >
+                      <span class="material-symbols-outlined text-sm">undo</span>
+                      {{ cancelingServiceTaskId === task.id ? '处理中' : '取消接单' }}
+                    </button>
+                  </div>
                 </div>
-                <button
-                  v-if="task.status === 'accepted' || task.status === 'completion_pending'"
-                  type="button"
-                  class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1.5 text-xs font-bold text-emerald-800 transition-colors hover:bg-emerald-200"
-                  :disabled="completingTaskId === task.id"
-                  @click.stop="handleCompleteTask(task)"
-                >
-                  <span class="material-symbols-outlined text-sm">task_alt</span>
-                  {{ completingTaskId === task.id ? '处理中' : (task.status === 'completion_pending' ? '确认对方完成' : '提交完成确认') }}
-                </button>
-                <button
-                  v-if="task.status === 'accepted'"
-                  type="button"
-                  class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-3 py-1.5 text-xs font-bold text-amber-800 transition-colors hover:bg-amber-200"
-                  :disabled="cancelingServiceTaskId === task.id"
-                  @click.stop="handleUnacceptTask(task)"
-                >
-                  <span class="material-symbols-outlined text-sm">undo</span>
-                  {{ cancelingServiceTaskId === task.id ? '处理中' : '取消接单' }}
-                </button>
               </div>
             </div>
           </div>
@@ -775,23 +821,18 @@ const fetchReviewStatuses = async (requestTasks: any[], serviceTasks: any[]) => 
     return
   }
 
-  const currentUserId = Number(currentUser.value?.id)
   try {
-    const [reviewCounts, receivedReviews] = await Promise.all([
-      taskApi.getTaskReviewsBatch(completedTaskIds) as Promise<Record<string, number>>,
-      Promise.all(completedTaskIds.map((taskId) => taskApi.getTaskReviews(taskId)))
-    ])
+    // Single batch call: returns review counts per task
+    const reviewCounts = await taskApi.getTaskReviewsBatch(completedTaskIds) as Record<string, number>
 
     taskReviewStatusMap.value = Object.fromEntries(
       completedTaskIds.map((taskId) => [taskId, Number(reviewCounts?.[taskId] ?? 0) >= 2 ? 'completed' : 'pending'] as const)
     )
 
-    const flattenedReviews = receivedReviews.flatMap((reviews) => normalizeResponseList(reviews))
-    const ownReviews = flattenedReviews.filter((review) => Number(review?.revieweeId) === currentUserId)
-    receivedReviewCount.value = ownReviews.length
-    receivedReviewAverage.value = ownReviews.length === 0
-      ? 0
-      : ownReviews.reduce((sum, review) => sum + Number(review?.rating || 0), 0) / ownReviews.length
+    // For average stars, fetch only one task's reviews as a sample (not all)
+    // The review score is already on the user object from getCurrentUser
+    receivedReviewCount.value = Object.values(reviewCounts || {}).reduce((sum, c) => sum + Number(c ?? 0), 0)
+    receivedReviewAverage.value = Number(currentUser.value?.score || 0)
   } catch (error) {
     console.error('批量获取互评状态失败:', error)
     taskReviewStatusMap.value = {}

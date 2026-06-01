@@ -1,12 +1,15 @@
 <template>
-  <div class="bg-background text-on-surface min-h-screen pb-24 md:pb-0 md:pt-20">
-    <!-- Top Navigation Bar -->
+  <div class="page-shell bg-background text-on-surface md:pt-20">
     <AppTopNav />
 
-    <main class="max-w-7xl mx-auto px-6 pt-8 pb-12">
-      <h1 class="text-3xl font-bold text-on-surface mb-8">{{ t('settingsTitle') }}</h1>
+    <main class="page-shell-main page-shell-main--narrow">
+      <div class="page-card-header">
+        <p class="page-kicker">Settings Center</p>
+        <h1 class="page-title">{{ t('settingsTitle') }}</h1>
+        <p class="page-description">统一管理账户资料、通知偏好、主题语言与平台说明，减少不同设置页之间的跳转成本。</p>
+      </div>
       
-      <div class="bg-surface-container-lowest p-8 rounded-[2rem] space-y-6">
+      <div class="page-card space-y-6">
         <SettingsSection :title="t('settingsAccount')">
           <SettingsItem :title="t('settingsProfile')" type="button" :interactive="true" :show-chevron="true" @click="router.push('/settings/profile')" />
           <SettingsItem :title="t('settingsNotifications')" type="button" :interactive="true" :show-chevron="true" @click="router.push('/settings/notification')" />
@@ -25,7 +28,7 @@
 
         <div class="pt-4 border-t border-outline-variant/20">
           <button
-            class="w-full flex items-center justify-center gap-2 rounded-xl bg-red-50 text-red-600 font-bold py-4 hover:bg-red-100 transition-colors"
+            class="w-full flex items-center justify-center gap-2 rounded-xl bg-red-50 py-4 font-bold text-red-600 transition-colors hover:bg-red-100"
             type="button"
             @click="handleLogout"
           >
@@ -36,7 +39,6 @@
       </div>
     </main>
 
-    <!-- Bottom Navigation Bar (Mobile) -->
     <AppBottomNav />
   </div>
 </template>

@@ -26,14 +26,14 @@
         <RouterLink
           v-if="isAdmin"
           to="/admin"
-          class="rounded-full px-3 py-2 text-sm font-bold text-teal-900/72 transition-all hover:bg-white hover:text-teal-950"
+          class="rounded-full px-3 py-2 text-sm font-bold text-teal-900/72 transition-all hover:bg-white hover:text-teal-950 dark:hover:bg-white/10"
         >
           管理后台
         </RouterLink>
         <RouterLink
           v-if="!isAdmin"
           to="/messages"
-          class="relative rounded-full p-2 text-teal-900/72 transition-all hover:bg-white hover:text-teal-950"
+          class="relative rounded-full p-2 text-teal-900/72 transition-all hover:bg-white hover:text-teal-950 dark:hover:bg-white/10"
           :aria-label="t('navNotifications')"
         >
           <span class="material-symbols-outlined">notifications</span>
@@ -44,7 +44,7 @@
         </RouterLink>
         <RouterLink
           to="/settings"
-          class="rounded-full p-2 text-teal-900/72 transition-all hover:bg-white hover:text-teal-950"
+          class="rounded-full p-2 text-teal-900/72 transition-all hover:bg-white hover:text-teal-950 dark:hover:bg-white/10"
           :aria-label="t('navSettings')"
         >
           <span class="material-symbols-outlined">settings</span>

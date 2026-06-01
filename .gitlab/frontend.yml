@@ -1,4 +1,8 @@
 # 配置仅供参考！
+workflow:
+  rules:
+    - when: always
+
 stages:
   - quality
   - build
@@ -11,6 +15,8 @@ cache:
 frontend-lint:
   stage: quality
   image: node:20
+  rules:
+    - when: on_success
   script:
     - cd frontend
     - npm ci
@@ -19,6 +25,8 @@ frontend-lint:
 frontend-build:
   stage: build
   image: node:20
+  rules:
+    - when: on_success
   needs:
     - frontend-lint
   script:

@@ -16,6 +16,18 @@ public interface TaskMapper {
     List<Task> selectByHelperId(Long helperId);
     List<Task> selectByStatus(String status);
     List<Task> selectAdminTasks();
+
+    /** Paginated feed query with filters pushed to SQL */
+    List<Task> selectFeedTasks(@Param("query") com.campushub.dto.TaskRecommendationQuery query,
+                               @Param("now") LocalDateTime now);
+
+    /** Count matching feed tasks (for pagination metadata) */
+    int countFeedTasks(@Param("query") com.campushub.dto.TaskRecommendationQuery query,
+                       @Param("now") LocalDateTime now);
+
+    /** Lightweight category history query (no comment count, no helper join) */
+    List<Task> selectCategoryHistoryByHelperId(@Param("helperId") Long helperId);
+
     Integer sumTopicLikesByRequesterId(Long requesterId);
     List<Map<String, Object>> countTasksByReviewStatus();
     List<Map<String, Object>> countTasksByCategory();

@@ -19,8 +19,14 @@ export type AdminTask = {
   title: string
   description: string
   category?: string
+  taskMode?: string
   requesterId: number
   requesterName?: string
   reviewStatus: string
   reviewNote?: string
+  status?: string
+  createdAt?: string
+  updatedAt?: string
+  commentCount?: number
+  helperName?: string
 }

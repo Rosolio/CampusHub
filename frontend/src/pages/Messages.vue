@@ -2,7 +2,7 @@
   <div class="h-[100dvh] overflow-hidden bg-surface font-body text-on-surface">
     <AppTopNav :avatar-url="currentUser.avatarUrl || defaultAvatarUrl" />
 
-    <main class="mx-auto flex h-full max-w-7xl flex-col px-4 pb-20 pt-20 sm:px-6 md:pb-6 md:pt-24">
+    <main class="mx-auto flex h-full max-w-7xl flex-col px-4 pb-24 pt-20 sm:px-6 md:pb-6 md:pt-24">
       <div class="mb-3 shrink-0">
         <RouterLink
           to="/"
@@ -37,8 +37,11 @@
         {{ fetchError }}
       </div>
 
-      <div class="grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(180px,32vh)_minmax(0,1fr)] gap-4 overflow-hidden lg:grid-cols-[360px_minmax(0,1fr)] lg:grid-rows-1 lg:gap-6">
-        <aside class="flex min-h-0 flex-col rounded-[2rem] bg-surface-container-lowest p-4 shadow-sm md:p-5">
+      <div class="grid min-h-0 flex-1 gap-4 overflow-hidden lg:grid-cols-[360px_minmax(0,1fr)] lg:gap-6">
+        <aside
+          class="flex min-h-0 min-w-0 flex-col rounded-[2rem] bg-surface-container-lowest p-4 shadow-sm md:p-5"
+          :class="mobileShowChat ? 'hidden lg:flex' : 'flex'"
+        >
           <div class="mb-3 flex shrink-0 items-center justify-between">
             <div>
               <h2 class="text-lg font-extrabold text-teal-900 md:text-xl">会话列表</h2>
@@ -106,7 +109,10 @@
           </div>
         </aside>
 
-        <section class="flex min-h-0 flex-col overflow-hidden rounded-[2rem] bg-surface-container-lowest shadow-sm">
+        <section
+          class="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-[2rem] bg-surface-container-lowest shadow-sm"
+          :class="mobileShowChat ? 'flex' : 'hidden lg:flex'"
+        >
           <div v-if="!selectedConversation" class="flex-1 flex items-center justify-center p-8">
             <div class="max-w-md rounded-[2rem] bg-surface-container-low p-8 text-center">
               <p class="mb-2 text-xl font-extrabold text-teal-900">选择一个会话</p>
@@ -118,6 +124,13 @@
             <div class="shrink-0 border-b border-outline-variant/15 px-5 py-4 md:px-6 md:py-5">
               <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div class="flex items-center gap-4">
+                  <button
+                    type="button"
+                    class="rounded-full p-2 text-on-surface-variant transition-colors hover:bg-surface-container-high lg:hidden"
+                    @click="mobileShowChat = false"
+                  >
+                    <span class="material-symbols-outlined">arrow_back</span>
+                  </button>
                   <div v-if="selectedConversation.isSystemChannel" class="flex h-14 w-14 items-center justify-center rounded-full border border-amber-200 bg-amber-50 text-amber-700">
                     <span class="material-symbols-outlined text-2xl">notifications_active</span>
                   </div>
@@ -213,7 +226,7 @@
                   <textarea
                     id="message-input"
                     v-model="composer"
-                    class="min-h-28 w-full rounded-3xl border border-outline-variant/20 bg-surface px-5 py-4 text-on-surface outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
+                    class="min-h-28 w-[96%] mx-auto rounded-3xl border border-outline-variant/20 bg-surface px-3 py-4 text-on-surface outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
                     placeholder="输入你想沟通的内容..."
                     @keydown.enter.exact.prevent="handleSendMessage"
                   ></textarea>
@@ -239,44 +252,14 @@
       </div>
     </main>
 
-    <nav
-      class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-6 pb-6 pt-3 bg-white/90 backdrop-blur-lg rounded-t-3xl shadow-[0_-4px_20px_rgba(0,52,57,0.05)]"
-    >
-      <RouterLink
-        to="/"
-        class="flex flex-col items-center justify-center text-teal-800/50 dark:text-teal-400/50"
-      >
-        <span class="material-symbols-outlined mb-1" data-icon="home">home</span>
-        <span class="text-[10px] font-semibold uppercase tracking-wider mt-1">{{ t('navHome') }}</span>
-      </RouterLink>
-      <RouterLink
-        to="/publish"
-        class="flex flex-col items-center justify-center text-teal-800/50 dark:text-teal-400/50"
-      >
-        <span class="material-symbols-outlined mb-1" data-icon="add_circle">add_circle</span>
-        <span class="text-[10px] font-semibold uppercase tracking-wider mt-1">{{ t('navPublish') }}</span>
-      </RouterLink>
-      <RouterLink
-        to="/messages"
-        class="flex flex-col items-center justify-center bg-teal-800 text-white rounded-2xl px-5 py-2 active:scale-90 transition-transform"
-      >
-        <span class="material-symbols-outlined mb-1" data-icon="chat_bubble">chat_bubble</span>
-        <span class="text-[10px] font-semibold uppercase tracking-wider mt-1">{{ t('navMessages') }}</span>
-      </RouterLink>
-      <RouterLink
-        to="/profile"
-        class="flex flex-col items-center justify-center text-teal-800/50 dark:text-teal-400/50"
-      >
-        <span class="material-symbols-outlined mb-1" data-icon="person">person</span>
-        <span class="text-[10px] font-semibold uppercase tracking-wider mt-1">{{ t('navProfile') }}</span>
-      </RouterLink>
-    </nav>
+    <AppBottomNav />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
+import AppBottomNav from '../components/AppBottomNav.vue'
 import AppTopNav from '../components/AppTopNav.vue'
 import { usePreferences } from '../composables/usePreferences'
 import { DEFAULT_AVATAR_URL } from '../constants/assets'
@@ -326,13 +309,14 @@ type MessageGroup = {
 
 const route = useRoute()
 const router = useRouter()
-const { formatLocaleDateLabel, formatLocaleDateTime, t } = usePreferences()
+const { formatLocaleDateLabel, formatLocaleDateTime } = usePreferences()
 const messages = ref<RawMessage[]>([])
 const selectedKey = ref('')
 const composer = ref('')
 const loading = ref(false)
 const sending = ref(false)
 const showUnreadOnly = ref(false)
+const mobileShowChat = ref(false)
 const fetchError = ref('')
 const sendError = ref('')
 const messageViewport = ref<HTMLElement | null>(null)
@@ -649,19 +633,21 @@ const markConversationAsRead = async (conversation: Conversation | null) => {
   const unreadIncoming = conversation.messages.filter((message) => message.direction === 'incoming' && message.status === 'unread')
   if (unreadIncoming.length === 0) return
 
-  for (const message of unreadIncoming) {
-    try {
-      await messageApi.markAsRead(message.id)
-      const target = messages.value.find((item) => item.id === message.id)
+  const ids = unreadIncoming.map(m => m.id)
+  try {
+    await messageApi.markAsReadBatch(ids)
+    for (const id of ids) {
+      const target = messages.value.find((item) => item.id === id)
       if (target) target.status = 'read'
-    } catch (error) {
-      console.error('标记已读失败:', error)
     }
+  } catch (error) {
+    console.error('标记已读失败:', error)
   }
 }
 
 const selectConversation = (key: string) => {
   selectedKey.value = key
+  mobileShowChat.value = true
 }
 
 const fetchMessages = async (options?: { silent?: boolean }) => {
@@ -777,10 +763,25 @@ watch(
   { immediate: true }
 )
 
-onMounted(() => {
-  fetchMessages()
-  pollingTimer = window.setInterval(() => {
-    fetchMessages({ silent: true })
+let lastUnreadCount = 0
+
+onMounted(async () => {
+  await fetchMessages()
+  try {
+    const res = await messageApi.getUnreadCount() as any
+    lastUnreadCount = res?.count ?? 0
+  } catch { /* ignore */ }
+
+  // Poll unread count (lightweight), only refetch full messages when count changes
+  pollingTimer = window.setInterval(async () => {
+    try {
+      const res = await messageApi.getUnreadCount() as any
+      const currentCount = res?.count ?? 0
+      if (currentCount !== lastUnreadCount) {
+        lastUnreadCount = currentCount
+        await fetchMessages({ silent: true })
+      }
+    } catch { /* ignore polling errors */ }
   }, 5000)
 })
 

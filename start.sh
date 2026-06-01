@@ -25,6 +25,10 @@ FRONTEND_HOST="0.0.0.0"
 BACKEND_URL="http://127.0.0.1:${BACKEND_PORT}/api/tasks"
 FRONTEND_URL="http://127.0.0.1:${FRONTEND_PORT}"
 
+if [ -f "$PROJECT_ROOT/.local-tools/env.sh" ]; then
+    . "$PROJECT_ROOT/.local-tools/env.sh"
+fi
+
 echo -e "${BLUE}========================================${NC}"
 echo -e "${BLUE}   CampusHub 一键启动脚本${NC}"
 echo -e "${BLUE}========================================${NC}"
@@ -168,8 +172,15 @@ start_mysql() {
     echo "正在启动 MySQL..."
     if command -v brew >/dev/null 2>&1; then
         brew services start mysql || brew services start mysql@8.0
+        sleep 2
+        if ! lsof -i :3306 >/dev/null 2>&1 && command -v mysqld >/dev/null 2>&1; then
+            echo "Homebrew services 未监听端口，改用 mysqld 后台启动..."
+            mysqld --datadir="$(brew --prefix)/var/mysql" --user="$(id -un)" --daemonize --log-error="$(brew --prefix)/var/mysql/campushub-local.err"
+        fi
     elif command -v systemctl >/dev/null 2>&1; then
         sudo systemctl start mysql
+    elif command -v mysqld >/dev/null 2>&1; then
+        mysqld --datadir="/opt/homebrew/var/mysql" --user="$(id -un)" --daemonize --log-error="/opt/homebrew/var/mysql/campushub-local.err"
     else
         echo -e "${RED}无法自动启动 MySQL，请手动启动${NC}"
         exit 1
@@ -196,6 +207,11 @@ start_redis() {
     echo "正在启动 Redis..."
     if command -v brew >/dev/null 2>&1; then
         brew services start redis
+        sleep 1
+        if ! lsof -i :6379 >/dev/null 2>&1 && command -v redis-server >/dev/null 2>&1; then
+            echo "Homebrew services 未监听端口，改用 redis-server 后台启动..."
+            redis-server /opt/homebrew/etc/redis.conf --daemonize yes --supervised no
+        fi
     elif command -v systemctl >/dev/null 2>&1; then
         sudo systemctl start redis
     else

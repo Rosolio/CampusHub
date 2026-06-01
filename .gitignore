@@ -53,4 +53,10 @@ docker-compose.override.yml
 *.env.docker
 
 logs/
-*.log
+*.pid
+
+.claude/
+
+local-debug/
+.local-tools/
+uploads/

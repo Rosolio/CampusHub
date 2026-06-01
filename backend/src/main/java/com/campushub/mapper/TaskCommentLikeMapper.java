@@ -9,6 +9,7 @@ import java.util.List;
 @Mapper
 public interface TaskCommentLikeMapper {
     TaskCommentLike selectByCommentIdAndUserId(@Param("commentId") Long commentId, @Param("userId") Long userId);
+    List<Long> selectLikedCommentIds(@Param("commentIds") List<Long> commentIds, @Param("userId") Long userId);
     int insert(TaskCommentLike taskCommentLike);
     int deleteByCommentIdAndUserId(@Param("commentId") Long commentId, @Param("userId") Long userId);
     int deleteByCommentIds(@Param("commentIds") List<Long> commentIds);

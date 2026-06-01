@@ -48,7 +48,14 @@ public class TaskCommentService {
         Task task = taskMapper.selectById(taskId);
         validateTopicTask(task);
         List<TaskComment> comments = taskCommentMapper.selectByTaskId(taskId);
-        comments.forEach(comment -> comment.setLikedByCurrentUser(isCommentLikedByUser(comment.getId(), currentUserId)));
+
+        if (currentUserId != null && !comments.isEmpty()) {
+            List<Long> commentIds = comments.stream().map(TaskComment::getId).toList();
+            List<Long> likedCommentIds = taskCommentLikeMapper.selectLikedCommentIds(commentIds, currentUserId);
+            java.util.Set<Long> likedSet = new java.util.HashSet<>(likedCommentIds);
+            comments.forEach(comment -> comment.setLikedByCurrentUser(likedSet.contains(comment.getId())));
+        }
+
         return comments;
     }
 
@@ -203,13 +210,6 @@ public class TaskCommentService {
         if (task.getExpiresAt() != null && task.getExpiresAt().isBefore(LocalDateTime.now())) {
             throw new RuntimeException("话题帖已截止，暂不支持继续操作");
         }
-    }
-
-    private boolean isCommentLikedByUser(Long commentId, Long currentUserId) {
-        if (commentId == null || currentUserId == null) {
-            return false;
-        }
-        return taskCommentLikeMapper.selectByCommentIdAndUserId(commentId, currentUserId) != null;
     }
 
     private void notifyCommentEvent(Task task, TaskComment comment) {

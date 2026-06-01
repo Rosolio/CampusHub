@@ -19,6 +19,19 @@ const api = axios.create({
   }
 })
 
+// 文件上传专用实例（不预设 Content-Type，让浏览器自动设置 multipart boundary）
+const uploadApi = axios.create({
+  baseURL: apiBaseUrl,
+  timeout: 30000
+})
+uploadApi.interceptors.request.use((config) => {
+  const token = getStoredToken()
+  if (token && hasValidAuthToken()) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  return config
+})
+
 const authApiClient = axios.create({
   baseURL: apiBaseUrl,
   timeout: 10000,
@@ -33,6 +46,7 @@ const requestData = async <T>(request: Promise<{ data: T }>) => {
 }
 
 let refreshPromise: Promise<string | null> | null = null
+let isRedirectingToLogin = false
 
 const refreshAccessToken = async () => {
   if (refreshPromise) {
@@ -111,7 +125,8 @@ api.interceptors.response.use(
       }
     }
 
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 && !isRedirectingToLogin) {
+      isRedirectingToLogin = true
       clearAuthStorage()
       window.location.href = '/auth?tab=login'
     }
@@ -131,18 +146,20 @@ export const authApi = {
     password: string
   }) => requestData(api.post('/auth/register', data)),
 
-  thirdPartyLogin: (data: {
-    provider: string
-    providerUserId: string
-    displayName?: string
-    email?: string
-  }) => requestData(api.post('/auth/third-party', data)),
-
   refreshToken: (refreshToken: string) => requestData(authApiClient.post('/auth/refresh', { refreshToken }))
 }
 
 export const taskApi = {
-  getTasks: () => requestData(api.get('/tasks')),
+  getTasks: (params?: {
+    mode?: 'recommended' | 'latest'
+    category?: string
+    location?: string
+    availableAt?: string
+    limit?: number
+    page?: number
+    size?: number
+    taskMode?: 'task' | 'topic'
+  }) => requestData(api.get('/tasks', { params })),
   getTaskById: (id: number) => requestData(api.get(`/tasks/${id}`)),
   likeTask: (taskId: number) => requestData(api.post(`/tasks/${taskId}/like`)),
   unlikeTask: (taskId: number) => requestData(api.delete(`/tasks/${taskId}/like`)),
@@ -224,7 +241,7 @@ export const adminApi = {
   getAnnouncements: () => requestData(api.get('/admin/announcements')),
   createAnnouncement: (data: { title: string; content: string; pinned?: boolean }) => requestData(api.post('/admin/announcements', data)),
   getFeedback: () => requestData(api.get('/admin/feedback')),
-  updateFeedback: (feedbackId: number, data: { status: 'open' | 'in_progress' | 'resolved'; adminReply?: string }) => requestData(api.put(`/admin/feedback/${feedbackId}`, data))
+  updateFeedback: (feedbackId: number, data: { status: 'open' | 'in_progress' | 'resolved'; priority?: 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT'; adminReply?: string }) => requestData(api.put(`/admin/feedback/${feedbackId}`, data))
 }
 
 export const announcementApi = {
@@ -232,9 +249,24 @@ export const announcementApi = {
 }
 
 export const feedbackApi = {
-  createFeedback: (data: { type: 'BUG' | 'SUGGESTION' | 'OTHER'; title: string; content: string }) => requestData(api.post('/feedback', data)),
+  createFeedback: (data: { type: 'BUG' | 'SUGGESTION' | 'TASK_DISPUTE' | 'ACCOUNT_REPORT' | 'CONTENT_REPORT' | 'OTHER'; priority?: 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT'; title: string; content: string }) => requestData(api.post('/feedback', data)),
   getMyFeedback: () => requestData(api.get('/feedback/my')),
   withdrawFeedback: (feedbackId: number) => requestData(api.delete(`/feedback/${feedbackId}`))
+}
+
+export const verificationApi = {
+  getMyVerification: () => requestData(api.get('/users/me/verification')),
+  submitVerification: (formData: FormData) =>
+    requestData(uploadApi.post('/users/me/verification', formData)),
+  getVerifications: () => requestData(api.get('/admin/verifications')),
+  reviewVerification: (id: number, data: { status: string; rejectReason?: string }) =>
+    requestData(api.put(`/admin/verifications/${id}/review`, data)),
+  revokeVerification: (id: number) =>
+    requestData(api.put(`/admin/verifications/${id}/revoke`)),
+  getMyVerificationImageUrl: (filename: string) =>
+    `${apiBaseUrl}/users/me/verification/images/${filename}`,
+  getAdminVerificationImageUrl: (id: number, filename: string) =>
+    `${apiBaseUrl}/admin/verifications/${id}/images/${filename}`
 }
 
 export const messageApi = {
@@ -245,7 +277,8 @@ export const messageApi = {
     content: string
     taskId?: number
   }) => requestData(api.post('/messages', data)),
-  markAsRead: (messageId: number) => requestData(api.put(`/messages/${messageId}/read`))
+  markAsRead: (messageId: number) => requestData(api.put(`/messages/${messageId}/read`)),
+  markAsReadBatch: (ids: number[]) => requestData(api.put('/messages/read', { ids }))
 }
 
 export default api

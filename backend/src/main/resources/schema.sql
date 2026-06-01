@@ -65,6 +65,7 @@ CREATE TABLE IF NOT EXISTS feedback (
     title VARCHAR(255) NOT NULL,
     content TEXT NOT NULL,
     status VARCHAR(32) NOT NULL DEFAULT 'open',
+    priority VARCHAR(32) NOT NULL DEFAULT 'NORMAL',
     admin_reply TEXT NULL,
     admin_id BIGINT NULL,
     handled_at DATETIME NULL,
@@ -372,6 +373,7 @@ SET @create_feedback_table = IF(
         title VARCHAR(255) NOT NULL,
         content TEXT NOT NULL,
         status VARCHAR(32) NOT NULL DEFAULT ''open'',
+        priority VARCHAR(32) NOT NULL DEFAULT ''NORMAL'',
         admin_reply TEXT NULL,
         admin_id BIGINT NULL,
         handled_at DATETIME NULL,
@@ -385,6 +387,30 @@ SET @create_feedback_table = IF(
 PREPARE stmt FROM @create_feedback_table;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
+
+SET @add_feedback_priority = IF(
+    EXISTS (
+        SELECT 1
+        FROM information_schema.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = 'feedback'
+          AND COLUMN_NAME = 'priority'
+    ),
+    'SELECT 1',
+    'ALTER TABLE feedback ADD COLUMN priority VARCHAR(32) NOT NULL DEFAULT ''NORMAL'' AFTER status'
+);
+PREPARE stmt FROM @add_feedback_priority;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+UPDATE feedback
+SET priority = CASE
+        WHEN type IN ('ACCOUNT_REPORT', 'CONTENT_REPORT', 'TASK_DISPUTE') THEN 'HIGH'
+        WHEN type = 'BUG' THEN 'HIGH'
+        WHEN type = 'SUGGESTION' THEN 'NORMAL'
+        ELSE 'NORMAL'
+    END
+WHERE priority IS NULL OR priority = '';
 
 SET @add_tasks_like_count = IF(
     EXISTS (
@@ -595,4 +621,34 @@ CREATE TABLE IF NOT EXISTS task_reviews (
     UNIQUE KEY uk_task_reviews_task_reviewer (task_id, reviewer_id),
     KEY idx_task_reviews_task_id (task_id),
     KEY idx_task_reviews_reviewee_id (reviewee_id)
+);
+
+SET @add_users_verified_status = IF(
+    EXISTS (
+        SELECT 1 FROM information_schema.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'verified_status'
+    ),
+    'SELECT 1',
+    'ALTER TABLE users ADD COLUMN verified_status VARCHAR(20) NOT NULL DEFAULT ''NONE'' AFTER status'
+);
+PREPARE stmt FROM @add_users_verified_status;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+CREATE TABLE IF NOT EXISTS user_verifications (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    type VARCHAR(20) NOT NULL DEFAULT 'STUDENT',
+    real_name VARCHAR(50) NULL,
+    student_id VARCHAR(50) NULL,
+    image_urls JSON NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+    reviewer_id BIGINT NULL,
+    reject_reason VARCHAR(500) NULL,
+    reviewed_at DATETIME NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    KEY idx_user_verifications_user_id (user_id),
+    KEY idx_user_verifications_status (status)
 );
