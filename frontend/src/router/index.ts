@@ -67,8 +67,8 @@ const router = createRouter({
     { path: '/settings/theme', name: 'themeSettings', component: ThemeSettings, meta: { requiresAuth: true } },
     { path: '/settings/language', name: 'languageSettings', component: LanguageSettings, meta: { requiresAuth: true } },
     { path: '/settings/about', name: 'aboutCampusHub', component: AboutCampusHub, meta: { requiresAuth: true } },
-    { path: '/settings/privacy', name: 'privacyPolicy', component: PrivacyPolicy, meta: { requiresAuth: true } },
-    { path: '/settings/agreement', name: 'userAgreement', component: UserAgreement, meta: { requiresAuth: true } },
+    { path: '/settings/privacy', name: 'privacyPolicy', component: PrivacyPolicy },
+    { path: '/settings/agreement', name: 'userAgreement', component: UserAgreement },
     { path: '/:pathMatch(.*)*', name: 'notFound', component: NotFound },
   ],
 })
