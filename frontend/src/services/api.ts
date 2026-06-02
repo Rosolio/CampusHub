@@ -181,6 +181,7 @@ export const taskApi = {
     mapImageUrl?: string
     contactInfo?: string
     expiresAt?: string
+    imageUrls?: string
   }) => requestData(api.post('/tasks', data)),
   acceptTask: (taskId: number) => requestData(api.post(`/tasks/${taskId}/accept`)),
   unacceptTask: (taskId: number) => requestData(api.post(`/tasks/${taskId}/unaccept`)),
