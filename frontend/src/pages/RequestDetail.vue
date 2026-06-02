@@ -3,7 +3,7 @@
     <AppTopNav :avatar-url="currentUser.avatarUrl || defaultAvatarUrl" />
 
     <main class="page-shell-main max-w-6xl">
-      <PageBackHeader to="/" label="返回列表" />
+      <PageBackHeader :to="isTopicPost ? '/home?tab=topic' : '/home'" label="返回列表" />
 
       <div v-if="feedbackMessage" class="mb-6 rounded-2xl border px-4 py-3 text-sm font-medium" :class="feedbackType === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-rose-200 bg-rose-50 text-rose-700'">
         {{ feedbackMessage }}
