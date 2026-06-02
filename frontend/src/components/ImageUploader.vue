@@ -88,8 +88,13 @@ interface ImageItem {
   uploading?: boolean
 }
 
+const resolveDisplayUrl = (url: string) => {
+  if (url.startsWith('http')) return url
+  return url.startsWith('/api') ? url : `/api${url}`
+}
+
 const images = ref<ImageItem[]>(
-  (props.modelValue || []).map(url => ({ url }))
+  (props.modelValue || []).map(url => ({ url: resolveDisplayUrl(url) }))
 )
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
@@ -149,7 +154,7 @@ const uploadFile = async (item: ImageItem) => {
   uploadingCount.value++
   try {
     const result = await fileApi.upload(item.file) as { url: string }
-    item.url = result.url
+    item.url = resolveDisplayUrl(result.url)
     item.uploading = false
     URL.revokeObjectURL(item.preview!)
     item.preview = undefined
@@ -174,7 +179,11 @@ const removeImage = (idx: number) => {
 const emitUpdate = () => {
   const urls = images.value
     .filter(i => i.url && !i.uploading)
-    .map(i => i.url!)
+    .map(i => {
+      const u = i.url!
+      if (u.startsWith('http')) return u
+      return u.startsWith('/api') ? u.slice(4) : u
+    })
   emit('update:modelValue', urls)
 }
 

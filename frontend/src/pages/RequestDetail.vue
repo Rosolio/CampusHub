@@ -1220,7 +1220,10 @@ const detailImages = computed(() => {
     if (!raw) return []
     const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw
     if (!Array.isArray(parsed)) return []
-    return parsed.map((url: string) => url.startsWith('http') ? url : `http://42.193.183.160/api${url}`)
+    return parsed.map((url: string) => {
+      if (url.startsWith('http')) return url
+      return url.startsWith('/api') ? url : `/api${url}`
+    })
   } catch {
     return []
   }
