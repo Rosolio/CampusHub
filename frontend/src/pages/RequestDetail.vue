@@ -48,6 +48,17 @@
                 {{ request.description || '暂无详细描述。' }}
               </p>
 
+              <div v-if="detailImages.length > 0" class="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                <div
+                  v-for="(img, idx) in detailImages"
+                  :key="idx"
+                  class="aspect-square cursor-pointer overflow-hidden rounded-2xl"
+                  @click="showImageLightbox = true; lightboxIndex = idx"
+                >
+                  <img :src="img" class="h-full w-full object-cover" :alt="'图片 ' + (idx + 1)" />
+                </div>
+              </div>
+
               <div class="mt-6 flex flex-wrap items-center gap-3">
                 <button
                   type="button"
@@ -120,6 +131,17 @@
                   <p class="mt-5 text-lg leading-8 text-on-surface-variant">
                     {{ request.description || '暂无详细描述。' }}
                   </p>
+
+                  <div v-if="detailImages.length > 0" class="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                    <div
+                      v-for="(img, idx) in detailImages"
+                      :key="idx"
+                      class="aspect-square cursor-pointer overflow-hidden rounded-2xl"
+                      @click="showImageLightbox = true; lightboxIndex = idx"
+                    >
+                      <img :src="img" class="h-full w-full object-cover" :alt="'图片 ' + (idx + 1)" />
+                    </div>
+                  </div>
 
                   <div class="mt-6 grid gap-4 md:grid-cols-3">
                     <div class="rounded-[1.75rem] bg-teal-900 px-5 py-5 text-white shadow-sm">
@@ -525,6 +547,34 @@
           </button>
         </div>
       </div>
+    </div>
+
+    <div v-if="showImageLightbox" class="fixed inset-0 z-[70] flex items-center justify-center bg-black/90" @click.self="showImageLightbox = false">
+      <button type="button" class="absolute right-6 top-6 rounded-full bg-white/20 p-3 text-white hover:bg-white/30" @click="showImageLightbox = false">
+        <span class="material-symbols-outlined text-2xl">close</span>
+      </button>
+      <button
+        v-if="detailImages.length > 1"
+        type="button"
+        class="absolute left-6 top-1/2 -translate-y-1/2 rounded-full bg-white/20 p-3 text-white hover:bg-white/30"
+        @click.stop="lightboxIndex = (lightboxIndex - 1 + detailImages.length) % detailImages.length"
+      >
+        <span class="material-symbols-outlined text-2xl">chevron_left</span>
+      </button>
+      <img
+        :src="detailImages[lightboxIndex]"
+        class="max-h-[85vh] max-w-[90vw] rounded-2xl object-contain"
+        :alt="'图片 ' + (lightboxIndex + 1)"
+      />
+      <button
+        v-if="detailImages.length > 1"
+        type="button"
+        class="absolute right-6 top-1/2 -translate-y-1/2 rounded-full bg-white/20 p-3 text-white hover:bg-white/30"
+        @click.stop="lightboxIndex = (lightboxIndex + 1) % detailImages.length"
+      >
+        <span class="material-symbols-outlined text-2xl">chevron_right</span>
+      </button>
+      <p class="absolute bottom-8 text-sm text-white/70">{{ lightboxIndex + 1 }} / {{ detailImages.length }}</p>
     </div>
 
     <AppBottomNav />
@@ -1161,6 +1211,20 @@ const handleDeleteTask = async () => {
 }
 
 const likeAnimating = ref(false)
+const showImageLightbox = ref(false)
+const lightboxIndex = ref(0)
+
+const detailImages = computed(() => {
+  try {
+    const raw = request.value?.imageUrls
+    if (!raw) return []
+    const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw
+    if (!Array.isArray(parsed)) return []
+    return parsed.map((url: string) => url.startsWith('http') ? url : `http://42.193.183.160/api${url}`)
+  } catch {
+    return []
+  }
+})
 
 const toggleTopicLike = async () => {
   if (!isTopicPost.value) return

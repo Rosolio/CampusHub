@@ -50,6 +50,8 @@
             ></textarea>
           </FormField>
 
+          <ImageUploader v-model="form.imageUrls" />
+
           <div class="grid gap-6 md:grid-cols-2">
             <FormField :label="activeConfig.locationLabel">
               <input
@@ -167,6 +169,7 @@ import { useRouter } from 'vue-router'
 import AppBottomNav from '../components/AppBottomNav.vue'
 import AppTopNav from '../components/AppTopNav.vue'
 import FormField from '../components/FormField.vue'
+import ImageUploader from '../components/ImageUploader.vue'
 import PageBackHeader from '../components/PageBackHeader.vue'
 import { usePreferences } from '../composables/usePreferences'
 import { showToast } from '../composables/useToast'
@@ -197,7 +200,8 @@ const form = ref({
   deadline: '',
   urgent: false,
   contactInfo: '',
-  topicLongTerm: false
+  topicLongTerm: false,
+  imageUrls: [] as string[]
 })
 
 const activeCategory = computed(() => categories.find((category) => category.value === form.value.category) || categories[0])
@@ -312,7 +316,8 @@ const submitForm = async () => {
       impactText: activeCategory.value.impactText,
       mapImageUrl: '',
       contactInfo: isTaskMode ? '' : form.value.contactInfo.trim(),
-      expiresAt: !isTaskMode && form.value.topicLongTerm ? undefined : form.value.deadline.trim()
+      expiresAt: !isTaskMode && form.value.topicLongTerm ? undefined : form.value.deadline.trim(),
+      imageUrls: form.value.imageUrls.length > 0 ? JSON.stringify(form.value.imageUrls) : undefined
     }
 
     const response = await taskApi.createTask(payload) as Record<string, any>
