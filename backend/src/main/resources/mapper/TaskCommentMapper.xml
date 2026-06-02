@@ -21,7 +21,7 @@
     <select id="selectByTaskId" resultMap="TaskCommentResultMap">
         SELECT c.*,
                u.name AS author_name,
-               u.avatar_url AS author_avatar_url,
+               CASE WHEN u.avatar_url LIKE 'data:%' THEN NULL ELSE u.avatar_url END AS author_avatar_url,
                u.major AS author_major,
                pu.name AS reply_to_author_name
         FROM task_comments c
@@ -35,7 +35,7 @@
     <select id="selectById" resultMap="TaskCommentResultMap">
         SELECT c.*,
                u.name AS author_name,
-               u.avatar_url AS author_avatar_url,
+               CASE WHEN u.avatar_url LIKE 'data:%' THEN NULL ELSE u.avatar_url END AS author_avatar_url,
                u.major AS author_major,
                pu.name AS reply_to_author_name
         FROM task_comments c
@@ -48,7 +48,7 @@
     <select id="selectByParentId" resultMap="TaskCommentResultMap">
         SELECT c.*,
                u.name AS author_name,
-               u.avatar_url AS author_avatar_url,
+               CASE WHEN u.avatar_url LIKE 'data:%' THEN NULL ELSE u.avatar_url END AS author_avatar_url,
                u.major AS author_major,
                pu.name AS reply_to_author_name
         FROM task_comments c
