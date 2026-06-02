@@ -188,11 +188,15 @@
         </div>
 
         <!-- Empty chat state -->
-        <div v-if="!selectedConversation && !mobileShowChat" class="hidden flex-1 items-center justify-center border-l border-outline-variant/10 sm:flex">
-          <div class="text-center px-8">
-            <span class="material-symbols-outlined text-6xl text-on-surface-variant/15">forum</span>
-            <p class="mt-4 text-lg font-extrabold text-teal-900">选择一个会话</p>
-            <p class="mt-1 text-sm text-on-surface-variant/60">左侧选择会话后开始聊天</p>
+        <div v-if="!selectedConversation && !mobileShowChat" class="hidden flex-1 sm:flex items-stretch">
+          <div class="flex w-full items-center justify-center bg-gradient-to-br from-surface-container-lowest to-surface-container-low/50">
+            <div class="mx-auto max-w-xs text-center px-6 py-12">
+              <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-[2rem] bg-surface-container-low shadow-sm">
+                <span class="material-symbols-outlined text-4xl text-on-surface-variant/30">forum</span>
+              </div>
+              <h3 class="mt-6 text-lg font-extrabold text-teal-900">选择一个会话</h3>
+              <p class="mt-2 text-sm leading-relaxed text-on-surface-variant/60">从左侧会话列表中选择一个联系人，即可在这里查看和发送消息</p>
+            </div>
           </div>
         </div>
       </div>
