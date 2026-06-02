@@ -93,6 +93,7 @@ CREATE TABLE IF NOT EXISTS tasks (
     impact_text VARCHAR(255) NULL,
     map_image_url VARCHAR(500) NULL,
     contact_info VARCHAR(255) NULL,
+    image_urls JSON NULL,
     review_status VARCHAR(32) NOT NULL DEFAULT 'approved',
     review_note VARCHAR(255) NULL,
     reviewed_by BIGINT NULL,
@@ -677,27 +678,3 @@ CREATE TABLE IF NOT EXISTS task_favorites (
     UNIQUE KEY uk_task_favorites_user_task (user_id, task_id),
     KEY idx_task_favorites_user_id (user_id)
 );
-
-SELECT 1 FROM (
-    SELECT 1 FROM information_schema.COLUMNS
-    WHERE TABLE_SCHEMA = DATABASE()
-      AND TABLE_NAME = 'tasks'
-      AND COLUMN_NAME = 'image_urls'
-) AS has_column
-WHERE NOT EXISTS (
-    SELECT 1 FROM information_schema.COLUMNS
-    WHERE TABLE_SCHEMA = DATABASE()
-      AND TABLE_NAME = 'tasks'
-      AND COLUMN_NAME = 'image_urls'
-);
-SET @add_task_image_urls = IF(
-    (SELECT COUNT(*) FROM information_schema.COLUMNS
-     WHERE TABLE_SCHEMA = DATABASE()
-       AND TABLE_NAME = 'tasks'
-       AND COLUMN_NAME = 'image_urls') = 0,
-    'ALTER TABLE tasks ADD COLUMN image_urls JSON NULL AFTER contact_info',
-    'SELECT 1'
-);
-PREPARE stmt FROM @add_task_image_urls;
-EXECUTE stmt;
-DEALLOCATE PREPARE stmt;
