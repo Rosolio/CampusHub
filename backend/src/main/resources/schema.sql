@@ -652,3 +652,52 @@ CREATE TABLE IF NOT EXISTS user_verifications (
     KEY idx_user_verifications_user_id (user_id),
     KEY idx_user_verifications_status (status)
 );
+
+CREATE TABLE IF NOT EXISTS notifications (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    type VARCHAR(50) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    reference_type VARCHAR(50) NULL,
+    reference_id BIGINT NULL,
+    is_read TINYINT(1) NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    KEY idx_notifications_user_id_read (user_id, is_read),
+    KEY idx_notifications_created_at (created_at)
+);
+
+CREATE TABLE IF NOT EXISTS task_favorites (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    task_id BIGINT NOT NULL,
+    created_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_task_favorites_user_task (user_id, task_id),
+    KEY idx_task_favorites_user_id (user_id)
+);
+
+SELECT 1 FROM (
+    SELECT 1 FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'tasks'
+      AND COLUMN_NAME = 'image_urls'
+) AS has_column
+WHERE NOT EXISTS (
+    SELECT 1 FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'tasks'
+      AND COLUMN_NAME = 'image_urls'
+);
+SET @add_task_image_urls = IF(
+    (SELECT COUNT(*) FROM information_schema.COLUMNS
+     WHERE TABLE_SCHEMA = DATABASE()
+       AND TABLE_NAME = 'tasks'
+       AND COLUMN_NAME = 'image_urls') = 0,
+    'ALTER TABLE tasks ADD COLUMN image_urls JSON NULL AFTER contact_info',
+    'SELECT 1'
+);
+PREPARE stmt FROM @add_task_image_urls;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;

@@ -27,4 +27,5 @@ public interface UserMapper {
     int updateLastLoginAt(@Param("id") Long id, @Param("lastLoginAt") LocalDateTime lastLoginAt);
     int updateVerifiedStatus(@Param("id") Long id, @Param("verifiedStatus") String verifiedStatus);
     int delete(Long id);
+    List<User> selectTopByPoints(@Param("limit") int limit);
 }

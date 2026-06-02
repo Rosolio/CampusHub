@@ -20,6 +20,7 @@
         <result property="impactText" column="impact_text"/>
         <result property="mapImageUrl" column="map_image_url"/>
         <result property="contactInfo" column="contact_info"/>
+        <result property="imageUrls" column="image_urls"/>
         <result property="reviewStatus" column="review_status"/>
         <result property="reviewNote" column="review_note"/>
         <result property="reviewedBy" column="reviewed_by"/>
@@ -220,7 +221,20 @@
         <if test="query.category != null and query.category != ''">
             AND t.category = #{query.category}
         </if>
-        ORDER BY t.created_at DESC
+        <if test="query.status != null and query.status != '' and query.status != 'all'">
+            <choose>
+                <when test="query.status == 'open'"> AND t.status = 'pending' </when>
+                <when test="query.status == 'in_progress'"> AND t.status IN ('accepted', 'completion_pending') </when>
+                <when test="query.status == 'completed'"> AND t.status = 'completed' </when>
+            </choose>
+        </if>
+        <choose>
+            <when test="query.sortBy == 'most_likes'"> ORDER BY t.like_count DESC, t.created_at DESC </when>
+            <when test="query.sortBy == 'most_comments'"> ORDER BY COALESCE((SELECT COUNT(*) FROM task_comments tc WHERE tc.task_id = t.id), 0) DESC, t.created_at DESC </when>
+            <when test="query.sortBy == 'highest_reward'"> ORDER BY CAST(COALESCE(t.reward_text, '0') AS DECIMAL) DESC, t.created_at DESC </when>
+            <when test="query.sortBy == 'hot'"> ORDER BY (COALESCE((SELECT COUNT(*) FROM task_comments tc WHERE tc.task_id = t.id), 0) * 3 + t.like_count * 2) DESC, t.created_at DESC </when>
+            <otherwise> ORDER BY t.created_at DESC </otherwise>
+        </choose>
         LIMIT #{query.effectiveSize} OFFSET #{query.effectiveOffset}
     </select>
 
@@ -323,12 +337,12 @@
     <insert id="insert" parameterType="com.campushub.entity.Task" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO tasks (requester_id, title, description, category, task_mode, badge_primary, badge_secondary,
                           location_text, time_text, reward_title, reward_text, impact_title, impact_text,
-                          map_image_url, contact_info, review_status, review_note, reviewed_by, reviewed_at,
+                          map_image_url, contact_info, image_urls, review_status, review_note, reviewed_by, reviewed_at,
                           status, like_count, expires_at, requester_completed_at, helper_completed_at, completed_at,
                           created_at, updated_at)
         VALUES (#{requesterId}, #{title}, #{description}, #{category}, #{taskMode}, #{badgePrimary}, #{badgeSecondary},
                 #{locationText}, #{timeText}, #{rewardTitle}, #{rewardText}, #{impactTitle}, #{impactText},
-                #{mapImageUrl}, #{contactInfo}, #{reviewStatus}, #{reviewNote}, #{reviewedBy}, #{reviewedAt},
+                #{mapImageUrl}, #{contactInfo}, #{imageUrls}, #{reviewStatus}, #{reviewNote}, #{reviewedBy}, #{reviewedAt},
                 #{status}, #{likeCount}, #{expiresAt}, #{requesterCompletedAt}, #{helperCompletedAt},
                 #{completedAt}, #{createdAt}, #{updatedAt})
     </insert>
@@ -342,6 +356,7 @@
             reward_title = #{rewardTitle}, reward_text = #{rewardText},
             impact_title = #{impactTitle}, impact_text = #{impactText},
             map_image_url = #{mapImageUrl}, contact_info = #{contactInfo},
+            image_urls = #{imageUrls},
             review_status = #{reviewStatus}, review_note = #{reviewNote},
             reviewed_by = #{reviewedBy}, reviewed_at = #{reviewedAt},
             status = #{status}, like_count = #{likeCount}, expires_at = #{expiresAt},
@@ -353,4 +368,72 @@
     <delete id="delete" parameterType="java.lang.Long">
         DELETE FROM tasks WHERE id = #{id}
     </delete>
+
+    <select id="searchTasks" resultMap="TaskResultMap">
+        SELECT t.*,
+               u.name AS requester_name,
+               u.major AS requester_major,
+               u.avatar_url AS requester_avatar_url,
+               u.score AS requester_score,
+               u.points AS requester_points,
+               helper.id AS helper_id,
+               helper.name AS helper_name,
+               helper.major AS helper_major,
+               helper.avatar_url AS helper_avatar_url,
+               helper.score AS helper_score,
+               helper.points AS helper_points,
+               COALESCE((SELECT COUNT(*) FROM task_comments tc WHERE tc.task_id = t.id), 0) AS comment_count
+        FROM tasks t
+        LEFT JOIN users u ON t.requester_id = u.id
+        LEFT JOIN task_participants helper_tp
+               ON helper_tp.task_id = t.id
+              AND helper_tp.role = 'helper'
+              AND helper_tp.status != 'canceled'
+        LEFT JOIN users helper ON helper_tp.participant_id = helper.id
+        WHERE t.review_status = 'approved'
+          AND (t.title LIKE CONCAT('%', #{keyword}, '%')
+               OR t.description LIKE CONCAT('%', #{keyword}, '%')
+               OR t.category LIKE CONCAT('%', #{keyword}, '%')
+               OR t.location_text LIKE CONCAT('%', #{keyword}, '%'))
+        <if test="mode == 'task'">
+            AND t.task_mode = 'task'
+        </if>
+        <if test="mode == 'topic'">
+            AND t.task_mode = 'topic'
+        </if>
+        ORDER BY t.created_at DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="selectExpiredPendingTasks" resultMap="TaskResultMap">
+        SELECT t.*,
+               u.name AS requester_name,
+               u.major AS requester_major,
+               u.avatar_url AS requester_avatar_url,
+               u.score AS requester_score,
+               u.points AS requester_points
+        FROM tasks t
+        LEFT JOIN users u ON t.requester_id = u.id
+        WHERE t.status = 'pending'
+          AND t.task_mode = 'task'
+          AND t.expires_at IS NOT NULL
+          AND t.expires_at <![CDATA[<]]> #{now}
+        LIMIT 100
+    </select>
+
+    <select id="countSearchTasks" resultType="int">
+        SELECT COUNT(*)
+        FROM tasks t
+        WHERE t.review_status = 'approved'
+          AND (t.title LIKE CONCAT('%', #{keyword}, '%')
+               OR t.description LIKE CONCAT('%', #{keyword}, '%')
+               OR t.category LIKE CONCAT('%', #{keyword}, '%')
+               OR t.location_text LIKE CONCAT('%', #{keyword}, '%'))
+        <if test="mode == 'task'">
+            AND t.task_mode = 'task'
+        </if>
+        <if test="mode == 'topic'">
+            AND t.task_mode = 'topic'
+        </if>
+    </select>
 </mapper>

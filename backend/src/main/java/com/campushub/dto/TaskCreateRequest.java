@@ -16,6 +16,7 @@ public class TaskCreateRequest {
     private String mapImageUrl;
     private String contactInfo;
     private String expiresAt;
+    private String imageUrls;
 
     public String getTitle() {
         return title;
@@ -135,5 +136,13 @@ public class TaskCreateRequest {
 
     public void setExpiresAt(String expiresAt) {
         this.expiresAt = expiresAt;
+    }
+
+    public String getImageUrls() {
+        return imageUrls;
+    }
+
+    public void setImageUrls(String imageUrls) {
+        this.imageUrls = imageUrls;
     }
 }

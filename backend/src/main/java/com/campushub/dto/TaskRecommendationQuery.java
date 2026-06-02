@@ -12,6 +12,8 @@ public class TaskRecommendationQuery {
     private Integer page;
     private Integer size;
     private String taskMode;
+    private String sortBy;
+    private String status;
 
     public String getMode() {
         return mode;
@@ -77,6 +79,22 @@ public class TaskRecommendationQuery {
         this.taskMode = taskMode;
     }
 
+    public String getSortBy() {
+        return sortBy;
+    }
+
+    public void setSortBy(String sortBy) {
+        this.sortBy = sortBy;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     public int getEffectivePage() {
         return page == null || page < 1 ? 1 : page;
     }
@@ -100,6 +118,8 @@ public class TaskRecommendationQuery {
         sj.add(String.valueOf(getEffectivePage()));
         sj.add(String.valueOf(getEffectiveSize()));
         sj.add(nullToEmpty(taskMode));
+        sj.add(nullToEmpty(sortBy));
+        sj.add(nullToEmpty(status));
         return sj.toString();
     }
 

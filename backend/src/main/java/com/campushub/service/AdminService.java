@@ -5,9 +5,11 @@ import com.campushub.dto.AdminUserStatusUpdateRequest;
 import com.campushub.dto.UserVO;
 import com.campushub.entity.Task;
 import com.campushub.entity.User;
+import com.campushub.mapper.FeedbackMapper;
 import com.campushub.mapper.TaskMapper;
 import com.campushub.mapper.UserLoginLogMapper;
 import com.campushub.mapper.UserMapper;
+import com.campushub.mapper.UserVerificationMapper;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +30,8 @@ public class AdminService {
     private final UserMapper userMapper;
     private final TaskMapper taskMapper;
     private final UserLoginLogMapper userLoginLogMapper;
+    private final UserVerificationMapper verificationMapper;
+    private final FeedbackMapper feedbackMapper;
     private final UserService userService;
     private final MessageService messageService;
     private final RedisTemplate<String, Object> redisTemplate;
@@ -36,6 +40,8 @@ public class AdminService {
         UserMapper userMapper,
         TaskMapper taskMapper,
         UserLoginLogMapper userLoginLogMapper,
+        UserVerificationMapper verificationMapper,
+        FeedbackMapper feedbackMapper,
         UserService userService,
         MessageService messageService,
         RedisTemplate<String, Object> redisTemplate
@@ -43,6 +49,8 @@ public class AdminService {
         this.userMapper = userMapper;
         this.taskMapper = taskMapper;
         this.userLoginLogMapper = userLoginLogMapper;
+        this.verificationMapper = verificationMapper;
+        this.feedbackMapper = feedbackMapper;
         this.userService = userService;
         this.messageService = messageService;
         this.redisTemplate = redisTemplate;
@@ -142,6 +150,13 @@ public class AdminService {
         result.put("categoryDistribution", normalizeStatList(taskMapper.countTasksByCategory()));
         result.put("reviewDistribution", normalizeStatList(taskMapper.countTasksByReviewStatus()));
         result.put("userStatusDistribution", normalizeStatList(userMapper.countUsersByStatus()));
+        result.put("verificationsPending", verificationMapper.countPendingVerifications());
+        result.put("feedbackResolved", feedbackMapper.countByStatus("resolved"));
+        result.put("feedbackTotal", feedbackMapper.countAll());
+        int completedTasks = taskMapper.countCompletedTasksByDateRange(LocalDate.of(2020,1,1).atStartOfDay(), end).stream()
+            .mapToInt(r -> ((Number) r.get("value")).intValue()).sum();
+        result.put("taskCompletionRate", result.get("totalTasks") != null && ((Number) result.get("totalTasks")).intValue() > 0
+            ? Math.round(completedTasks * 100.0 / ((Number) result.get("totalTasks")).intValue()) : 0);
         return result;
     }
 
@@ -198,6 +213,66 @@ public class AdminService {
             result.add(item);
             cursor = cursor.plusDays(1);
         }
+        return result;
+    }
+
+    @Transactional
+    public Map<String, Object> batchUpdateUserStatus(Long adminId, Map<String, Object> body) {
+        requireAdmin(adminId);
+        @SuppressWarnings("unchecked")
+        List<Integer> rawIds = (List<Integer>) body.get("userIds");
+        String status = (String) body.get("status");
+        String disabledReason = (String) body.get("disabledReason");
+
+        if (rawIds == null || rawIds.isEmpty()) throw new RuntimeException("userIds不能为空");
+        if (status == null) throw new RuntimeException("status不能为空");
+        String normalizedStatus = normalizeUserStatus(status);
+
+        int processed = 0;
+        for (Integer rawId : rawIds) {
+            try {
+                userMapper.updateUserStatus(rawId.longValue(), normalizedStatus, disabledReason);
+                messageService.sendSystemTaskMessage(adminId, rawId.longValue(), null,
+                    "你的账号状态已被管理员更新为：" + normalizedStatus);
+                processed++;
+            } catch (Exception ignored) {}
+        }
+        Map<String, Object> result = new HashMap<>();
+        result.put("processed", processed);
+        result.put("total", rawIds.size());
+        return result;
+    }
+
+    @Transactional
+    public Map<String, Object> batchReviewTasks(Long adminId, Map<String, Object> body) {
+        requireAdmin(adminId);
+        @SuppressWarnings("unchecked")
+        List<Integer> rawIds = (List<Integer>) body.get("taskIds");
+        String reviewStatus = (String) body.get("reviewStatus");
+        String reviewNote = (String) body.get("reviewNote");
+
+        if (rawIds == null || rawIds.isEmpty()) throw new RuntimeException("taskIds不能为空");
+        if (reviewStatus == null) throw new RuntimeException("reviewStatus不能为空");
+
+        int processed = 0;
+        for (Integer rawId : rawIds) {
+            try {
+                Task task = taskMapper.selectById(rawId.longValue());
+                if (task != null) {
+                    task.setReviewStatus(reviewStatus);
+                    task.setReviewNote(reviewNote);
+                    task.setReviewedBy(adminId);
+                    task.setReviewedAt(LocalDateTime.now());
+                    taskMapper.update(task);
+                    messageService.sendSystemTaskMessage(adminId, task.getRequesterId(), task.getId(),
+                        "你的帖子审核结果：" + reviewStatus);
+                    processed++;
+                }
+            } catch (Exception ignored) {}
+        }
+        Map<String, Object> result = new HashMap<>();
+        result.put("processed", processed);
+        result.put("total", rawIds.size());
         return result;
     }
 

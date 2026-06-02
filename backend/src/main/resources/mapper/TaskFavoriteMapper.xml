@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.campushub.mapper.TaskFavoriteMapper">
+    <resultMap id="TaskFavoriteResultMap" type="com.campushub.entity.TaskFavorite">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="taskId" column="task_id"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <select id="selectByUserIdAndTaskId" resultMap="TaskFavoriteResultMap">
+        SELECT * FROM task_favorites WHERE user_id = #{userId} AND task_id = #{taskId}
+    </select>
+
+    <select id="selectFavoriteTasksByUserId" resultMap="com.campushub.mapper.TaskMapper.TaskResultMap">
+        SELECT t.*,
+               u.name AS requester_name,
+               u.major AS requester_major,
+               u.avatar_url AS requester_avatar_url,
+               u.score AS requester_score,
+               u.points AS requester_points,
+               helper.id AS helper_id,
+               helper.name AS helper_name,
+               helper.major AS helper_major,
+               helper.avatar_url AS helper_avatar_url,
+               helper.score AS helper_score,
+               helper.points AS helper_points,
+               COALESCE((SELECT COUNT(*) FROM task_comments tc WHERE tc.task_id = t.id), 0) AS comment_count
+        FROM task_favorites f
+        INNER JOIN tasks t ON f.task_id = t.id
+        LEFT JOIN users u ON t.requester_id = u.id
+        LEFT JOIN task_participants helper_tp
+               ON helper_tp.task_id = t.id
+              AND helper_tp.role = 'helper'
+              AND helper_tp.status != 'canceled'
+        LEFT JOIN users helper ON helper_tp.participant_id = helper.id
+        WHERE f.user_id = #{userId}
+        ORDER BY f.created_at DESC
+    </select>
+
+    <insert id="insert" parameterType="com.campushub.entity.TaskFavorite" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO task_favorites (user_id, task_id, created_at)
+        VALUES (#{userId}, #{taskId}, #{createdAt})
+    </insert>
+
+    <delete id="deleteByUserIdAndTaskId">
+        DELETE FROM task_favorites WHERE user_id = #{userId} AND task_id = #{taskId}
+    </delete>
+</mapper>

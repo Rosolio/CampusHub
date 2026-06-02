@@ -135,6 +135,31 @@
         </div>
       </div>
     </section>
+
+    <div v-if="showDisableDialog" class="fixed inset-0 z-[70] flex items-center justify-center bg-slate-950/45 px-6" @click.self="showDisableDialog = false">
+      <div class="w-full max-w-lg rounded-[2rem] bg-white p-8 shadow-2xl">
+        <div class="mb-6 flex items-start justify-between gap-4">
+          <div>
+            <h3 class="text-xl font-extrabold text-slate-900">禁用用户</h3>
+            <p class="mt-1 text-sm text-slate-500">{{ disableTargetUser?.name }} ({{ disableTargetUser?.studentId }})</p>
+          </div>
+          <button type="button" class="rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600" @click="showDisableDialog = false">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        <label class="block text-sm font-bold text-slate-700 mb-2">禁用原因</label>
+        <textarea
+          v-model="disableReason"
+          class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-rose-300 focus:ring-2 focus:ring-rose-100"
+          rows="3"
+          placeholder="请输入禁用原因..."
+        ></textarea>
+        <div class="mt-6 flex items-center justify-end gap-3">
+          <button type="button" class="rounded-xl px-5 py-3 text-sm font-bold text-slate-600 hover:bg-slate-100" @click="showDisableDialog = false">取消</button>
+          <button type="button" class="rounded-xl bg-rose-600 px-5 py-3 text-sm font-bold text-white hover:bg-rose-700 disabled:opacity-50" @click="confirmDisableUser">确认禁用</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -178,14 +203,41 @@ const loadUsers = async () => {
   }
 }
 
+const showDisableDialog = ref(false)
+const disableReason = ref('')
+const disableTargetUser = ref<AdminUser | null>(null)
+
+const openDisableDialog = (user: AdminUser) => {
+  disableTargetUser.value = user
+  disableReason.value = user.disabledReason || '违规内容发布'
+  showDisableDialog.value = true
+}
+
+const confirmDisableUser = async () => {
+  const user = disableTargetUser.value
+  if (!user) return
+  showDisableDialog.value = false
+  pendingUserIds.value.add(user.id)
+  try {
+    await adminApi.updateUserStatus(user.id, { status: 'DISABLED', disabledReason: disableReason.value || '违规内容发布' })
+    await loadUsers()
+  } catch (err: any) {
+    error.value = err?.response?.data?.message || '用户状态更新失败'
+  } finally {
+    pendingUserIds.value.delete(user.id)
+    disableTargetUser.value = null
+  }
+}
+
 const changeUserStatus = async (user: AdminUser, status: 'ACTIVE' | 'DISABLED') => {
-  const reason = status === 'DISABLED'
-    ? window.prompt('请输入禁用原因', user.disabledReason || '违规内容发布') || ''
-    : ''
+  if (status === 'DISABLED') {
+    openDisableDialog(user)
+    return
+  }
 
   pendingUserIds.value.add(user.id)
   try {
-    await adminApi.updateUserStatus(user.id, { status, disabledReason: reason })
+    await adminApi.updateUserStatus(user.id, { status, disabledReason: '' })
     await loadUsers()
   } catch (err: any) {
     error.value = err?.response?.data?.message || '用户状态更新失败'

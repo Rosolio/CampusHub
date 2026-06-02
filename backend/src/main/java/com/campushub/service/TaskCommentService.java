@@ -25,19 +25,22 @@ public class TaskCommentService {
     private final TaskMapper taskMapper;
     private final UserService userService;
     private final MessageService messageService;
+    private final NotificationService notificationService;
 
     public TaskCommentService(
         TaskCommentMapper taskCommentMapper,
         TaskCommentLikeMapper taskCommentLikeMapper,
         TaskMapper taskMapper,
         UserService userService,
-        MessageService messageService
+        MessageService messageService,
+        NotificationService notificationService
     ) {
         this.taskCommentMapper = taskCommentMapper;
         this.taskCommentLikeMapper = taskCommentLikeMapper;
         this.taskMapper = taskMapper;
         this.userService = userService;
         this.messageService = messageService;
+        this.notificationService = notificationService;
     }
 
     public List<TaskComment> getCommentsByTaskId(Long taskId) {
@@ -230,6 +233,14 @@ public class TaskCommentService {
                     task.getId(),
                     String.format("【评论回复】%s 回复了你在《%s》下的评论，点击查看帖子详情。", authorName, task.getTitle())
                 );
+                notificationService.createNotification(
+                    parentComment.getAuthorId(),
+                    "COMMENT_REPLY",
+                    "评论被回复",
+                    String.format("%s 回复了你在《%s》下的评论", authorName, task.getTitle()),
+                    "task",
+                    task.getId()
+                );
             }
             return;
         }
@@ -240,6 +251,14 @@ public class TaskCommentService {
                 task.getRequesterId(),
                 task.getId(),
                 String.format("【帖子回复】%s 评论了你发布的话题帖《%s》，点击查看帖子详情。", authorName, task.getTitle())
+            );
+            notificationService.createNotification(
+                task.getRequesterId(),
+                "COMMENT_REPLY",
+                "帖子被评论",
+                String.format("%s 评论了你发布的《%s》", authorName, task.getTitle()),
+                "task",
+                task.getId()
             );
         }
     }

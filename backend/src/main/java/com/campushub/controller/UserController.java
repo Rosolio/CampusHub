@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
@@ -48,6 +49,11 @@ public class UserController {
     @PutMapping("/settings")
     public UserSetting updateUserSetting(@RequestBody UserSetting userSetting, Authentication authentication) {
         return userService.updateUserSetting(getCurrentUserId(authentication), userSetting);
+    }
+
+    @GetMapping("/leaderboard")
+    public List<Map<String, Object>> getLeaderboard(@RequestParam(defaultValue = "20") int limit) {
+        return userService.getLeaderboard(limit);
     }
 
     private Long getCurrentUserId(Authentication authentication) {

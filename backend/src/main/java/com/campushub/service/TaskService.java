@@ -3,16 +3,19 @@ package com.campushub.service;
 import com.campushub.dto.TaskCreateRequest;
 import com.campushub.dto.TaskRecommendationQuery;
 import com.campushub.entity.Task;
+import com.campushub.entity.TaskFavorite;
 import com.campushub.entity.TaskLike;
 import com.campushub.entity.TaskParticipant;
 import com.campushub.mapper.TaskCommentMapper;
 import com.campushub.mapper.TaskCommentLikeMapper;
+import com.campushub.mapper.TaskFavoriteMapper;
 import com.campushub.mapper.TaskLikeMapper;
 import com.campushub.mapper.TaskMapper;
 import com.campushub.mapper.TaskParticipantMapper;
 import com.campushub.mapper.TaskReviewMapper;
 import com.campushub.util.TaskModeResolver;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,8 +50,10 @@ public class TaskService {
     private final TaskCommentLikeMapper taskCommentLikeMapper;
     private final TaskParticipantMapper taskParticipantMapper;
     private final TaskReviewMapper taskReviewMapper;
+    private final TaskFavoriteMapper taskFavoriteMapper;
     private final UserService userService;
     private final MessageService messageService;
+    private final NotificationService notificationService;
     private final TaskRecommendationService taskRecommendationService;
     private final RedisTemplate<String, Object> redisTemplate;
 
@@ -59,8 +64,10 @@ public class TaskService {
         TaskCommentLikeMapper taskCommentLikeMapper,
         TaskParticipantMapper taskParticipantMapper,
         TaskReviewMapper taskReviewMapper,
+        TaskFavoriteMapper taskFavoriteMapper,
         UserService userService,
         MessageService messageService,
+        NotificationService notificationService,
         TaskRecommendationService taskRecommendationService,
         RedisTemplate<String, Object> redisTemplate
     ) {
@@ -70,8 +77,10 @@ public class TaskService {
         this.taskCommentLikeMapper = taskCommentLikeMapper;
         this.taskParticipantMapper = taskParticipantMapper;
         this.taskReviewMapper = taskReviewMapper;
+        this.taskFavoriteMapper = taskFavoriteMapper;
         this.userService = userService;
         this.messageService = messageService;
+        this.notificationService = notificationService;
         this.taskRecommendationService = taskRecommendationService;
         this.redisTemplate = redisTemplate;
     }
@@ -203,6 +212,7 @@ public class TaskService {
         task.setImpactText(request.getImpactText());
         task.setMapImageUrl(request.getMapImageUrl());
         task.setContactInfo(request.getContactInfo());
+        task.setImageUrls(request.getImageUrls());
         boolean requiresManualReview = containsReviewKeyword(request);
         task.setReviewStatus(requiresManualReview ? "pending_review" : "approved");
         task.setReviewNote(requiresManualReview ? "命中关键词审核规则，请管理员复核后展示。" : null);
@@ -289,6 +299,15 @@ public class TaskService {
             task.getRequesterId(),
             taskId,
             String.format("【接单通知】你发布的需求《%s》已有同学接单，可以继续沟通具体细节。", task.getTitle())
+        );
+
+        notificationService.createNotification(
+            task.getRequesterId(),
+            "TASK_ACCEPTED",
+            "任务已被接单",
+            String.format("你发布的需求《%s》已有同学接单", task.getTitle()),
+            "task",
+            taskId
         );
 
         return TaskModeResolver.normalize(task);
@@ -401,6 +420,22 @@ public class TaskService {
                 isRequester ? helperParticipant.getParticipantId() : task.getRequesterId(),
                 taskId,
                 String.format("【等待互评】需求《%s》已由双方确认完成，请尽快进入互评页面完成评价。", task.getTitle())
+            );
+            notificationService.createNotification(
+                isRequester ? helperParticipant.getParticipantId() : task.getRequesterId(),
+                "TASK_COMPLETED",
+                "任务已完成",
+                String.format("需求《%s》已由双方确认完成，请进入互评页面完成评价", task.getTitle()),
+                "task",
+                taskId
+            );
+            notificationService.createNotification(
+                isRequester ? task.getRequesterId() : helperParticipant.getParticipantId(),
+                "TASK_COMPLETED",
+                "任务已完成",
+                String.format("需求《%s》已由双方确认完成，请进入互评页面完成评价", task.getTitle()),
+                "task",
+                taskId
             );
         } else {
             task.setStatus("completion_pending");
@@ -689,11 +724,66 @@ public class TaskService {
         return "task";
     }
 
+    @Transactional
+    public void favoriteTask(Long taskId, Long userId) {
+        Task task = taskMapper.selectById(taskId);
+        if (task == null) {
+            throw new RuntimeException("帖子不存在");
+        }
+        if (taskFavoriteMapper.selectByUserIdAndTaskId(userId, taskId) != null) {
+            throw new RuntimeException("已经收藏过了");
+        }
+        TaskFavorite favorite = new TaskFavorite();
+        favorite.setUserId(userId);
+        favorite.setTaskId(taskId);
+        favorite.setCreatedAt(LocalDateTime.now());
+        taskFavoriteMapper.insert(favorite);
+    }
+
+    @Transactional
+    public void unfavoriteTask(Long taskId, Long userId) {
+        if (taskFavoriteMapper.selectByUserIdAndTaskId(userId, taskId) == null) {
+            throw new RuntimeException("还没有收藏");
+        }
+        taskFavoriteMapper.deleteByUserIdAndTaskId(userId, taskId);
+    }
+
+    public List<Task> getFavoriteTasks(Long userId) {
+        return taskFavoriteMapper.selectFavoriteTasksByUserId(userId);
+    }
+
     private void notifyTaskEvent(Long senderId, Long receiverId, Long taskId, String content) {
         if (senderId == null || receiverId == null || senderId.equals(receiverId)) {
             return;
         }
         messageService.sendSystemTaskMessage(senderId, receiverId, taskId, content);
+    }
+
+    @Scheduled(fixedRate = 300000)
+    public void cancelExpiredTasks() {
+        LocalDateTime now = LocalDateTime.now();
+        List<Task> expiredTasks = taskMapper.selectExpiredPendingTasks(now);
+        for (Task task : expiredTasks) {
+            task.setStatus("canceled");
+            task.setUpdatedAt(now);
+            taskMapper.update(task);
+            invalidateFeedCache();
+            redisTemplate.delete("tasks:" + task.getId());
+            messageService.sendSystemTaskMessage(
+                4L,
+                task.getRequesterId(),
+                task.getId(),
+                String.format("【自动取消】你的需求《%s》已超时未有人接单，系统已自动取消。", task.getTitle())
+            );
+            notificationService.createNotification(
+                task.getRequesterId(),
+                "SYSTEM",
+                "任务已自动取消",
+                String.format("你的需求《%s》已超时未有人接单，系统已自动取消", task.getTitle()),
+                "task",
+                task.getId()
+            );
+        }
     }
 
 }

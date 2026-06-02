@@ -21,6 +21,7 @@ public class Task {
     private String impactText;
     private String mapImageUrl;
     private String contactInfo;
+    private String imageUrls;
     private String reviewStatus;
     private String reviewNote;
     private Long reviewedBy;
@@ -177,6 +178,14 @@ public class Task {
 
     public void setContactInfo(String contactInfo) {
         this.contactInfo = contactInfo;
+    }
+
+    public String getImageUrls() {
+        return imageUrls;
+    }
+
+    public void setImageUrls(String imageUrls) {
+        this.imageUrls = imageUrls;
     }
 
     public String getReviewStatus() {

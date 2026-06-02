@@ -159,6 +159,8 @@ export const taskApi = {
     page?: number
     size?: number
     taskMode?: 'task' | 'topic'
+    sortBy?: string
+    status?: string
   }) => requestData(api.get('/tasks', { params })),
   getTaskById: (id: number) => requestData(api.get(`/tasks/${id}`)),
   likeTask: (taskId: number) => requestData(api.post(`/tasks/${taskId}/like`)),
@@ -211,7 +213,10 @@ export const taskApi = {
   },
   getMyTasks: () => requestData(api.get('/tasks/my')),
   getMyAcceptedTasks: () => requestData(api.get('/tasks/my/accepted')),
-  getMyReceivedLikeCount: () => requestData(api.get('/tasks/my/received-likes/count'))
+  getMyReceivedLikeCount: () => requestData(api.get('/tasks/my/received-likes/count')),
+  favoriteTask: (taskId: number) => requestData(api.post(`/tasks/${taskId}/favorite`)),
+  unfavoriteTask: (taskId: number) => requestData(api.delete(`/tasks/${taskId}/favorite`)),
+  getFavoriteTasks: () => requestData(api.get('/tasks/favorites'))
 }
 
 export const userApi = {
@@ -229,7 +234,8 @@ export const userApi = {
     notificationEnabled?: boolean
     theme?: string
     language?: string
-  }) => requestData(api.put('/users/settings', data))
+  }) => requestData(api.put('/users/settings', data)),
+  getLeaderboard: (limit = 20) => requestData(api.get('/users/leaderboard', { params: { limit } }))
 }
 
 export const adminApi = {
@@ -241,7 +247,17 @@ export const adminApi = {
   getAnnouncements: () => requestData(api.get('/admin/announcements')),
   createAnnouncement: (data: { title: string; content: string; pinned?: boolean }) => requestData(api.post('/admin/announcements', data)),
   getFeedback: () => requestData(api.get('/admin/feedback')),
-  updateFeedback: (feedbackId: number, data: { status: 'open' | 'in_progress' | 'resolved'; priority?: 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT'; adminReply?: string }) => requestData(api.put(`/admin/feedback/${feedbackId}`, data))
+  updateFeedback: (feedbackId: number, data: { status: 'open' | 'in_progress' | 'resolved'; priority?: 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT'; adminReply?: string }) => requestData(api.put(`/admin/feedback/${feedbackId}`, data)),
+  batchUpdateUserStatus: (data: { userIds: number[]; status: string; disabledReason?: string }) => requestData(api.put('/admin/users/batch-status', data)),
+  batchReviewTasks: (data: { taskIds: number[]; reviewStatus: string; reviewNote?: string }) => requestData(api.put('/admin/tasks/batch-review', data))
+}
+
+export const fileApi = {
+  upload: (file: File) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    return requestData(uploadApi.post('/files/upload', formData))
+  }
 }
 
 export const announcementApi = {
@@ -279,6 +295,18 @@ export const messageApi = {
   }) => requestData(api.post('/messages', data)),
   markAsRead: (messageId: number) => requestData(api.put(`/messages/${messageId}/read`)),
   markAsReadBatch: (ids: number[]) => requestData(api.put('/messages/read', { ids }))
+}
+
+export const searchApi = {
+  search: (params: { q: string; mode?: string; page?: number; size?: number }) =>
+    requestData(api.get('/search', { params }))
+}
+
+export const notificationApi = {
+  getNotifications: () => requestData(api.get('/notifications')),
+  getUnreadCount: () => requestData(api.get('/notifications/unread-count')),
+  markAsRead: (id: number) => requestData(api.put(`/notifications/${id}/read`)),
+  markAllRead: () => requestData(api.put('/notifications/read-all'))
 }
 
 export default api

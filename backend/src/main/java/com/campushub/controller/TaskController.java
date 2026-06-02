@@ -8,6 +8,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/tasks")
@@ -87,6 +88,23 @@ public class TaskController {
     @PostMapping("/{id}/delete")
     public void deleteTaskCompat(@PathVariable Long id, Authentication authentication) {
         taskService.deleteTask(id, getCurrentUserId(authentication));
+    }
+
+    @PostMapping("/{id}/favorite")
+    public Map<String, Object> favoriteTask(@PathVariable Long id, Authentication authentication) {
+        taskService.favoriteTask(id, getCurrentUserId(authentication));
+        return Map.of("favorited", true);
+    }
+
+    @DeleteMapping("/{id}/favorite")
+    public Map<String, Object> unfavoriteTask(@PathVariable Long id, Authentication authentication) {
+        taskService.unfavoriteTask(id, getCurrentUserId(authentication));
+        return Map.of("favorited", false);
+    }
+
+    @GetMapping("/favorites")
+    public List<Task> getFavoriteTasks(Authentication authentication) {
+        return taskService.getFavoriteTasks(getCurrentUserId(authentication));
     }
 
     private Long getCurrentUserId(Authentication authentication) {

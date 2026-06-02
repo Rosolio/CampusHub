@@ -23,6 +23,15 @@
       </div>
 
       <div class="flex items-center gap-2">
+        <!-- Search -->
+        <RouterLink
+          v-if="!isAdmin"
+          to="/search"
+          class="rounded-full p-2 text-teal-900/72 transition-all hover:bg-white hover:text-teal-950 dark:hover:bg-white/10"
+          :aria-label="'搜索'"
+        >
+          <span class="material-symbols-outlined">search</span>
+        </RouterLink>
         <RouterLink
           v-if="isAdmin"
           to="/admin"
@@ -32,13 +41,13 @@
         </RouterLink>
         <RouterLink
           v-if="!isAdmin"
-          to="/messages"
+          to="/notifications"
           class="relative rounded-full p-2 text-teal-900/72 transition-all hover:bg-white hover:text-teal-950 dark:hover:bg-white/10"
-          :aria-label="t('navNotifications')"
+          :aria-label="'通知中心'"
         >
           <span class="material-symbols-outlined">notifications</span>
           <span
-            v-if="unreadCount > 0"
+            v-if="combinedUnreadCount > 0"
             class="absolute right-1.5 top-1.5 h-2.5 w-2.5 rounded-full bg-rose-500 ring-2 ring-[rgba(244,247,243,0.82)]"
           ></span>
         </RouterLink>
@@ -69,7 +78,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { DEFAULT_AVATAR_URL } from '../constants/assets'
 import { usePreferences } from '../composables/usePreferences'
-import { messageApi } from '../services/api'
+import { messageApi, notificationApi } from '../services/api'
 import { hasValidAuthToken, storedUser } from '../utils/auth'
 
 const props = withDefaults(defineProps<{
@@ -83,7 +92,10 @@ const props = withDefaults(defineProps<{
 const route = useRoute()
 const { t } = usePreferences()
 const unreadCount = ref(0)
+const notificationUnreadCount = ref(0)
 let unreadTimer: number | null = null
+
+const combinedUnreadCount = computed(() => unreadCount.value + notificationUnreadCount.value)
 
 const resolvedAvatarUrl = computed(() => {
   if (props.avatarUrl) return props.avatarUrl
@@ -133,14 +145,19 @@ const resolveItemLabel = (item: { label?: string; labelKey?: string }) => item.l
 const fetchUnreadCount = async () => {
   if (!hasValidAuthToken()) {
     unreadCount.value = 0
+    notificationUnreadCount.value = 0
     return
   }
 
   try {
-    const response = await messageApi.getUnreadCount() as { count?: number }
-    unreadCount.value = Number(response?.count ?? 0)
+    const [msgRes, notifRes] = await Promise.all([
+      messageApi.getUnreadCount() as Promise<{ count?: number }>,
+      notificationApi.getUnreadCount() as Promise<{ count?: number }>
+    ])
+    unreadCount.value = Number(msgRes?.count ?? 0)
+    notificationUnreadCount.value = Number(notifRes?.count ?? 0)
   } catch (error) {
-    console.error('获取未读消息数量失败:', error)
+    console.error('获取未读数失败:', error)
   }
 }
 
@@ -149,7 +166,7 @@ onMounted(() => {
     fetchUnreadCount()
     unreadTimer = window.setInterval(() => {
       fetchUnreadCount()
-    }, 60000)
+    }, 30000)
   }
 })
 

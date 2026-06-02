@@ -26,19 +26,22 @@ public class TaskReviewService {
     private final TaskReviewMapper taskReviewMapper;
     private final UserService userService;
     private final MessageService messageService;
+    private final NotificationService notificationService;
 
     public TaskReviewService(
         TaskMapper taskMapper,
         TaskParticipantMapper taskParticipantMapper,
         TaskReviewMapper taskReviewMapper,
         UserService userService,
-        MessageService messageService
+        MessageService messageService,
+        NotificationService notificationService
     ) {
         this.taskMapper = taskMapper;
         this.taskParticipantMapper = taskParticipantMapper;
         this.taskReviewMapper = taskReviewMapper;
         this.userService = userService;
         this.messageService = messageService;
+        this.notificationService = notificationService;
     }
 
     public List<TaskReview> getTaskReviews(Long taskId) {
@@ -129,6 +132,14 @@ public class TaskReviewService {
                     request.getRating(),
                     resolveRewardPointsByRating(request.getRating())
                 )
+            );
+            notificationService.createNotification(
+                review.getRevieweeId(),
+                "REVIEW_RECEIVED",
+                "收到互助评价",
+                String.format("%s 对需求《%s》给出了 %d 星评价", reviewerName, task.getTitle(), request.getRating()),
+                "task",
+                taskId
             );
         }
 

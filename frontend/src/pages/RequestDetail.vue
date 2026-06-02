@@ -52,7 +52,7 @@
                 <button
                   type="button"
                   class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition-all"
-                  :class="isTopicLiked ? 'bg-white text-rose-600' : 'border border-white/20 bg-white/10 text-white hover:bg-white/20'"
+                  :class="[isTopicLiked ? 'bg-white text-rose-600' : 'border border-white/20 bg-white/10 text-white hover:bg-white/20', likeAnimating ? 'like-animate' : '']"
                   :disabled="topicLikeLoading || isOwnTask || isExpiredTopic"
                   @click="toggleTopicLike"
                 >
@@ -1055,11 +1055,13 @@ const openContactDialog = () => {
     return
   }
   contactError.value = ''
-  contactMessage.value = isTopicPost.value
-    ? `你好，我看了你发布的“${request.value.title || '这条帖子'}”，想进一步了解一下。`
-    : isOwnTask.value
-      ? `你好，关于“${request.value.title || '这项任务'}”，我想和你确认一下履约细节。`
-      : `你好，我对“${request.value.title || '这项任务'}”感兴趣，想确认一下时间和具体地点。`
+  if (!contactMessage.value) {
+    contactMessage.value = isTopicPost.value
+      ? `你好，我看了你发布的”${request.value.title || '这条帖子'}”，想进一步了解一下。`
+      : isOwnTask.value
+        ? `你好，关于”${request.value.title || '这项任务'}”，我想和你确认一下履约细节。`
+        : `你好，我对”${request.value.title || '这项任务'}”感兴趣，想确认一下时间和具体地点。`
+  }
   showContactDialog.value = true
 }
 
@@ -1158,6 +1160,8 @@ const handleDeleteTask = async () => {
   }
 }
 
+const likeAnimating = ref(false)
+
 const toggleTopicLike = async () => {
   if (!isTopicPost.value) return
   if (isExpiredTopic.value) {
@@ -1179,6 +1183,10 @@ const toggleTopicLike = async () => {
       ...request.value,
       ...nextTaskState
     })
+    if (!isTopicLiked.value) {
+      likeAnimating.value = true
+      setTimeout(() => { likeAnimating.value = false }, 400)
+    }
   } catch (error: any) {
     console.error('帖子点赞操作失败:', error)
     setFeedback(error?.response?.data?.message || '帖子点赞操作失败，请稍后重试。', 'error')

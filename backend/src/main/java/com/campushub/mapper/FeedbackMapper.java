@@ -13,4 +13,6 @@ public interface FeedbackMapper {
     int insert(Feedback feedback);
     int update(Feedback feedback);
     int delete(Long id);
+    int countByStatus(@org.apache.ibatis.annotations.Param("status") String status);
+    int countAll();
 }

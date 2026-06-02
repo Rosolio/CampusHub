@@ -14,7 +14,10 @@ import java.time.LocalDate;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -54,6 +57,19 @@ public class UserService {
         }
         User user = getUserById(id);
         return user != null && "ADMIN".equalsIgnoreCase(user.getRole());
+    }
+
+    public List<Map<String, Object>> getLeaderboard(int limit) {
+        List<User> topUsers = userMapper.selectTopByPoints(limit);
+        return topUsers.stream().map(user -> {
+            Map<String, Object> item = new HashMap<>();
+            item.put("id", user.getId());
+            item.put("name", user.getName());
+            item.put("avatarUrl", user.getAvatarUrl());
+            item.put("points", user.getPoints());
+            item.put("score", user.getScore());
+            return item;
+        }).collect(Collectors.toList());
     }
 
     public User updateUser(Long id, User user) {

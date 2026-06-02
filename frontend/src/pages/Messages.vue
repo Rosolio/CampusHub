@@ -100,7 +100,7 @@
                   系统提醒
                 </span>
               </div>
-              <p class="mb-2 line-clamp-2 text-sm text-on-surface">{{ conversation.lastMessage }}</p>
+              <p class="mb-2 line-clamp-2 text-sm text-on-surface">{{ truncatePreview(conversation.lastMessage, 30) }}</p>
               <div class="flex items-center justify-between gap-3 text-xs text-on-surface-variant">
                 <span>{{ formatCreatedAt(conversation.lastCreatedAt) }}</span>
                 <span>{{ conversation.lastDirection === 'outgoing' ? '你发出' : '对方发来' }}</span>
@@ -322,6 +322,11 @@ const sendError = ref('')
 const messageViewport = ref<HTMLElement | null>(null)
 const isNearBottom = ref(true)
 const newMessageNoticeCount = ref(0)
+
+const truncatePreview = (text: string | undefined, max: number) => {
+  if (!text) return ''
+  return text.length > max ? text.slice(0, max) + '...' : text
+}
 const currentUser = computed(() => storedUser.value || {})
 const defaultAvatarUrl = DEFAULT_AVATAR_URL
 let pollingTimer: number | null = null
@@ -661,27 +666,54 @@ const fetchMessages = async (options?: { silent?: boolean }) => {
 
   try {
     const response = await messageApi.getMessages() as RawMessage[]
-    const previousSelectedKey = selectedKey.value
-    const previousMessageCount = selectedConversation.value?.messages.length ?? 0
-    const previousSelectedConversation = selectedConversation.value
-    const previousIncomingIds = new Set(
-      (previousSelectedConversation?.messages || [])
-        .filter((message) => message.direction === 'incoming')
-        .map((message) => message.id)
-    )
-    messages.value = normalizeMessages(response)
-    syncSelectedConversation()
-    const nextSelectedConversation =
-      conversations.value.find((conversation) => conversation.key === (selectedKey.value || previousSelectedKey)) || null
-    const nextMessageCount = nextSelectedConversation?.messages.length ?? 0
-    const newIncomingCount = (nextSelectedConversation?.messages || []).filter(
-      (message) => message.direction === 'incoming' && !previousIncomingIds.has(message.id)
-    ).length
-    if (nextMessageCount > previousMessageCount) {
-      if (newIncomingCount > 0 && !isNearBottom.value) {
-        newMessageNoticeCount.value += newIncomingCount
-      } else {
-        scrollMessagesToBottom(silent ? 'auto' : 'smooth')
+    if (silent && messages.value.length > 0) {
+      // Smart merge: only add new messages, preserve existing array for scroll stability
+      const existingIds = new Set(messages.value.map(m => m.id))
+      const newMessages = response.filter(m => !existingIds.has(m.id))
+      if (newMessages.length > 0) {
+        const previousSelectedKey = selectedKey.value
+        const previousSelectedConversation = selectedConversation.value
+        const previousIncomingIds = new Set(
+          (previousSelectedConversation?.messages || [])
+            .filter((message) => message.direction === 'incoming')
+            .map((message) => message.id)
+        )
+        messages.value = normalizeMessages([...messages.value, ...newMessages])
+        syncSelectedConversation()
+        const nextSelectedConversation =
+          conversations.value.find((conversation) => conversation.key === (selectedKey.value || previousSelectedKey)) || null
+        const newIncomingCount = (nextSelectedConversation?.messages || []).filter(
+          (message) => message.direction === 'incoming' && !previousIncomingIds.has(message.id)
+        ).length
+        if (newIncomingCount > 0 && !isNearBottom.value) {
+          newMessageNoticeCount.value += newIncomingCount
+        } else if (isNearBottom.value) {
+          scrollMessagesToBottom('auto')
+        }
+      }
+    } else {
+      const previousSelectedKey = selectedKey.value
+      const previousMessageCount = selectedConversation.value?.messages.length ?? 0
+      const previousSelectedConversation = selectedConversation.value
+      const previousIncomingIds = new Set(
+        (previousSelectedConversation?.messages || [])
+          .filter((message) => message.direction === 'incoming')
+          .map((message) => message.id)
+      )
+      messages.value = normalizeMessages(response)
+      syncSelectedConversation()
+      const nextSelectedConversation =
+        conversations.value.find((conversation) => conversation.key === (selectedKey.value || previousSelectedKey)) || null
+      const nextMessageCount = nextSelectedConversation?.messages.length ?? 0
+      const newIncomingCount = (nextSelectedConversation?.messages || []).filter(
+        (message) => message.direction === 'incoming' && !previousIncomingIds.has(message.id)
+      ).length
+      if (nextMessageCount > previousMessageCount) {
+        if (newIncomingCount > 0 && !isNearBottom.value) {
+          newMessageNoticeCount.value += newIncomingCount
+        } else {
+          scrollMessagesToBottom(silent ? 'auto' : 'smooth')
+        }
       }
     }
   } catch (error) {
