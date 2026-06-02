@@ -1,6 +1,5 @@
 <template>
   <div class="page-shell min-h-screen bg-background text-on-background">
-    <AppTopNav />
 
     <main class="page-shell-main flex flex-col items-center justify-center text-center">
       <div class="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-full bg-surface-container-high">
@@ -32,14 +31,11 @@
       </div>
     </main>
 
-    <AppBottomNav />
   </div>
 </template>
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import AppBottomNav from '../components/AppBottomNav.vue'
-import AppTopNav from '../components/AppTopNav.vue'
 
 const router = useRouter()
 

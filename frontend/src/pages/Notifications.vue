@@ -1,6 +1,5 @@
 <template>
   <div class="min-h-screen bg-surface font-body text-on-surface pb-24 md:pb-0">
-    <AppTopNav />
 
     <main class="mx-auto max-w-3xl px-6 pb-12 pt-24">
       <div class="flex items-center justify-between mb-6">
@@ -62,15 +61,12 @@
       </div>
     </main>
 
-    <AppBottomNav />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import AppBottomNav from '../components/AppBottomNav.vue'
-import AppTopNav from '../components/AppTopNav.vue'
 import { usePreferences } from '../composables/usePreferences'
 import { notificationApi } from '../services/api'
 

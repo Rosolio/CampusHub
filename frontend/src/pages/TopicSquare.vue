@@ -1,6 +1,5 @@
 <template>
   <div class="min-h-screen bg-surface font-body text-on-surface">
-    <AppTopNav />
 
     <main class="mx-auto max-w-7xl px-6 pb-24 pt-24">
       <section class="mb-8 overflow-hidden rounded-[2rem] bg-gradient-to-br from-teal-950 via-cyan-900 to-sky-700 p-6 text-white shadow-sm md:p-8">
@@ -168,15 +167,12 @@
       <span class="absolute right-full mr-4 whitespace-nowrap rounded-xl bg-teal-900 px-4 py-2 text-sm font-headline text-white opacity-0 transition-opacity group-hover:opacity-100">发布话题帖</span>
     </RouterLink>
 
-    <AppBottomNav />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
-import AppBottomNav from '../components/AppBottomNav.vue'
-import AppTopNav from '../components/AppTopNav.vue'
 import { taskApi } from '../services/api'
 
 const route = useRoute()

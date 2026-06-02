@@ -1,6 +1,5 @@
 <template>
   <div class="page-shell bg-background text-on-surface md:pt-20">
-    <AppTopNav />
 
     <main class="page-shell-main page-shell-main--narrow">
       <div class="page-card-header">
@@ -39,16 +38,13 @@
       </div>
     </main>
 
-    <AppBottomNav />
   </div>
 </template>
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import AppBottomNav from '../components/AppBottomNav.vue'
 import SettingsItem from '../components/SettingsItem.vue'
 import SettingsSection from '../components/SettingsSection.vue'
-import AppTopNav from '../components/AppTopNav.vue'
 import { useConfirm } from '../composables/useConfirm'
 import { usePreferences } from '../composables/usePreferences'
 import { logoutAndRedirect } from '../utils/auth'

@@ -1,6 +1,5 @@
 <template>
   <div class="min-h-screen bg-surface font-body text-on-surface pb-24 md:pb-0">
-    <AppTopNav />
 
     <main class="mx-auto max-w-4xl px-6 pb-12 pt-24">
       <PageBackHeader to="/home" label="返回社区" />
@@ -127,15 +126,12 @@
       </div>
     </main>
 
-    <AppBottomNav />
   </div>
 </template>
 
 <script setup lang="ts">
 import { nextTick, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import AppBottomNav from '../components/AppBottomNav.vue'
-import AppTopNav from '../components/AppTopNav.vue'
 import PageBackHeader from '../components/PageBackHeader.vue'
 import { searchApi } from '../services/api'
 

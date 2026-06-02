@@ -1,6 +1,5 @@
 <template>
   <div class="min-h-screen bg-background pb-24 text-on-background md:pb-0">
-    <AppTopNav :avatar-url="currentUser.avatarUrl || defaultAvatarUrl" />
 
     <main class="mx-auto max-w-5xl px-6 pb-12 pt-24">
       <PageBackHeader :to="`/detail/${props.id}`" label="返回需求详情" />
@@ -154,16 +153,12 @@
       </section>
     </main>
 
-    <AppBottomNav />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import AppBottomNav from '../components/AppBottomNav.vue'
-import AppTopNav from '../components/AppTopNav.vue'
 import PageBackHeader from '../components/PageBackHeader.vue'
-import { DEFAULT_AVATAR_URL } from '../constants/assets'
 import { taskApi, userApi } from '../services/api'
 import { setStoredUser, storedUser } from '../utils/auth'
 import { normalizeTask as normalizeTaskRecord } from '../utils/tasks'
@@ -171,8 +166,6 @@ import { normalizeTask as normalizeTaskRecord } from '../utils/tasks'
 type FeedbackType = 'success' | 'error'
 
 const props = defineProps<{ id: string }>()
-
-const defaultAvatarUrl = DEFAULT_AVATAR_URL
 const currentUser = computed(() => storedUser.value || {})
 const request = ref<any>({})
 const reviews = ref<any[]>([])

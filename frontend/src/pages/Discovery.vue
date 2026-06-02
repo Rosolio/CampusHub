@@ -1,6 +1,5 @@
 <template>
   <div class="min-h-screen bg-surface font-body text-on-surface">
-    <AppTopNav />
 
     <main class="mx-auto max-w-7xl px-6 pb-24 pt-24">
       <section class="mb-8 overflow-hidden rounded-[2rem] bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.96),rgba(236,253,245,0.96)_36%,rgba(223,245,255,0.92)_68%,rgba(248,250,252,0.95)_100%)] p-6 shadow-sm md:p-8">
@@ -574,15 +573,12 @@
       <span class="absolute right-full mr-4 whitespace-nowrap rounded-xl bg-teal-900 px-4 py-2 text-sm font-headline text-white opacity-0 transition-opacity group-hover:opacity-100">发布</span>
     </RouterLink>
 
-    <AppBottomNav />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
-import AppBottomNav from '../components/AppBottomNav.vue'
-import AppTopNav from '../components/AppTopNav.vue'
 import { announcementApi, taskApi } from '../services/api'
 
 const route = useRoute()
@@ -805,7 +801,7 @@ const fetchTopicPosts = async () => {
     const response = await taskApi.getTasks({
       taskMode: 'topic',
       mode: 'latest',
-      size: 200
+      size: 50
     }) as any
     const rawTasks = Array.isArray(response) ? response : Array.isArray(response?.data) ? response.data : []
     topicPosts.value = rawTasks.map(mapTopicToCard)

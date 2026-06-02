@@ -1,6 +1,5 @@
 <template>
   <div class="page-shell bg-background text-on-surface md:pt-20">
-    <AppTopNav />
     <main class="page-shell-main page-shell-main--narrow max-w-2xl">
       <PageBackHeader to="/profile" :label="t('backToProfile')" />
 
@@ -147,14 +146,11 @@
         </form>
       </section>
     </main>
-    <AppBottomNav />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import AppBottomNav from '../components/AppBottomNav.vue'
-import AppTopNav from '../components/AppTopNav.vue'
 import PageBackHeader from '../components/PageBackHeader.vue'
 import FormField from '../components/FormField.vue'
 import { verificationApi } from '../services/api'

@@ -235,14 +235,12 @@
       </div>
     </main>
 
-    <AppBottomNav />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
-import AppBottomNav from '../components/AppBottomNav.vue'
 import AdminModeHeader from '../components/AdminModeHeader.vue'
 import { adminApi, taskApi } from '../services/api'
 

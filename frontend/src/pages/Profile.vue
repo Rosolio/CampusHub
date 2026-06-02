@@ -1,6 +1,5 @@
 <template>
   <div class="page-shell bg-background text-on-surface md:pt-20">
-    <AppTopNav :avatar-url="currentUser.avatarUrl || defaultAvatarUrl" />
 
     <main class="page-shell-main max-w-7xl">
       <section class="relative mb-10">
@@ -599,15 +598,12 @@
       </div>
     </div>
 
-    <AppBottomNav />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
-import AppBottomNav from '../components/AppBottomNav.vue'
-import AppTopNav from '../components/AppTopNav.vue'
 import { useConfirm } from '../composables/useConfirm'
 import { usePreferences } from '../composables/usePreferences'
 import { showToast } from '../composables/useToast'

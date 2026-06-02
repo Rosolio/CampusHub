@@ -1,6 +1,5 @@
 <template>
   <div class="h-[100dvh] overflow-hidden bg-surface font-body text-on-surface">
-    <AppTopNav :avatar-url="currentUser.avatarUrl || defaultAvatarUrl" />
 
     <main class="mx-auto flex h-full max-w-7xl flex-col px-4 pb-24 pt-20 sm:px-6 md:pb-6 md:pt-24">
       <div class="mb-3 shrink-0">
@@ -252,15 +251,12 @@
       </div>
     </main>
 
-    <AppBottomNav />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
-import AppBottomNav from '../components/AppBottomNav.vue'
-import AppTopNav from '../components/AppTopNav.vue'
 import { usePreferences } from '../composables/usePreferences'
 import { DEFAULT_AVATAR_URL } from '../constants/assets'
 import { messageApi } from '../services/api'

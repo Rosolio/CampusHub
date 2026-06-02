@@ -1,6 +1,5 @@
 <template>
   <div class="page-shell min-h-screen bg-background text-on-background">
-    <AppTopNav :avatar-url="currentUser.avatarUrl || defaultAvatarUrl" />
 
     <main class="page-shell-main max-w-6xl">
       <PageBackHeader :to="isTopicPost ? '/home?tab=topic' : '/home'" label="返回列表" />
@@ -577,15 +576,12 @@
       <p class="absolute bottom-8 text-sm text-white/70">{{ lightboxIndex + 1 }} / {{ detailImages.length }}</p>
     </div>
 
-    <AppBottomNav />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import AppBottomNav from '../components/AppBottomNav.vue'
-import AppTopNav from '../components/AppTopNav.vue'
 import PageBackHeader from '../components/PageBackHeader.vue'
 import { useConfirm } from '../composables/useConfirm'
 import { usePreferences } from '../composables/usePreferences'
