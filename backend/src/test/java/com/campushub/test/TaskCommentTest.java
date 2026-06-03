@@ -49,6 +49,20 @@ public class TaskCommentTest extends IntegrationTestSupport {
     }
 
     @Test
+    public void testCommentSystemMessageOnlyVisibleToTopicOwner() {
+        Task topicTask = taskService.createTask(buildTopicRequest(), 1L);
+
+        TaskCommentCreateRequest request = new TaskCommentCreateRequest();
+        request.setContent("我来评论一下");
+        taskCommentService.createComment(topicTask.getId(), request, 2L);
+
+        assertTrue(messageService.getMessagesByUserId(1L).stream()
+            .anyMatch(message -> message.getTaskId().equals(topicTask.getId()) && message.getContent().contains("帖子回复")));
+        assertFalse(messageService.getMessagesByUserId(2L).stream()
+            .anyMatch(message -> message.getTaskId().equals(topicTask.getId()) && message.getContent().contains("帖子回复")));
+    }
+
+    @Test
     public void testReplyComment() {
         Task topicTask = taskService.createTask(buildTopicRequest(), 1L);
 

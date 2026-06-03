@@ -275,6 +275,21 @@ PREPARE stmt FROM @add_tasks_contact_info;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 
+SET @add_tasks_image_urls = IF(
+    EXISTS (
+        SELECT 1
+        FROM information_schema.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = 'tasks'
+          AND COLUMN_NAME = 'image_urls'
+    ),
+    'SELECT 1',
+    'ALTER TABLE tasks ADD COLUMN image_urls JSON NULL AFTER contact_info'
+);
+PREPARE stmt FROM @add_tasks_image_urls;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
 SET @add_tasks_review_status = IF(
     EXISTS (
         SELECT 1

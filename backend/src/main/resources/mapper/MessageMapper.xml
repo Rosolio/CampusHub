@@ -45,6 +45,7 @@
             LEFT JOIN users receiver ON m.receiver_id = receiver.id
             LEFT JOIN tasks t ON m.task_id = t.id
             WHERE m.sender_id = #{userId}
+              AND m.content NOT REGEXP '^【(评论回复|帖子回复|评价通知|内容审核提醒|接单通知|等待互评|完成确认|自动取消)】'
             UNION ALL
             SELECT m.*,
                    sender.name AS sender_name,
