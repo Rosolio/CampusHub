@@ -462,7 +462,7 @@ const handleSendMessage = async () => {
 const markConversationAsRead = async (conv: any) => {
   if (!conv) return
   const unreadIds = (conv.messages || [])
-    .filter((m: any) => m.direction === 'incoming' && m.status !== 'read')
+    .filter((m: any) => Number(m.receiverId) === Number(currentUser.value?.id) && m.status !== 'read')
     .map((m: any) => Number(m.id))
   if (unreadIds.length > 0) {
     try {
@@ -471,6 +471,8 @@ const markConversationAsRead = async (conv: any) => {
         const msg = messages.value.find(m => m.id === id)
         if (msg) msg.status = 'read'
       }
+      lastUnreadCount = Math.max(0, lastUnreadCount - unreadIds.length)
+      window.dispatchEvent(new CustomEvent('campushub:messages-read'))
     } catch { /* ignore */ }
   }
 }

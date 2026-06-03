@@ -78,7 +78,7 @@ public class MessageService {
 
     public int markAsReadBatch(List<Long> messageIds, Long currentUserId) {
         if (messageIds == null || messageIds.isEmpty()) return 0;
-        return messageMapper.markAsReadBatch(messageIds);
+        return messageMapper.markAsReadBatch(messageIds, currentUserId);
     }
 
     public int getUnreadCount(Long receiverId) {

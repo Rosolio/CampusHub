@@ -76,6 +76,7 @@
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}
         </foreach>
+          AND receiver_id = #{currentUserId}
           AND status = 'unread'
     </update>
 

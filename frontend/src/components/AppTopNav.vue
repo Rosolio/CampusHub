@@ -161,9 +161,14 @@ const fetchUnreadCount = async () => {
   }
 }
 
+const handleUnreadChanged = () => {
+  fetchUnreadCount()
+}
+
 onMounted(() => {
   if (!isAdmin.value) {
     fetchUnreadCount()
+    window.addEventListener('campushub:messages-read', handleUnreadChanged)
     unreadTimer = window.setInterval(() => {
       fetchUnreadCount()
     }, 30000)
@@ -175,5 +180,6 @@ onBeforeUnmount(() => {
     window.clearInterval(unreadTimer)
     unreadTimer = null
   }
+  window.removeEventListener('campushub:messages-read', handleUnreadChanged)
 })
 </script>
