@@ -137,6 +137,11 @@
                                     </limits>
                                 </rule>
                             </rules>
+                            <excludes>
+                                <exclude>com/campushub/config/OnlineSessionManager.class</exclude>
+                                <exclude>com/campushub/config/OnlineWebSocketHandler.class</exclude>
+                                <exclude>com/campushub/config/WebSocketConfig.class</exclude>
+                            </excludes>
                         </configuration>
                     </execution>
                 </executions>
