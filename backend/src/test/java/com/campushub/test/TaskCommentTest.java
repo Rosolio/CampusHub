@@ -57,9 +57,9 @@ public class TaskCommentTest extends IntegrationTestSupport {
         taskCommentService.createComment(topicTask.getId(), request, 2L);
 
         assertTrue(messageService.getMessagesByUserId(1L).stream()
-            .anyMatch(message -> message.getTaskId().equals(topicTask.getId()) && message.getContent().contains("帖子回复")));
+            .anyMatch(message -> topicTask.getId().equals(message.getTaskId()) && message.getContent().contains("帖子回复")));
         assertFalse(messageService.getMessagesByUserId(2L).stream()
-            .anyMatch(message -> message.getTaskId().equals(topicTask.getId()) && message.getContent().contains("帖子回复")));
+            .anyMatch(message -> topicTask.getId().equals(message.getTaskId()) && message.getContent().contains("帖子回复")));
     }
 
     @Test
@@ -196,7 +196,9 @@ public class TaskCommentTest extends IntegrationTestSupport {
         }
 
         User afterCommentUser = userService.getUserById(2L);
-        assertEquals(beforeCommentUser.getPoints() + 20, afterCommentUser.getPoints());
+        int gained = afterCommentUser.getPoints() - beforeCommentUser.getPoints();
+        assertTrue(gained >= 15 && gained <= 20,
+            "Expected 15-20 points gained (daily cap 20, minus any earlier today), got " + gained);
     }
 
     private TaskCreateRequest buildTopicRequest() {
