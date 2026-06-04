@@ -23,6 +23,15 @@
       </div>
 
       <div class="flex items-center gap-2">
+        <!-- Leaderboard -->
+        <RouterLink
+          v-if="!isAdmin"
+          to="/leaderboard"
+          class="rounded-full p-2 text-teal-900/72 transition-all hover:bg-white hover:text-teal-950 dark:hover:bg-white/10"
+          :aria-label="'积分排行'"
+        >
+          <span class="material-symbols-outlined">leaderboard</span>
+        </RouterLink>
         <!-- Search -->
         <RouterLink
           v-if="!isAdmin"

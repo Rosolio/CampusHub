@@ -53,6 +53,12 @@
                   :alt="conv.counterpartName"
                   class="h-12 w-12 rounded-full object-cover"
                 />
+                <div
+                  v-if="!conv.isSystemChannel"
+                  class="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-surface-container-lowest"
+                  :class="isConvOnline(conv) ? 'bg-emerald-400' : 'bg-gray-300'"
+                  :title="isConvOnline(conv) ? '在线' : '离线'"
+                ></div>
                 <span
                   v-if="conv.unreadCount > 0"
                   class="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-extrabold text-white"
@@ -92,12 +98,18 @@
             >
               <span class="material-symbols-outlined">arrow_back</span>
             </button>
-            <img
-              v-if="!selectedConversation.isSystemChannel"
-              :src="selectedConversation.counterpartAvatarUrl || defaultAvatarUrl"
-              :alt="selectedConversation.counterpartName"
-              class="h-10 w-10 rounded-full object-cover"
-            />
+            <div v-if="!selectedConversation.isSystemChannel" class="relative shrink-0">
+              <img
+                :src="selectedConversation.counterpartAvatarUrl || defaultAvatarUrl"
+                :alt="selectedConversation.counterpartName"
+                class="h-10 w-10 rounded-full object-cover"
+              />
+              <div
+                class="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-surface-container-lowest"
+                :class="isConvOnline(selectedConversation) ? 'bg-emerald-400' : 'bg-gray-300'"
+                :title="isConvOnline(selectedConversation) ? '在线' : '离线'"
+              ></div>
+            </div>
             <div class="min-w-0 flex-1">
               <p class="truncate text-sm font-extrabold text-teal-900">{{ selectedConversation.counterpartName }}</p>
               <p class="truncate text-xs text-on-surface-variant">{{ selectedConversation.taskTitle }}</p>
@@ -224,6 +236,10 @@ type RawMessage = {
   senderAvatarUrl?: string
   receiverName?: string
   receiverAvatarUrl?: string
+  senderLastLoginAt?: string
+  receiverLastLoginAt?: string
+  senderOnline?: boolean
+  receiverOnline?: boolean
   taskTitle?: string
 }
 
@@ -245,6 +261,10 @@ const newMessageNoticeCount = ref(0)
 const currentUser = computed(() => storedUser.value || {})
 const defaultAvatarUrl = DEFAULT_AVATAR_URL
 
+const isConvOnline = (conv: { counterpartOnline?: boolean; isSystemChannel?: boolean }) => {
+  return !conv.isSystemChannel && Boolean(conv.counterpartOnline)
+}
+
 // === Conversation Aggregation ===
 
 const toConversationKey = (taskId: number | null, counterpartId: number) =>
@@ -256,6 +276,7 @@ const conversations = computed(() => {
     counterpartId: number
     counterpartName: string
     counterpartAvatarUrl: string
+    counterpartOnline: boolean
     taskId: number | null
     taskTitle: string
     unreadCount: number
@@ -282,6 +303,7 @@ const conversations = computed(() => {
         counterpartId: isSystem ? 0 : counterpartId,
         counterpartName: isSystem ? '系统通知' : (isOutgoing ? raw.receiverName : raw.senderName) || `用户 #${counterpartId}`,
         counterpartAvatarUrl: isSystem ? '' : (isOutgoing ? raw.receiverAvatarUrl : raw.senderAvatarUrl) || '',
+        counterpartOnline: isSystem ? false : Boolean(isOutgoing ? raw.receiverOnline : raw.senderOnline),
         taskId: isSystem ? null : taskId,
         taskTitle: isSystem ? '系统消息与提醒' : raw.taskTitle || '未关联任务',
         unreadCount: 0,

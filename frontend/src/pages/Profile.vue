@@ -212,7 +212,7 @@
           </button>
         </div>
 
-        <div v-if="activeTab !== 'topics'" class="rounded-[1.75rem] bg-surface-container-lowest p-4 shadow-sm">
+        <div v-if="activeTab !== 'topics' && activeTab !== 'favorites'" class="rounded-[1.75rem] bg-surface-container-lowest p-4 shadow-sm">
           <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div class="flex flex-wrap gap-2">
             <button
@@ -424,7 +424,7 @@
           </div>
         </div>
 
-        <div v-else class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div v-else-if="activeTab === 'services'" class="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <div
             v-for="task in filteredMyServiceTasks"
             :key="task.id"
@@ -507,38 +507,89 @@
             <p class="text-on-surface-variant">{{ historyEmptyText }}</p>
           </div>
         </div>
-      </section>
 
-      <!-- Favorites Tab -->
-      <section v-if="activeTab === 'favorites'" class="rounded-[1.75rem] bg-surface-container-lowest p-6 shadow-sm">
-        <div class="flex items-center justify-between mb-6">
-          <div>
-            <h2 class="text-2xl font-extrabold text-on-surface">我的收藏</h2>
-            <p class="text-sm text-on-surface-variant mt-1">收藏的任务和话题帖</p>
+        <!-- Favorites Search Bar -->
+        <div v-if="activeTab === 'favorites'" class="rounded-[1.75rem] bg-surface-container-lowest p-4 shadow-sm">
+          <div class="flex justify-end">
+            <label class="flex w-full items-center gap-3 rounded-2xl bg-surface-container-low px-4 py-3 text-sm text-on-surface lg:max-w-md">
+              <span class="material-symbols-outlined text-lg text-on-surface-variant">search</span>
+              <input
+                v-model.trim="favoriteKeyword"
+                type="text"
+                class="min-w-0 flex-1 bg-transparent outline-none placeholder:text-on-surface-variant/60"
+                placeholder="按标题、分类、描述搜索收藏"
+              />
+            </label>
           </div>
         </div>
-        <div v-if="favoriteTasksLoading" class="text-center py-12 text-on-surface-variant">加载中...</div>
-        <div v-else-if="favoriteTasks.length === 0" class="text-center py-12">
-          <span class="material-symbols-outlined text-6xl text-on-surface-variant/30">bookmark</span>
-          <p class="mt-4 text-lg font-semibold text-on-surface-variant">暂无收藏</p>
-          <p class="mt-1 text-sm text-on-surface-variant/70">浏览任务或话题时点击收藏按钮即可添加</p>
-        </div>
-        <div v-else class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <RouterLink
-            v-for="task in favoriteTasks"
+
+        <!-- Favorites Content Grid -->
+        <div v-if="activeTab === 'favorites'" class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <div v-if="favoriteTasksLoading" class="lg:col-span-2 bg-surface-container-lowest p-8 rounded-[2rem] text-center text-on-surface-variant">
+            加载中...
+          </div>
+          <div v-else-if="filteredFavoriteTasks.length === 0" class="lg:col-span-2 bg-surface-container-lowest p-8 rounded-[2rem]">
+            <h3 class="text-xl font-bold text-headline mb-2">{{ favoriteTasks.length === 0 ? '还没有收藏内容' : '没有匹配的收藏' }}</h3>
+            <p class="text-on-surface-variant">{{ favoriteTasks.length === 0 ? '浏览任务或话题时点击收藏按钮即可添加' : '试试其他关键词，或清空搜索框查看全部收藏' }}</p>
+          </div>
+          <div
+            v-for="task in filteredFavoriteTasks"
             :key="task.id"
-            :to="`/detail/${task.id}`"
-            class="group block rounded-[1.5rem] bg-surface-container-low p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+            class="group cursor-pointer rounded-[1.5rem] bg-surface-container-lowest p-5 transition-colors duration-300 hover:bg-surface-container-low md:p-6"
+            @click="goToTaskDetail(task.id)"
           >
-            <div>
-              <div class="flex items-center gap-2 mb-2">
-                <span class="rounded-full bg-cyan-100 px-3 py-1 text-[11px] font-bold uppercase text-cyan-800">{{ task.category }}</span>
-                <span class="text-xs text-on-surface-variant">{{ task.status === 'pending' ? '待接单' : task.status === 'completed' ? '已完成' : '进行中' }}</span>
+            <div class="flex flex-col gap-5 sm:flex-row">
+              <div class="h-24 w-full flex-shrink-0 rounded-2xl bg-gradient-to-br from-amber-400 via-rose-400 to-sky-500 p-[2px] sm:w-24">
+                <div class="flex h-full w-full items-center justify-center rounded-[0.95rem] bg-white">
+                  <span class="material-symbols-outlined text-4xl text-teal-900">{{ task.taskMode === 'task' ? 'task_alt' : 'forum' }}</span>
+                </div>
               </div>
-              <h3 class="text-lg font-extrabold text-teal-950 group-hover:text-teal-800 transition-colors">{{ task.title }}</h3>
-              <p class="mt-2 line-clamp-2 text-sm text-on-surface-variant">{{ task.description }}</p>
+              <div class="flex-1 space-y-4">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div class="flex flex-wrap gap-2">
+                    <span class="rounded-full px-3 py-1 text-[10px] font-bold uppercase"
+                      :class="task.taskMode === 'task' ? 'bg-teal-100 text-teal-800' : 'bg-amber-100 text-amber-800'">
+                      {{ task.taskMode === 'task' ? '需求帖' : '话题帖' }}
+                    </span>
+                    <span class="rounded-full bg-surface-container-high px-3 py-1 text-[10px] font-bold uppercase text-on-surface-variant">{{ task.category || '校园互助' }}</span>
+                  </div>
+                  <span class="text-xs font-medium text-on-surface-variant">{{ formatCreatedAt(task.createdAt) }}</span>
+                </div>
+                <div>
+                  <h4 class="text-xl font-bold leading-tight text-headline">{{ task.title }}</h4>
+                  <p class="mt-2 line-clamp-2 text-sm leading-6 text-on-surface-variant">{{ task.description }}</p>
+                </div>
+                <div class="grid gap-3 text-sm text-on-surface-variant sm:grid-cols-2">
+                  <span class="flex items-center gap-2 rounded-2xl bg-surface-container-low px-3 py-3">
+                    <span class="material-symbols-outlined text-base">chat_bubble</span>
+                    {{ task.commentCount || 0 }} 评论
+                  </span>
+                  <span class="flex items-center gap-2 rounded-2xl bg-surface-container-low px-3 py-3">
+                    <span class="material-symbols-outlined text-base">bookmark</span>
+                    {{ task.favoriteCount || 0 }} 收藏
+                  </span>
+                </div>
+                <div class="flex flex-col gap-3 border-t border-outline-variant/12 pt-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div class="flex items-center gap-2 text-sm font-bold text-primary">
+                    进入帖子
+                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                  </div>
+                  <button
+                    type="button"
+                    class="inline-flex items-center justify-center gap-1 rounded-full px-3 py-2 text-xs font-bold transition-colors"
+                    :class="unfavoritingTaskId === task.id
+                      ? 'cursor-not-allowed bg-surface-container-high text-on-surface-variant'
+                      : 'bg-error/10 text-error hover:bg-error/15'"
+                    :disabled="unfavoritingTaskId === task.id"
+                    @click.stop="handleUnfavoriteTask(task)"
+                  >
+                    <span class="material-symbols-outlined text-sm">bookmark_remove</span>
+                    {{ unfavoritingTaskId === task.id ? '取消中' : '取消收藏' }}
+                  </button>
+                </div>
+              </div>
             </div>
-          </RouterLink>
+          </div>
         </div>
       </section>
     </main>
@@ -630,7 +681,9 @@ const activeStatusFilter = ref<StatusFilter>('all')
 const historyKeyword = ref('')
 const favoriteTasks = ref<any[]>([])
 const favoriteTasksLoading = ref(false)
+const favoriteKeyword = ref('')
 const deletingTaskId = ref<number | null>(null)
+const unfavoritingTaskId = ref<number | null>(null)
 const cancelingServiceTaskId = ref<number | null>(null)
 const completingTaskId = ref<number | null>(null)
 const taskReviewStatusMap = ref<Record<number, 'pending' | 'completed'>>({})
@@ -730,6 +783,18 @@ const matchesHistoryKeyword = (task: any) => {
 const filteredMyTasks = computed(() => myRequestTasks.value.filter(task => matchesStatusFilter(task) && matchesHistoryKeyword(task)))
 const filteredMyTopicPosts = computed(() => myTopicPosts.value.filter(task => matchesHistoryKeyword(task)))
 const filteredMyServiceTasks = computed(() => myServiceTasks.value.filter(task => matchesStatusFilter(task) && matchesHistoryKeyword(task)))
+
+const filteredFavoriteTasks = computed(() => {
+  const keyword = favoriteKeyword.value.trim().toLowerCase()
+  if (!keyword) return favoriteTasks.value
+  return favoriteTasks.value.filter(task => {
+    const haystack = [task?.title, task?.category, task?.description, task?.locationText, task?.rewardText, task?.requesterName]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase()
+    return haystack.includes(keyword)
+  })
+})
 const historyEmptyText = computed(() => {
   const hasKeyword = Boolean(historyKeyword.value.trim())
   if (hasKeyword || (activeTab.value !== 'topics' && activeStatusFilter.value !== 'all')) {
@@ -939,6 +1004,26 @@ const handleDeleteTask = async (task: any) => {
     showToast(message, 'error')
   } finally {
     deletingTaskId.value = null
+  }
+}
+
+const handleUnfavoriteTask = async (task: any) => {
+  unfavoritingTaskId.value = task.id
+  try {
+    await taskApi.unfavoriteTask(task.id)
+    favoriteTasks.value = favoriteTasks.value.filter((item) => item.id !== task.id)
+    showToast('已取消收藏', 'success')
+  } catch (error: any) {
+    console.error('取消收藏失败:', error)
+    const responseData = error?.response?.data
+    const message =
+      responseData?.message ||
+      responseData?.error ||
+      (typeof responseData === 'string' ? responseData : '') ||
+      '取消收藏失败，请稍后重试'
+    showToast(message, 'error')
+  } finally {
+    unfavoritingTaskId.value = null
   }
 }
 

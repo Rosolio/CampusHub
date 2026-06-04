@@ -38,6 +38,33 @@
 - 用户 `verifiedStatus` 冗余字段，全站展示认证标识
 - 证件照片通过后端代理访问，不暴露直接 URL
 
+### 收藏功能（已实现）
+- `POST /api/tasks/{id}/favorite` — 收藏任务/话题帖
+- `DELETE /api/tasks/{id}/favorite` — 取消收藏
+- `GET /api/tasks/favorites` — 获取当前用户的所有收藏（返回完整任务列表，含评论数、收藏数）
+- 收藏状态通过 `isFavorited` 字段随任务详情一同返回
+- 重复收藏会返回错误，取消未收藏的内容同样返回错误
+- `task_favorites` 表有 `(user_id, task_id)` 唯一约束防止重复
+- 任务/话题列表同样返回 `favoriteCount` 字段，展示每个帖子的累计收藏数
+
+### 在线状态追踪（已实现）
+- **WebSocket 端点**：`/ws/online?token={jwt}` — 前端建立长连接后，后端实时追踪用户在线状态
+- **OnlineSessionManager**：`ConcurrentHashMap<userId, Set<WebSocketSession>>` 维护在线用户集合，同一用户多端登录时每个会话独立追踪
+- **握手认证**：`HandshakeInterceptor` 从 URL query 提取 JWT token 并验证，拒绝过期或无效 token
+- **心跳机制**：前端每 30 秒发送 `ping`，后端回复 `pong`，保持连接活跃
+- **在线字段**：
+  - `Task` 实体新增 `requesterOnline` / `helperOnline` — 任务详情中标识发布者和接单者是否在线
+  - `Message` 实体新增 `senderOnline` / `receiverOnline` — 消息列表中标识双方是否在线
+- 连接断开时自动注销，页面关闭即视为离线，无需等待超时
+- 对比传统 `lastLoginAt` 方案：实时反映用户是否当前在页面上，而非依赖最后登录时间猜测
+
+### 积分排行榜（已实现）
+- `GET /api/users/leaderboard?limit=20` — 按积分降序返回用户排行
+- 排除管理员账号，只展示普通用户
+- 返回字段：`id`、`name`、`avatarUrl`、`points`（积分）、`score`（信用分）
+- 前端 `/leaderboard` 页面：前三名领奖台展示（金银铜），其余排名列表展示，当前用户高亮
+- 积分通过完成任务、发布评论、获得点赞等行为累计，排行榜实时反映
+
 ### 性能优化（已实现）
 - **服务端分页**：`selectFeedTasks` 带 WHERE 过滤 + LIMIT/OFFSET，不再全表扫描
 - **SQL 条件下推**：`taskMode`、`category`、`status`、`expiresAt` 过滤在数据库层完成
@@ -63,6 +90,11 @@
 | GET | `/api/messages` | 消息列表（UNION ALL，限 200 条） |
 | PUT | `/api/messages/read` | 批量标记已读 |
 | GET | `/api/messages/unread/count` | 未读计数 |
+| POST | `/api/tasks/{id}/favorite` | 收藏任务/话题 |
+| DELETE | `/api/tasks/{id}/favorite` | 取消收藏 |
+| GET | `/api/tasks/favorites` | 获取收藏列表 |
+| GET | `/api/users/leaderboard` | 积分排行榜 |
+| WS | `/ws/online?token={jwt}` | WebSocket 在线状态 |
 | POST | `/api/users/me/verification` | 提交认证 |
 | GET | `/api/admin/dashboard` | 管理后台概览 |
 | PUT | `/api/admin/tasks/{id}/review` | 审核内容 |

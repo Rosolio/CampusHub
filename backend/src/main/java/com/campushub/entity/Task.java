@@ -31,6 +31,7 @@ public class Task {
     private String requesterAvatarUrl;
     private BigDecimal requesterScore;
     private Integer requesterPoints;
+    private LocalDateTime requesterLastLoginAt;
     private Long helperId;
     private String helperName;
     private String helperMajor;
@@ -40,6 +41,7 @@ public class Task {
     private String status;
     private Integer likeCount;
     private Integer commentCount;
+    private Integer favoriteCount;
     private Boolean likedByCurrentUser;
     private LocalDateTime expiresAt;
     private LocalDateTime requesterCompletedAt;
@@ -51,6 +53,9 @@ public class Task {
     private List<String> matchReasons;
     private String matchedCategory;
     private String recommendationMode;
+    private Boolean isFavorited;
+    private Boolean requesterOnline;
+    private Boolean helperOnline;
 
     public Long getId() {
         return id;
@@ -260,6 +265,14 @@ public class Task {
         this.requesterPoints = requesterPoints;
     }
 
+    public LocalDateTime getRequesterLastLoginAt() {
+        return requesterLastLoginAt;
+    }
+
+    public void setRequesterLastLoginAt(LocalDateTime requesterLastLoginAt) {
+        this.requesterLastLoginAt = requesterLastLoginAt;
+    }
+
     public Long getHelperId() {
         return helperId;
     }
@@ -330,6 +343,14 @@ public class Task {
 
     public void setCommentCount(Integer commentCount) {
         this.commentCount = commentCount;
+    }
+
+    public Integer getFavoriteCount() {
+        return favoriteCount;
+    }
+
+    public void setFavoriteCount(Integer favoriteCount) {
+        this.favoriteCount = favoriteCount;
     }
 
     public Boolean getLikedByCurrentUser() {
@@ -418,5 +439,29 @@ public class Task {
 
     public void setRecommendationMode(String recommendationMode) {
         this.recommendationMode = recommendationMode;
+    }
+
+    public Boolean getIsFavorited() {
+        return isFavorited;
+    }
+
+    public void setIsFavorited(Boolean isFavorited) {
+        this.isFavorited = isFavorited;
+    }
+
+    public Boolean getRequesterOnline() {
+        return requesterOnline;
+    }
+
+    public void setRequesterOnline(Boolean requesterOnline) {
+        this.requesterOnline = requesterOnline;
+    }
+
+    public Boolean getHelperOnline() {
+        return helperOnline;
+    }
+
+    public void setHelperOnline(Boolean helperOnline) {
+        this.helperOnline = helperOnline;
     }
 }

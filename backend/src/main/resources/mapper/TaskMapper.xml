@@ -30,6 +30,7 @@
         <result property="requesterAvatarUrl" column="requester_avatar_url"/>
         <result property="requesterScore" column="requester_score"/>
         <result property="requesterPoints" column="requester_points"/>
+        <result property="requesterLastLoginAt" column="requester_last_login_at"/>
         <result property="helperId" column="helper_id"/>
         <result property="helperName" column="helper_name"/>
         <result property="helperMajor" column="helper_major"/>
@@ -39,6 +40,7 @@
         <result property="status" column="status"/>
         <result property="likeCount" column="like_count"/>
         <result property="commentCount" column="comment_count"/>
+        <result property="favoriteCount" column="favorite_count"/>
         <result property="expiresAt" column="expires_at"/>
         <result property="requesterCompletedAt" column="requester_completed_at"/>
         <result property="helperCompletedAt" column="helper_completed_at"/>
@@ -54,13 +56,15 @@
                CASE WHEN u.avatar_url LIKE 'data:%' THEN NULL ELSE u.avatar_url END AS requester_avatar_url,
                u.score AS requester_score,
                u.points AS requester_points,
+               u.last_login_at AS requester_last_login_at,
                helper.id AS helper_id,
                helper.name AS helper_name,
                helper.major AS helper_major,
                CASE WHEN helper.avatar_url LIKE 'data:%' THEN NULL ELSE helper.avatar_url END AS helper_avatar_url,
                helper.score AS helper_score,
                helper.points AS helper_points,
-               COALESCE(tc.comment_count, 0) AS comment_count
+               COALESCE(tc.comment_count, 0) AS comment_count,
+               COALESCE((SELECT COUNT(*) FROM task_favorites f WHERE f.task_id = t.id), 0) AS favorite_count
         FROM tasks t
         LEFT JOIN users u ON t.requester_id = u.id
         LEFT JOIN task_participants helper_tp
@@ -83,13 +87,15 @@
                CASE WHEN u.avatar_url LIKE 'data:%' THEN NULL ELSE u.avatar_url END AS requester_avatar_url,
                u.score AS requester_score,
                u.points AS requester_points,
+               u.last_login_at AS requester_last_login_at,
                helper.id AS helper_id,
                helper.name AS helper_name,
                helper.major AS helper_major,
                CASE WHEN helper.avatar_url LIKE 'data:%' THEN NULL ELSE helper.avatar_url END AS helper_avatar_url,
                helper.score AS helper_score,
                helper.points AS helper_points,
-               COALESCE((SELECT COUNT(*) FROM task_comments tc WHERE tc.task_id = t.id), 0) AS comment_count
+               COALESCE((SELECT COUNT(*) FROM task_comments tc WHERE tc.task_id = t.id), 0) AS comment_count,
+               COALESCE((SELECT COUNT(*) FROM task_favorites f WHERE f.task_id = t.id), 0) AS favorite_count
         FROM tasks t
         LEFT JOIN users u ON t.requester_id = u.id
         LEFT JOIN task_participants helper_tp
@@ -107,13 +113,15 @@
                CASE WHEN u.avatar_url LIKE 'data:%' THEN NULL ELSE u.avatar_url END AS requester_avatar_url,
                u.score AS requester_score,
                u.points AS requester_points,
+               u.last_login_at AS requester_last_login_at,
                helper.id AS helper_id,
                helper.name AS helper_name,
                helper.major AS helper_major,
                CASE WHEN helper.avatar_url LIKE 'data:%' THEN NULL ELSE helper.avatar_url END AS helper_avatar_url,
                helper.score AS helper_score,
                helper.points AS helper_points,
-               COALESCE((SELECT COUNT(*) FROM task_comments tc WHERE tc.task_id = t.id), 0) AS comment_count
+               COALESCE((SELECT COUNT(*) FROM task_comments tc WHERE tc.task_id = t.id), 0) AS comment_count,
+               COALESCE((SELECT COUNT(*) FROM task_favorites f WHERE f.task_id = t.id), 0) AS favorite_count
         FROM tasks t
         LEFT JOIN users u ON t.requester_id = u.id
         LEFT JOIN task_participants helper_tp
@@ -133,13 +141,15 @@
                CASE WHEN u.avatar_url LIKE 'data:%' THEN NULL ELSE u.avatar_url END AS requester_avatar_url,
                u.score AS requester_score,
                u.points AS requester_points,
+               u.last_login_at AS requester_last_login_at,
                helper.id AS helper_id,
                helper.name AS helper_name,
                helper.major AS helper_major,
                CASE WHEN helper.avatar_url LIKE 'data:%' THEN NULL ELSE helper.avatar_url END AS helper_avatar_url,
                helper.score AS helper_score,
                helper.points AS helper_points,
-               COALESCE((SELECT COUNT(*) FROM task_comments tc WHERE tc.task_id = t.id), 0) AS comment_count
+               COALESCE((SELECT COUNT(*) FROM task_comments tc WHERE tc.task_id = t.id), 0) AS comment_count,
+               COALESCE((SELECT COUNT(*) FROM task_favorites f WHERE f.task_id = t.id), 0) AS favorite_count
         FROM tasks t
         INNER JOIN task_participants tp ON tp.task_id = t.id
         LEFT JOIN users u ON t.requester_id = u.id
@@ -162,13 +172,15 @@
                CASE WHEN u.avatar_url LIKE 'data:%' THEN NULL ELSE u.avatar_url END AS requester_avatar_url,
                u.score AS requester_score,
                u.points AS requester_points,
+               u.last_login_at AS requester_last_login_at,
                helper.id AS helper_id,
                helper.name AS helper_name,
                helper.major AS helper_major,
                CASE WHEN helper.avatar_url LIKE 'data:%' THEN NULL ELSE helper.avatar_url END AS helper_avatar_url,
                helper.score AS helper_score,
                helper.points AS helper_points,
-               COALESCE((SELECT COUNT(*) FROM task_comments tc WHERE tc.task_id = t.id), 0) AS comment_count
+               COALESCE((SELECT COUNT(*) FROM task_comments tc WHERE tc.task_id = t.id), 0) AS comment_count,
+               COALESCE((SELECT COUNT(*) FROM task_favorites f WHERE f.task_id = t.id), 0) AS favorite_count
         FROM tasks t
         LEFT JOIN users u ON t.requester_id = u.id
         LEFT JOIN task_participants helper_tp
@@ -187,13 +199,15 @@
                CASE WHEN u.avatar_url LIKE 'data:%' THEN NULL ELSE u.avatar_url END AS requester_avatar_url,
                u.score AS requester_score,
                u.points AS requester_points,
+               u.last_login_at AS requester_last_login_at,
                helper.id AS helper_id,
                helper.name AS helper_name,
                helper.major AS helper_major,
                CASE WHEN helper.avatar_url LIKE 'data:%' THEN NULL ELSE helper.avatar_url END AS helper_avatar_url,
                helper.score AS helper_score,
                helper.points AS helper_points,
-               COALESCE((SELECT COUNT(*) FROM task_comments tc WHERE tc.task_id = t.id), 0) AS comment_count
+               COALESCE((SELECT COUNT(*) FROM task_comments tc WHERE tc.task_id = t.id), 0) AS comment_count,
+               COALESCE((SELECT COUNT(*) FROM task_favorites f WHERE f.task_id = t.id), 0) AS favorite_count
         FROM tasks t
         LEFT JOIN users u ON t.requester_id = u.id
         LEFT JOIN task_participants helper_tp
@@ -280,13 +294,15 @@
                CASE WHEN u.avatar_url LIKE 'data:%' THEN NULL ELSE u.avatar_url END AS requester_avatar_url,
                u.score AS requester_score,
                u.points AS requester_points,
+               u.last_login_at AS requester_last_login_at,
                helper.id AS helper_id,
                helper.name AS helper_name,
                helper.major AS helper_major,
                CASE WHEN helper.avatar_url LIKE 'data:%' THEN NULL ELSE helper.avatar_url END AS helper_avatar_url,
                helper.score AS helper_score,
                helper.points AS helper_points,
-               COALESCE((SELECT COUNT(*) FROM task_comments tc WHERE tc.task_id = t.id), 0) AS comment_count
+               COALESCE((SELECT COUNT(*) FROM task_comments tc WHERE tc.task_id = t.id), 0) AS comment_count,
+               COALESCE((SELECT COUNT(*) FROM task_favorites f WHERE f.task_id = t.id), 0) AS favorite_count
         FROM tasks t
         LEFT JOIN users u ON t.requester_id = u.id
         LEFT JOIN task_participants helper_tp
@@ -376,13 +392,15 @@
                CASE WHEN u.avatar_url LIKE 'data:%' THEN NULL ELSE u.avatar_url END AS requester_avatar_url,
                u.score AS requester_score,
                u.points AS requester_points,
+               u.last_login_at AS requester_last_login_at,
                helper.id AS helper_id,
                helper.name AS helper_name,
                helper.major AS helper_major,
                CASE WHEN helper.avatar_url LIKE 'data:%' THEN NULL ELSE helper.avatar_url END AS helper_avatar_url,
                helper.score AS helper_score,
                helper.points AS helper_points,
-               COALESCE((SELECT COUNT(*) FROM task_comments tc WHERE tc.task_id = t.id), 0) AS comment_count
+               COALESCE((SELECT COUNT(*) FROM task_comments tc WHERE tc.task_id = t.id), 0) AS comment_count,
+               COALESCE((SELECT COUNT(*) FROM task_favorites f WHERE f.task_id = t.id), 0) AS favorite_count
         FROM tasks t
         LEFT JOIN users u ON t.requester_id = u.id
         LEFT JOIN task_participants helper_tp
@@ -411,7 +429,9 @@
                u.major AS requester_major,
                CASE WHEN u.avatar_url LIKE 'data:%' THEN NULL ELSE u.avatar_url END AS requester_avatar_url,
                u.score AS requester_score,
-               u.points AS requester_points
+               u.points AS requester_points,
+               u.last_login_at AS requester_last_login_at,
+               u.last_login_at AS requester_last_login_at
         FROM tasks t
         LEFT JOIN users u ON t.requester_id = u.id
         WHERE t.status = 'pending'

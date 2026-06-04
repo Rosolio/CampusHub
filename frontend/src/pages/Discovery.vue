@@ -474,6 +474,10 @@
                         {{ card.likeCount || 0 }}
                       </span>
                       <span class="inline-flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">bookmark</span>
+                        {{ card.favoriteCount || 0 }}
+                      </span>
+                      <span class="inline-flex items-center gap-1">
                         <span class="material-symbols-outlined text-sm">chat_bubble</span>
                         {{ card.commentCount || 0 }}
                       </span>
@@ -719,6 +723,7 @@ const mapTaskToCard = (task: any) => ({
   recommendationMode: task.recommendationMode,
   likeCount: Number(task.likeCount || 0),
   commentCount: Number(task.commentCount || 0),
+  favoriteCount: Number(task.favoriteCount || 0),
   publisher: task.requesterName || task.publisher || `用户 #${task.requesterId ?? ''}`
 })
 
@@ -734,6 +739,7 @@ const mapTopicToCard = (task: any) => ({
   timeText: task.timeText,
   likeCount: Number(task.likeCount || 0),
   commentCount: Number(task.commentCount || 0),
+  favoriteCount: Number(task.favoriteCount || 0),
   publisher: task.requesterName || task.publisher || `用户 #${task.requesterId ?? ''}`
 })
 

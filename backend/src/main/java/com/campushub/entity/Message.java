@@ -14,6 +14,10 @@ public class Message {
     private String senderAvatarUrl;
     private String receiverName;
     private String receiverAvatarUrl;
+    private LocalDateTime senderLastLoginAt;
+    private LocalDateTime receiverLastLoginAt;
+    private Boolean senderOnline;
+    private Boolean receiverOnline;
     private String taskTitle;
 
     public Long getId() {
@@ -102,6 +106,38 @@ public class Message {
 
     public void setReceiverAvatarUrl(String receiverAvatarUrl) {
         this.receiverAvatarUrl = receiverAvatarUrl;
+    }
+
+    public LocalDateTime getSenderLastLoginAt() {
+        return senderLastLoginAt;
+    }
+
+    public void setSenderLastLoginAt(LocalDateTime senderLastLoginAt) {
+        this.senderLastLoginAt = senderLastLoginAt;
+    }
+
+    public LocalDateTime getReceiverLastLoginAt() {
+        return receiverLastLoginAt;
+    }
+
+    public void setReceiverLastLoginAt(LocalDateTime receiverLastLoginAt) {
+        this.receiverLastLoginAt = receiverLastLoginAt;
+    }
+
+    public Boolean getSenderOnline() {
+        return senderOnline;
+    }
+
+    public void setSenderOnline(Boolean senderOnline) {
+        this.senderOnline = senderOnline;
+    }
+
+    public Boolean getReceiverOnline() {
+        return receiverOnline;
+    }
+
+    public void setReceiverOnline(Boolean receiverOnline) {
+        this.receiverOnline = receiverOnline;
     }
 
     public String getTaskTitle() {

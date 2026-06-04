@@ -69,6 +69,16 @@
                   <span class="material-symbols-outlined text-base">{{ isTopicLiked ? 'favorite' : 'favorite_border' }}</span>
                   {{ topicLikeLoading ? '处理中...' : `${topicLikeCount} 点赞` }}
                 </button>
+                <button
+                  type="button"
+                  class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition-all"
+                  :class="[isFavorited ? 'bg-white text-amber-600' : 'border border-white/20 bg-white/10 text-white hover:bg-white/20']"
+                  :disabled="favoriteLoading || isOwnTask"
+                  @click="toggleFavorite"
+                >
+                  <span class="material-symbols-outlined text-base">{{ isFavorited ? 'bookmark' : 'bookmark_border' }}</span>
+                  {{ favoriteLoading ? '处理中...' : (isFavorited ? '已收藏' : '收藏') }}
+                </button>
                 <p class="text-sm" :class="isOwnTask ? 'text-white/75' : 'text-white/65'">
                   {{ isExpiredTopic ? '帖子已截止，当前仅支持查看。' : isOwnTask ? '自己的帖子暂不支持自赞。' : '每次被点赞可为作者增加 1 积分。' }}
                 </p>
@@ -367,7 +377,11 @@
                   class="h-24 w-24 rounded-full border-4 border-surface-container-low object-cover shadow-md"
                   :src="profilePanelAvatarUrl"
                 />
-                <div class="absolute bottom-1 right-1 h-6 w-6 rounded-full border-4 border-surface-container-lowest bg-tertiary"></div>
+                <div
+                  class="absolute bottom-1 right-1 h-6 w-6 rounded-full border-4 border-surface-container-lowest"
+                  :class="isRequesterOnline ? 'bg-emerald-400' : 'bg-gray-300'"
+                  :title="isRequesterOnline ? '在线' : '离线'"
+                ></div>
               </div>
               <p class="text-xs font-bold uppercase tracking-[0.2em] text-on-surface-variant">{{ profilePanelTitle }}</p>
               <h2 class="mt-2 text-xl font-extrabold text-on-surface">{{ profilePanelName }}</h2>
@@ -496,6 +510,17 @@
               </p>
             </div>
             <button
+              v-if="!isOwnTask"
+              type="button"
+              class="mt-4 w-full rounded-2xl border border-amber-200 bg-amber-50 py-4 text-sm font-bold transition-colors"
+              :class="isFavorited ? 'text-amber-700 hover:bg-amber-100' : 'text-amber-600 hover:bg-amber-100'"
+              :disabled="favoriteLoading"
+              @click="toggleFavorite"
+            >
+              <span class="material-symbols-outlined text-base align-middle mr-2">{{ isFavorited ? 'bookmark' : 'bookmark_border' }}</span>
+              {{ favoriteLoading ? '处理中...' : (isFavorited ? '已收藏' : '收藏任务') }}
+            </button>
+            <button
               v-if="canDeleteTask"
               type="button"
               class="mt-4 w-full rounded-2xl border border-rose-200 bg-rose-50 py-4 text-sm font-bold text-rose-600 transition-colors hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60"
@@ -617,6 +642,7 @@ const contactLoading = ref(false)
 const acceptLoading = ref(false)
 const deleteLoading = ref(false)
 const topicLikeLoading = ref(false)
+const favoriteLoading = ref(false)
 const showContactDialog = ref(false)
 const contactMessage = ref('')
 const contactError = ref('')
@@ -675,6 +701,8 @@ const profilePanelPoints = computed(() => {
   }
   return request.value?.requesterPoints || 0
 })
+const isRequesterOnline = computed(() => Boolean(request.value?.requesterOnline))
+
 const profilePanelTitle = computed(() => {
   if (!isTopicPost.value && isOwnTask.value && request.value?.helperId) {
     return '接单同学'
@@ -717,6 +745,7 @@ const canDeleteTask = computed(() => {
   return !['accepted', 'completion_pending', 'completed'].includes(String(request.value.status || ''))
 })
 const isTopicLiked = computed(() => Boolean(request.value?.likedByCurrentUser))
+const isFavorited = computed(() => Boolean(request.value?.isFavorited))
 const topicLikeCount = computed(() => Number(request.value?.likeCount || 0))
 const topicCommentCount = computed(() => Number(request.value?.commentCount || comments.value.length || 0))
 const helperDisplayName = computed(() => request.value?.helperName || '接单同学')
@@ -1255,6 +1284,31 @@ const toggleTopicLike = async () => {
     setFeedback(error?.response?.data?.message || '帖子点赞操作失败，请稍后重试。', 'error')
   } finally {
     topicLikeLoading.value = false
+  }
+}
+
+const toggleFavorite = async () => {
+  if (isOwnTask.value) {
+    setFeedback('不能收藏自己发布的内容。', 'error')
+    return
+  }
+
+  favoriteLoading.value = true
+  try {
+    if (isFavorited.value) {
+      await taskApi.unfavoriteTask(Number(props.id))
+      request.value = { ...request.value, isFavorited: false }
+      setFeedback('已取消收藏。', 'success')
+    } else {
+      await taskApi.favoriteTask(Number(props.id))
+      request.value = { ...request.value, isFavorited: true }
+      setFeedback('已添加收藏，可在个人主页查看。', 'success')
+    }
+  } catch (error: any) {
+    console.error('收藏操作失败:', error)
+    setFeedback(error?.response?.data?.message || '收藏操作失败，请稍后重试。', 'error')
+  } finally {
+    favoriteLoading.value = false
   }
 }
 
