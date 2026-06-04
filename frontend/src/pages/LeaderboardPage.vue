@@ -149,8 +149,8 @@ const error = ref('')
 
 const currentUser = computed(() => storedUser.value || {})
 
-const currentUserInList = computed(() =>
-  users.value.some(u => Number(u.id) === Number(currentUser.value?.id))
+const currentUserNotInList = computed(() =>
+  users.value.length > 0 && !users.value.some(u => Number(u.id) === Number(currentUser.value?.id))
 )
 
 const currentUserPoints = computed(() => currentUser.value?.points ?? 0)
