@@ -113,9 +113,10 @@ public class ExtendedFeaturesTest extends IntegrationTestSupport {
 
     @Test
     public void testOnlineSessionManagerDifferentUsersIndependent() {
-        onlineSessionManager.register(1L, null);
-        assertTrue(onlineSessionManager.isOnline(1L));
-        assertFalse(onlineSessionManager.isOnline(2L));
+        onlineSessionManager.register(999L, null);
+        assertTrue(onlineSessionManager.isOnline(999L));
+        assertFalse(onlineSessionManager.isOnline(998L));
+        onlineSessionManager.unregister(999L, null);
     }
 
     @Test
