@@ -45,7 +45,7 @@ public class TaskCommentTest extends IntegrationTestSupport {
         assertEquals(topicTask.getId(), comment.getTaskId());
         assertEquals(beforeCommentUser.getPoints() + 5, afterCommentUser.getPoints());
         assertTrue(messageService.getMessagesByReceiverId(1L).stream()
-            .anyMatch(message -> message.getTaskId().equals(topicTask.getId()) && message.getContent().contains("帖子回复")));
+            .anyMatch(message -> topicTask.getId().equals(message.getTaskId()) && message.getContent().contains("帖子回复")));
     }
 
     @Test
@@ -79,7 +79,7 @@ public class TaskCommentTest extends IntegrationTestSupport {
         assertEquals(parentComment.getId(), replyComment.getParentId());
         assertEquals(2, comments.size());
         assertTrue(messageService.getMessagesByReceiverId(2L).stream()
-            .anyMatch(message -> message.getTaskId().equals(topicTask.getId()) && message.getContent().contains("评论回复")));
+            .anyMatch(message -> topicTask.getId().equals(message.getTaskId()) && message.getContent().contains("评论回复")));
     }
 
     @Test
