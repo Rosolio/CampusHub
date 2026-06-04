@@ -442,12 +442,12 @@ public class ExtendedFeaturesTest extends IntegrationTestSupport {
         // User 2 accepts the task
         Task accepted = taskService.acceptTask(task.getId(), 2L);
         assertEquals("accepted", accepted.getStatus());
-        assertEquals(2L, accepted.getHelperId().longValue());
 
         // Verify task detail reflects new state
         Task detail = taskService.getTaskById(task.getId(), 1L);
         assertEquals("accepted", detail.getStatus());
         assertNotNull(detail.getHelperId());
+        assertEquals(2L, detail.getHelperId().longValue());
     }
 
     // ===== Edge Cases & Error Handling =====
