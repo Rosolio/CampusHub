@@ -1,49 +1,50 @@
 <template>
-  <div class="h-[100dvh] overflow-hidden bg-surface font-body text-on-surface">
-    <main class="mx-auto flex h-full max-w-4xl flex-col">
-      <!-- Header -->
-      <div class="flex shrink-0 items-center justify-between px-5 py-4">
-        <div>
-          <h1 class="text-xl font-extrabold text-teal-900">消息</h1>
-          <p class="text-xs text-on-surface-variant">{{ filteredConversations.length }} 个会话</p>
-        </div>
-        <div class="flex items-center gap-2">
-          <button
-            class="rounded-full px-3 py-1.5 text-xs font-bold transition-colors"
-            :class="showUnreadOnly ? 'bg-teal-900 text-white' : 'bg-surface-container-low text-teal-900 hover:bg-surface-container-high'"
-            @click="showUnreadOnly = !showUnreadOnly"
-          >{{ showUnreadOnly ? '显示全部' : '未读' }}</button>
-          <button
-            class="flex items-center gap-1 rounded-full bg-surface-container-low px-3 py-1.5 text-xs font-bold text-teal-900 hover:bg-surface-container-high"
-            :disabled="loading"
-            @click="handleRefreshMessages"
-          >
-            <span class="material-symbols-outlined text-sm">refresh</span>
-          </button>
-        </div>
-      </div>
-
-      <div v-if="fetchError" class="mx-5 mb-2 shrink-0 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2 text-xs font-medium text-rose-700">
-        {{ fetchError }}
-      </div>
-
-      <!-- Content: List or Chat -->
-      <div class="flex min-h-0 flex-1">
+  <div class="box-border h-[100dvh] overflow-hidden bg-surface pt-[4.75rem] pb-[5.75rem] font-body text-on-surface md:pb-4 md:pt-[5rem]">
+    <main class="mx-auto flex h-full w-full max-w-7xl px-0 sm:px-4 md:px-6">
+      <div class="flex min-h-0 flex-1 overflow-hidden bg-white/70 shadow-[0_16px_45px_rgba(15,23,42,0.06)] backdrop-blur sm:rounded-[1.25rem] sm:border sm:border-white/70">
         <!-- Conversation List -->
-        <div class="flex w-full min-w-0 flex-col overflow-hidden" :class="{ 'hidden sm:flex': !!selectedConversation }">
-          <div v-if="filteredConversations.length === 0 && !loading" class="flex-1 flex items-center justify-center p-8">
-            <div class="text-center">
-              <span class="material-symbols-outlined text-5xl text-on-surface-variant/25">chat</span>
-              <p class="mt-4 text-sm font-semibold text-on-surface-variant">暂无消息</p>
-              <p class="mt-1 text-xs text-on-surface-variant/60">发布或参与任务后，消息会显示在这里</p>
+        <div
+          class="messages-conversation-list flex w-full min-w-0 flex-col overflow-hidden bg-surface-container-lowest/75 sm:w-[22rem] sm:max-w-[42%] sm:shrink-0 sm:border-r sm:border-outline-variant/15 md:w-[24rem] lg:w-[25rem] xl:w-[26rem]"
+          :class="{ 'messages-list--chat-open': !!selectedConversation && mobileShowChat }"
+        >
+          <div class="flex shrink-0 items-center justify-between border-b border-outline-variant/10 px-4 py-3 sm:px-5">
+            <div>
+              <h1 class="text-lg font-extrabold text-teal-900">消息</h1>
+              <p class="m-0 text-xs text-on-surface-variant">{{ filteredConversations.length }} 个会话</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button
+                class="rounded-full px-3 py-1.5 text-xs font-bold transition-colors"
+                :class="showUnreadOnly ? 'bg-teal-900 text-white' : 'bg-surface-container-low text-teal-900 hover:bg-surface-container-high'"
+                @click="showUnreadOnly = !showUnreadOnly"
+              >{{ showUnreadOnly ? '全部' : '未读' }}</button>
+              <button
+                class="flex h-8 w-8 items-center justify-center rounded-full bg-surface-container-low text-teal-900 hover:bg-surface-container-high disabled:opacity-45"
+                :disabled="loading"
+                @click="handleRefreshMessages"
+              >
+                <span class="material-symbols-outlined text-sm">refresh</span>
+              </button>
             </div>
           </div>
-          <div v-else class="flex-1 overflow-y-auto px-4">
+
+          <div v-if="fetchError" class="mx-4 mt-3 shrink-0 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2 text-xs font-medium text-rose-700">
+            {{ fetchError }}
+          </div>
+
+          <div v-if="filteredConversations.length === 0 && !loading" class="flex flex-1 items-center justify-center p-8">
+            <div class="text-center">
+              <span class="material-symbols-outlined text-5xl text-on-surface-variant/25">chat</span>
+              <p class="m-0 mt-4 text-sm font-semibold text-on-surface-variant">暂无消息</p>
+              <p class="m-0 mt-1 text-xs text-on-surface-variant/60">发布或参与任务后，消息会显示在这里</p>
+            </div>
+          </div>
+          <div v-else class="flex-1 overflow-y-auto px-2 py-2 sm:px-3">
             <div
               v-for="conv in filteredConversations"
               :key="conv.key"
-              class="flex cursor-pointer items-center gap-3 rounded-2xl px-3 py-3 transition-colors hover:bg-surface-container-lowest"
-              :class="{ 'bg-surface-container-lowest shadow-sm': selectedConversation?.key === conv.key }"
+              class="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-3 transition-colors hover:bg-white/70"
+              :class="{ 'bg-white shadow-sm': selectedConversation?.key === conv.key }"
               @click="selectConversation(conv.key); mobileShowChat = true"
             >
               <!-- Avatar -->
@@ -66,14 +67,14 @@
               </div>
 
               <!-- Info -->
-              <div class="min-w-0 flex-1">
-                <div class="flex items-center justify-between gap-2">
-                  <p class="truncate text-sm font-extrabold text-teal-900">{{ conv.counterpartName }}</p>
-                  <span class="shrink-0 text-[11px] text-on-surface-variant/60">{{ formatTime(conv.lastCreatedAt) }}</span>
+              <div class="flex min-w-0 flex-1 flex-col justify-center">
+                <div class="flex min-w-0 items-center justify-between gap-2 leading-5">
+                  <p class="m-0 min-w-0 truncate text-sm font-extrabold leading-5 text-teal-900">{{ conv.counterpartName }}</p>
+                  <span class="shrink-0 text-[11px] leading-5 text-on-surface-variant/60">{{ formatTime(conv.lastCreatedAt) }}</span>
                 </div>
-                <p class="truncate text-xs text-on-surface-variant/70">{{ conv.taskTitle }}</p>
-                <p class="mt-0.5 truncate text-[13px] leading-relaxed" :class="conv.unreadCount > 0 ? 'font-semibold text-on-surface' : 'text-on-surface-variant'">
-                  <span v-if="conv.lastDirection === 'outgoing'" class="mr-1 text-on-surface-variant/50">你:</span>
+                <p class="m-0 truncate text-xs leading-5 text-on-surface-variant">{{ conv.taskTitle }}</p>
+                <p class="m-0 truncate text-[13px] leading-5" :class="conv.unreadCount > 0 ? 'font-semibold text-on-surface' : 'text-on-surface-variant/90'">
+                  <span v-if="conv.lastDirection === 'outgoing'" class="mr-1 text-on-surface-variant/70">你:</span>
                   {{ conv.lastMessage }}
                 </p>
               </div>
@@ -87,11 +88,11 @@
         <!-- Chat View -->
         <div
           v-if="selectedConversation"
-          class="flex w-full min-w-0 flex-col border-l border-outline-variant/10 bg-surface-container-lowest/60"
-          :class="{ 'hidden sm:flex': !mobileShowChat }"
+          class="messages-chat-panel flex w-full min-w-0 flex-col bg-surface-container-lowest/45 sm:flex-1"
+          :class="{ 'messages-chat--mobile-hidden': !mobileShowChat }"
         >
           <!-- Chat Header -->
-          <div class="flex shrink-0 items-center gap-3 border-b border-outline-variant/10 px-4 py-3">
+          <div class="flex shrink-0 items-center gap-3 border-b border-outline-variant/10 bg-white/45 px-4 py-3 sm:px-5">
             <button
               class="rounded-full p-1.5 text-on-surface-variant hover:bg-surface-container-low sm:hidden"
               @click="mobileShowChat = false"
@@ -111,20 +112,20 @@
               ></div>
             </div>
             <div class="min-w-0 flex-1">
-              <p class="truncate text-sm font-extrabold text-teal-900">{{ selectedConversation.counterpartName }}</p>
-              <p class="truncate text-xs text-on-surface-variant">{{ selectedConversation.taskTitle }}</p>
+              <p class="m-0 truncate text-sm font-extrabold text-teal-900">{{ selectedConversation.counterpartName }}</p>
+              <p class="m-0 truncate text-xs text-on-surface-variant">{{ selectedConversation.taskTitle }}</p>
             </div>
             <RouterLink
               v-if="canViewSelectedTaskDetail"
               :to="`/detail/${selectedConversation!.taskId}`"
-              class="rounded-full bg-teal-900 px-4 py-1.5 text-xs font-bold text-white hover:bg-teal-800"
+              class="shrink-0 rounded-full bg-teal-900 px-3 py-1.5 text-xs font-bold text-white hover:bg-teal-800 sm:px-4"
             >查看帖子</RouterLink>
           </div>
 
           <!-- Messages -->
           <div
             ref="messageViewport"
-            class="flex-1 overflow-y-auto px-4 py-3"
+            class="flex-1 overflow-y-auto px-4 py-4 sm:px-6 lg:px-8"
             @scroll="handleScroll"
           >
             <!-- New messages notice -->
@@ -135,7 +136,7 @@
             >{{ newMessageNoticeCount }} 条新消息</div>
 
             <div v-for="(group, idx) in chatMessageGroups" :key="idx">
-              <p class="my-3 text-center text-[11px] font-semibold text-on-surface-variant/50">{{ group.label }}</p>
+              <p class="m-0 my-3 text-center text-[11px] font-semibold text-on-surface-variant/50">{{ group.label }}</p>
               <div
                 v-for="msg in group.items"
                 :key="msg.id"
@@ -147,7 +148,7 @@
                   v-if="msg.direction === 'system'"
                   class="mx-auto max-w-sm rounded-2xl bg-amber-50 px-4 py-2.5 text-center"
                 >
-                  <p class="text-xs leading-relaxed text-amber-800">{{ msg.content }}</p>
+                  <p class="m-0 text-xs leading-relaxed text-amber-800">{{ msg.content }}</p>
                   <button
                     v-if="msg.taskId"
                     class="mt-2 rounded-full bg-amber-200 px-3 py-1 text-[10px] font-extrabold text-amber-900 hover:bg-amber-300"
@@ -156,14 +157,14 @@
                 </div>
 
                 <!-- User message -->
-                <div v-else class="max-w-[75%]">
+                <div v-else class="max-w-[86%] sm:max-w-[72%] lg:max-w-[58%]">
                   <div
                     class="rounded-2xl px-4 py-2.5 text-sm leading-relaxed"
                     :class="msg.direction === 'outgoing'
                       ? 'bg-teal-900 text-white rounded-br-md'
                       : 'bg-white text-on-surface rounded-bl-md shadow-sm border border-outline-variant/10'"
                   >{{ msg.content }}</div>
-                  <p class="mt-0.5 text-[10px] text-on-surface-variant/50" :class="msg.direction === 'outgoing' ? 'text-right' : 'text-left'">
+                  <p class="m-0 mt-0.5 text-[10px] text-on-surface-variant/50" :class="msg.direction === 'outgoing' ? 'text-right' : 'text-left'">
                     {{ formatMessageTime(msg.createdAt) }}
                   </p>
                 </div>
@@ -171,15 +172,16 @@
             </div>
 
             <div v-if="selectedConversation.messages.length === 0" class="flex-1 flex items-center justify-center py-16">
-              <p class="text-sm text-on-surface-variant/50">暂无消息，发送第一条开始沟通</p>
+              <p class="m-0 text-sm text-on-surface-variant/50">暂无消息，发送第一条开始沟通</p>
             </div>
           </div>
 
           <!-- Composer -->
-          <div class="shrink-0 border-t border-outline-variant/10 bg-surface-container-lowest px-4 py-3">
+          <div class="shrink-0 border-t border-outline-variant/10 bg-white/70 px-4 py-3 sm:px-5">
             <div v-if="sendError" class="mb-2 text-[11px] font-medium text-rose-600">{{ sendError }}</div>
             <div class="flex items-end gap-2">
               <textarea
+                ref="composerInput"
                 v-model="composer"
                 rows="1"
                 class="min-h-[42px] max-h-32 flex-1 resize-none rounded-2xl border border-outline-variant/15 bg-surface-container-low px-4 py-2.5 text-sm outline-none transition focus:border-primary/50"
@@ -188,6 +190,7 @@
                 @keydown.enter.exact.prevent="handleSendMessage"
                 @input="autoResize"
               ></textarea>
+              <EmojiPicker :disabled="sending" align="right" @select="insertComposerEmoji" />
               <button
                 class="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full bg-teal-900 text-white transition hover:bg-teal-800 disabled:opacity-40"
                 :disabled="sending || !composer.trim()"
@@ -200,14 +203,14 @@
         </div>
 
         <!-- Empty chat state -->
-        <div v-if="!selectedConversation && !mobileShowChat" class="hidden flex-1 sm:flex items-stretch">
-          <div class="flex w-full items-center justify-center bg-gradient-to-br from-surface-container-lowest to-surface-container-low/50">
+        <div v-if="!selectedConversation && !mobileShowChat" class="hidden flex-1 items-stretch sm:flex">
+          <div class="flex w-full items-center justify-center bg-surface-container-lowest/45">
             <div class="mx-auto max-w-xs text-center px-6 py-12">
               <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-[2rem] bg-surface-container-low shadow-sm">
                 <span class="material-symbols-outlined text-4xl text-on-surface-variant/30">forum</span>
               </div>
               <h3 class="mt-6 text-lg font-extrabold text-teal-900">选择一个会话</h3>
-              <p class="mt-2 text-sm leading-relaxed text-on-surface-variant/60">从左侧会话列表中选择一个联系人，即可在这里查看和发送消息</p>
+              <p class="m-0 mt-2 text-sm leading-relaxed text-on-surface-variant/60">从左侧会话列表中选择一个联系人，即可在这里查看和发送消息</p>
             </div>
           </div>
         </div>
@@ -219,6 +222,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
+import EmojiPicker from '../components/EmojiPicker.vue'
 import { usePreferences } from '../composables/usePreferences'
 import { DEFAULT_AVATAR_URL } from '../constants/assets'
 import { messageApi } from '../services/api'
@@ -256,6 +260,7 @@ const mobileShowChat = ref(false)
 const fetchError = ref('')
 const sendError = ref('')
 const messageViewport = ref<HTMLElement | null>(null)
+const composerInput = ref<HTMLTextAreaElement | null>(null)
 const newMessageNoticeCount = ref(0)
 
 const currentUser = computed(() => storedUser.value || {})
@@ -411,6 +416,26 @@ const autoResize = (e: Event) => {
   el.style.height = Math.min(el.scrollHeight, 140) + 'px'
 }
 
+const insertAtCursor = (target: HTMLTextAreaElement | null, currentValue: string, value: string) => {
+  const start = target?.selectionStart ?? currentValue.length
+  const end = target?.selectionEnd ?? currentValue.length
+  const nextValue = currentValue.slice(0, start) + value + currentValue.slice(end)
+  const nextCursor = start + value.length
+  return { nextValue, nextCursor }
+}
+
+const insertComposerEmoji = (emoji: string) => {
+  const { nextValue, nextCursor } = insertAtCursor(composerInput.value, composer.value, emoji)
+  composer.value = nextValue
+  nextTick(() => {
+    const el = composerInput.value
+    if (!el) return
+    el.focus()
+    el.setSelectionRange(nextCursor, nextCursor)
+    autoResize({ target: el } as unknown as Event)
+  })
+}
+
 // === Data Fetching ===
 
 const fetchMessages = async (options?: { silent?: boolean }) => {
@@ -559,3 +584,12 @@ onBeforeUnmount(() => {
   }
 })
 </script>
+
+<style scoped>
+@media (max-width: 639.98px) {
+  .messages-list--chat-open,
+  .messages-chat--mobile-hidden {
+    display: none;
+  }
+}
+</style>
