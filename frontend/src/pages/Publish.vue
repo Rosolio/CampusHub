@@ -102,19 +102,19 @@
             </FormField>
           </div>
 
-          <div v-if="activeConfig.mode === 'task'" class="grid gap-6 md:grid-cols-2">
-            <FormField label="任务奖励" help="跑腿代办保留接单模式，支持明确酬劳与截止时间。">
+          <div v-if="activeConfig.mode === 'task'" class="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+            <FormField label="任务奖励" help="跑腿代办保留接单模式，支持明确酬劳与截止时间。" wrapper-class="min-w-0">
               <input
                 v-model="form.reward"
                 type="number"
                 min="1"
                 step="1"
-                class="w-full rounded-2xl border border-outline-variant/15 bg-surface-container-low px-4 py-3 transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
+                class="box-border min-w-0 w-full rounded-2xl border border-outline-variant/15 bg-surface-container-low px-4 py-3 transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
                 placeholder="请输入金额（元）"
               />
             </FormField>
 
-            <FormField label="紧急程度">
+            <FormField label="紧急程度" wrapper-class="min-w-0">
               <div class="grid grid-cols-2 gap-3">
                 <button
                   type="button"
