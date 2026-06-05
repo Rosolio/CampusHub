@@ -181,6 +181,7 @@
             <div v-if="sendError" class="mb-2 text-[11px] font-medium text-rose-600">{{ sendError }}</div>
             <div class="flex items-end gap-2">
               <textarea
+                ref="composerInput"
                 v-model="composer"
                 rows="1"
                 class="min-h-[42px] max-h-32 flex-1 resize-none rounded-2xl border border-outline-variant/15 bg-surface-container-low px-4 py-2.5 text-sm outline-none transition focus:border-primary/50"
@@ -189,6 +190,7 @@
                 @keydown.enter.exact.prevent="handleSendMessage"
                 @input="autoResize"
               ></textarea>
+              <EmojiPicker :disabled="sending" align="right" @select="insertComposerEmoji" />
               <button
                 class="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full bg-teal-900 text-white transition hover:bg-teal-800 disabled:opacity-40"
                 :disabled="sending || !composer.trim()"
@@ -220,6 +222,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
+import EmojiPicker from '../components/EmojiPicker.vue'
 import { usePreferences } from '../composables/usePreferences'
 import { DEFAULT_AVATAR_URL } from '../constants/assets'
 import { messageApi } from '../services/api'
@@ -257,6 +260,7 @@ const mobileShowChat = ref(false)
 const fetchError = ref('')
 const sendError = ref('')
 const messageViewport = ref<HTMLElement | null>(null)
+const composerInput = ref<HTMLTextAreaElement | null>(null)
 const newMessageNoticeCount = ref(0)
 
 const currentUser = computed(() => storedUser.value || {})
@@ -410,6 +414,26 @@ const autoResize = (e: Event) => {
   const el = e.target as HTMLTextAreaElement
   el.style.height = 'auto'
   el.style.height = Math.min(el.scrollHeight, 140) + 'px'
+}
+
+const insertAtCursor = (target: HTMLTextAreaElement | null, currentValue: string, value: string) => {
+  const start = target?.selectionStart ?? currentValue.length
+  const end = target?.selectionEnd ?? currentValue.length
+  const nextValue = currentValue.slice(0, start) + value + currentValue.slice(end)
+  const nextCursor = start + value.length
+  return { nextValue, nextCursor }
+}
+
+const insertComposerEmoji = (emoji: string) => {
+  const { nextValue, nextCursor } = insertAtCursor(composerInput.value, composer.value, emoji)
+  composer.value = nextValue
+  nextTick(() => {
+    const el = composerInput.value
+    if (!el) return
+    el.focus()
+    el.setSelectionRange(nextCursor, nextCursor)
+    autoResize({ target: el } as unknown as Event)
+  })
 }
 
 // === Data Fetching ===

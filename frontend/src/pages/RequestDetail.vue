@@ -245,12 +245,18 @@
               <div v-if="isExpiredTopic" class="mb-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
                 这条话题帖已截止，当前仅支持查看，不能再点赞、评论或回复。
               </div>
-              <textarea
-                v-model="commentForm.content"
-                class="min-h-36 w-[96%] mx-auto rounded-3xl border border-outline-variant/20 bg-surface px-3 py-4 text-on-surface outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
-                :placeholder="replyTarget ? '写下你的回复...' : '写下你的评论，发布后可获得 5 积分...'"
-                :disabled="isExpiredTopic"
-              ></textarea>
+              <div class="relative">
+                <textarea
+                  ref="commentTextarea"
+                  v-model="commentForm.content"
+                  class="min-h-36 w-[96%] mx-auto block rounded-3xl border border-outline-variant/20 bg-surface px-3 py-4 text-on-surface outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
+                  :placeholder="replyTarget ? '写下你的回复...' : '写下你的评论，发布后可获得 5 积分...'"
+                  :disabled="isExpiredTopic"
+                ></textarea>
+                <div class="mt-3 flex justify-end">
+                  <EmojiPicker :disabled="isExpiredTopic" align="right" @select="insertCommentEmoji" />
+                </div>
+              </div>
               <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <p class="text-sm text-on-surface-variant">公开回复会展示在帖子下方，方便其他同学继续参与讨论。</p>
                 <button
@@ -554,12 +560,18 @@
         </div>
 
         <label class="mb-2 block text-sm font-bold text-on-surface" for="contact-message">发送内容</label>
-        <textarea
-          id="contact-message"
-          v-model="contactMessage"
-          class="min-h-40 w-[96%] mx-auto rounded-3xl border border-outline-variant/20 bg-surface px-3 py-4 text-on-surface outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
-          :placeholder="isTopicPost ? '例如：你好，我想进一步了解这条帖子。' : '例如：你好，我对这个需求感兴趣，想确认一下时间和具体地点。'"
-        ></textarea>
+        <div class="relative">
+          <textarea
+            id="contact-message"
+            ref="contactTextarea"
+            v-model="contactMessage"
+            class="min-h-40 w-[96%] mx-auto block rounded-3xl border border-outline-variant/20 bg-surface px-3 py-4 text-on-surface outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
+            :placeholder="isTopicPost ? '例如：你好，我想进一步了解这条帖子。' : '例如：你好，我对这个需求感兴趣，想确认一下时间和具体地点。'"
+          ></textarea>
+          <div class="mt-3 flex justify-end">
+            <EmojiPicker :disabled="contactLoading" align="right" @select="insertContactEmoji" />
+          </div>
+        </div>
         <p v-if="contactError" class="mt-3 text-sm font-medium text-rose-600">{{ contactError }}</p>
 
         <div class="mt-6 flex items-center justify-end gap-3">
@@ -605,8 +617,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import EmojiPicker from '../components/EmojiPicker.vue'
 import PageBackHeader from '../components/PageBackHeader.vue'
 import { useConfirm } from '../composables/useConfirm'
 import { usePreferences } from '../composables/usePreferences'
@@ -638,6 +651,7 @@ const reviews = ref<any[]>([])
 const reviewsLoading = ref(false)
 const replyTarget = ref<any | null>(null)
 const commentForm = ref({ content: '' })
+const commentTextarea = ref<HTMLTextAreaElement | null>(null)
 const contactLoading = ref(false)
 const acceptLoading = ref(false)
 const deleteLoading = ref(false)
@@ -645,6 +659,7 @@ const topicLikeLoading = ref(false)
 const favoriteLoading = ref(false)
 const showContactDialog = ref(false)
 const contactMessage = ref('')
+const contactTextarea = ref<HTMLTextAreaElement | null>(null)
 const contactError = ref('')
 const feedbackMessage = ref('')
 const feedbackType = ref<FeedbackType>('success')
@@ -1122,6 +1137,36 @@ const submitComment = async () => {
   } finally {
     commentLoading.value = false
   }
+}
+
+const insertAtCursor = (target: HTMLTextAreaElement | null, currentValue: string, value: string) => {
+  const start = target?.selectionStart ?? currentValue.length
+  const end = target?.selectionEnd ?? currentValue.length
+  const nextValue = currentValue.slice(0, start) + value + currentValue.slice(end)
+  const nextCursor = start + value.length
+  return { nextValue, nextCursor }
+}
+
+const insertCommentEmoji = (emoji: string) => {
+  const { nextValue, nextCursor } = insertAtCursor(commentTextarea.value, commentForm.value.content, emoji)
+  commentForm.value.content = nextValue
+  nextTick(() => {
+    const el = commentTextarea.value
+    if (!el) return
+    el.focus()
+    el.setSelectionRange(nextCursor, nextCursor)
+  })
+}
+
+const insertContactEmoji = (emoji: string) => {
+  const { nextValue, nextCursor } = insertAtCursor(contactTextarea.value, contactMessage.value, emoji)
+  contactMessage.value = nextValue
+  nextTick(() => {
+    const el = contactTextarea.value
+    if (!el) return
+    el.focus()
+    el.setSelectionRange(nextCursor, nextCursor)
+  })
 }
 
 const openContactDialog = () => {
