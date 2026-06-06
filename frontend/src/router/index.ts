@@ -68,6 +68,8 @@ const router = createRouter({
     { path: '/settings/notification', name: 'notificationSettings', component: NotificationSettings, meta: { requiresAuth: true } },
     { path: '/settings/theme', name: 'themeSettings', component: ThemeSettings, meta: { requiresAuth: true } },
     { path: '/settings/language', name: 'languageSettings', component: LanguageSettings, meta: { requiresAuth: true } },
+    { path: '/search', name: 'search', component: () => import('../pages/SearchResults.vue'), meta: { requiresAuth: true } },
+    { path: '/notifications', name: 'notifications', component: () => import('../pages/Notifications.vue'), meta: { requiresAuth: true } },
     { path: '/settings/about', name: 'aboutCampusHub', component: AboutCampusHub, meta: { requiresAuth: true } },
     { path: '/privacy', name: 'privacyPage', component: PrivacyPolicyPage },
     { path: '/agreement', name: 'agreementPage', component: UserAgreementPage },

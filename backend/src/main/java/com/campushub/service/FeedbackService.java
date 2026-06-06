@@ -17,11 +17,14 @@ public class FeedbackService {
     private final FeedbackMapper feedbackMapper;
     private final UserService userService;
     private final MessageService messageService;
+    private final NotificationService notificationService;
 
-    public FeedbackService(FeedbackMapper feedbackMapper, UserService userService, MessageService messageService) {
+    public FeedbackService(FeedbackMapper feedbackMapper, UserService userService,
+                           MessageService messageService, NotificationService notificationService) {
         this.feedbackMapper = feedbackMapper;
         this.userService = userService;
         this.messageService = messageService;
+        this.notificationService = notificationService;
     }
 
     public Feedback createFeedback(Long userId, FeedbackCreateRequest request) {
@@ -115,12 +118,28 @@ public class FeedbackService {
                 null,
                 String.format("[Feedback Reply] Your feedback \"%s\" has a new admin reply: %s", feedback.getTitle(), nextReply)
             );
+            notificationService.createNotification(
+                feedback.getUserId(),
+                "FEEDBACK_REPLIED",
+                "反馈已回复",
+                String.format("你的反馈《%s》已收到管理员回复", feedback.getTitle()),
+                "feedback",
+                feedback.getId()
+            );
         } else if (!Objects.equals(previousStatus, nextStatus)) {
             messageService.sendSystemTaskMessage(
                 adminId,
                 feedback.getUserId(),
                 null,
                 buildStatusUpdateMessage(feedback.getTitle(), nextStatus)
+            );
+            notificationService.createNotification(
+                feedback.getUserId(),
+                "FEEDBACK_REPLIED",
+                "反馈状态更新",
+                String.format("你的反馈《%s》状态已更新为%s", feedback.getTitle(), nextStatus),
+                "feedback",
+                feedback.getId()
             );
         }
 

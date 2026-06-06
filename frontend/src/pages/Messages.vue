@@ -1,266 +1,212 @@
 <template>
   <div class="h-[100dvh] overflow-hidden bg-surface font-body text-on-surface">
-    <AppTopNav :avatar-url="currentUser.avatarUrl || defaultAvatarUrl" />
-
-    <main class="mx-auto flex h-full max-w-7xl flex-col px-4 pb-24 pt-20 sm:px-6 md:pb-6 md:pt-24">
-      <div class="mb-3 shrink-0">
-        <RouterLink
-          to="/"
-          class="flex items-center gap-2 text-on-surface-variant font-medium hover:text-primary transition-colors group"
-        >
-          <span
-            class="material-symbols-outlined text-lg group-hover:-translate-x-1 transition-transform"
-            data-icon="arrow_back"
-          >arrow_back</span>
-          <span>返回</span>
-        </RouterLink>
-      </div>
-
-      <div class="mb-4 flex shrink-0 flex-col gap-2 md:flex-row md:items-end md:justify-between">
+    <main class="mx-auto flex h-full max-w-4xl flex-col">
+      <!-- Header -->
+      <div class="flex shrink-0 items-center justify-between px-5 py-4">
         <div>
-          <h1 class="font-headline text-2xl font-extrabold text-teal-900 md:text-3xl">消息中心</h1>
-          <p class="text-sm leading-relaxed text-on-surface-variant md:text-base">
-            按任务查看沟通记录，直接在右侧继续回复。
-          </p>
+          <h1 class="text-xl font-extrabold text-teal-900">消息</h1>
+          <p class="text-xs text-on-surface-variant">{{ filteredConversations.length }} 个会话</p>
         </div>
-        <button
-          class="self-start rounded-2xl bg-surface-container-low px-4 py-2 text-sm font-bold text-teal-900 transition-colors hover:bg-surface-container-high"
-          type="button"
-          :disabled="loading"
-          @click="handleRefreshMessages"
-        >
-          {{ loading ? '刷新中...' : '刷新消息' }}
-        </button>
+        <div class="flex items-center gap-2">
+          <button
+            class="rounded-full px-3 py-1.5 text-xs font-bold transition-colors"
+            :class="showUnreadOnly ? 'bg-teal-900 text-white' : 'bg-surface-container-low text-teal-900 hover:bg-surface-container-high'"
+            @click="showUnreadOnly = !showUnreadOnly"
+          >{{ showUnreadOnly ? '显示全部' : '未读' }}</button>
+          <button
+            class="flex items-center gap-1 rounded-full bg-surface-container-low px-3 py-1.5 text-xs font-bold text-teal-900 hover:bg-surface-container-high"
+            :disabled="loading"
+            @click="handleRefreshMessages"
+          >
+            <span class="material-symbols-outlined text-sm">refresh</span>
+          </button>
+        </div>
       </div>
 
-      <div v-if="fetchError" class="mb-4 shrink-0 rounded-3xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-medium text-rose-700">
+      <div v-if="fetchError" class="mx-5 mb-2 shrink-0 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2 text-xs font-medium text-rose-700">
         {{ fetchError }}
       </div>
 
-      <div class="grid min-h-0 flex-1 gap-4 overflow-hidden lg:grid-cols-[360px_minmax(0,1fr)] lg:gap-6">
-        <aside
-          class="flex min-h-0 min-w-0 flex-col rounded-[2rem] bg-surface-container-lowest p-4 shadow-sm md:p-5"
-          :class="mobileShowChat ? 'hidden lg:flex' : 'flex'"
-        >
-          <div class="mb-3 flex shrink-0 items-center justify-between">
-            <div>
-              <h2 class="text-lg font-extrabold text-teal-900 md:text-xl">会话列表</h2>
-              <p class="text-sm text-on-surface-variant">共 {{ filteredConversations.length }} 个会话</p>
+      <!-- Content: List or Chat -->
+      <div class="flex min-h-0 flex-1">
+        <!-- Conversation List -->
+        <div class="flex w-full min-w-0 flex-col overflow-hidden" :class="{ 'hidden sm:flex': !!selectedConversation }">
+          <div v-if="filteredConversations.length === 0 && !loading" class="flex-1 flex items-center justify-center p-8">
+            <div class="text-center">
+              <span class="material-symbols-outlined text-5xl text-on-surface-variant/25">chat</span>
+              <p class="mt-4 text-sm font-semibold text-on-surface-variant">暂无消息</p>
+              <p class="mt-1 text-xs text-on-surface-variant/60">发布或参与任务后，消息会显示在这里</p>
             </div>
           </div>
-
-          <div class="mb-3 flex shrink-0 flex-wrap gap-2">
-            <button
-              class="rounded-full px-4 py-2 text-sm font-bold transition-colors"
-              type="button"
-              :class="showUnreadOnly ? 'bg-teal-900 text-white' : 'bg-surface-container-low text-teal-900 hover:bg-surface-container-high'"
-              @click="showUnreadOnly = !showUnreadOnly"
-            >
-              {{ showUnreadOnly ? '显示全部' : '仅看未读' }}
-            </button>
-            <div class="rounded-full bg-cyan-50 px-4 py-2 text-sm font-medium text-teal-900">
-              未读 {{ unreadConversationCount }} 个会话
-            </div>
-          </div>
-
-          <div v-if="filteredConversations.length === 0" class="min-h-0 flex-1 overflow-y-auto rounded-3xl bg-surface-container-low p-6 text-center">
-            <p class="text-lg font-bold text-teal-900 mb-2">暂无会话</p>
-            <p class="text-on-surface-variant">{{ showUnreadOnly ? '当前没有未读会话。' : '去任务详情页联系需求方后，这里会出现对应聊天。' }}</p>
-          </div>
-
-          <div v-else class="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
-            <button
-              v-for="conversation in filteredConversations"
-              :key="conversation.key"
-              class="w-full rounded-3xl border p-4 text-left transition-all"
-              type="button"
-              :class="selectedConversation?.key === conversation.key
-                ? 'border-teal-300 bg-cyan-50 shadow-sm'
-                : 'border-outline-variant/15 bg-surface-container-low hover:border-teal-200 hover:bg-surface-container-high'"
-              @click="selectConversation(conversation.key)"
-            >
-              <div class="mb-3 flex items-start justify-between gap-3">
-                <div class="flex items-center gap-3 min-w-0">
-                  <img
-                    :src="conversation.counterpartAvatarUrl || defaultAvatarUrl"
-                    :alt="conversation.counterpartName"
-                    class="h-12 w-12 rounded-full object-cover border border-outline-variant/20"
-                  />
-                  <div class="min-w-0">
-                    <p class="truncate font-bold text-teal-900">{{ conversation.counterpartName }}</p>
-                    <p class="truncate text-sm text-on-surface-variant">{{ conversation.taskTitle }}</p>
-                  </div>
-                </div>
-                <span v-if="conversation.unreadCount > 0" class="rounded-full bg-primary px-2.5 py-1 text-xs font-bold text-white">
-                  {{ conversation.unreadCount }}
-                </span>
-              </div>
-              <div v-if="conversation.hasSystemReminder" class="mb-2">
-                <span class="rounded-full bg-amber-100 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-amber-800">
-                  系统提醒
-                </span>
-              </div>
-              <p class="mb-2 line-clamp-2 text-sm text-on-surface">{{ conversation.lastMessage }}</p>
-              <div class="flex items-center justify-between gap-3 text-xs text-on-surface-variant">
-                <span>{{ formatCreatedAt(conversation.lastCreatedAt) }}</span>
-                <span>{{ conversation.lastDirection === 'outgoing' ? '你发出' : '对方发来' }}</span>
-              </div>
-            </button>
-          </div>
-        </aside>
-
-        <section
-          class="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-[2rem] bg-surface-container-lowest shadow-sm"
-          :class="mobileShowChat ? 'flex' : 'hidden lg:flex'"
-        >
-          <div v-if="!selectedConversation" class="flex-1 flex items-center justify-center p-8">
-            <div class="max-w-md rounded-[2rem] bg-surface-container-low p-8 text-center">
-              <p class="mb-2 text-xl font-extrabold text-teal-900">选择一个会话</p>
-              <p class="text-on-surface-variant">左侧会显示按任务和联系人聚合后的聊天记录。</p>
-            </div>
-          </div>
-
-          <template v-else>
-            <div class="shrink-0 border-b border-outline-variant/15 px-5 py-4 md:px-6 md:py-5">
-              <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                <div class="flex items-center gap-4">
-                  <button
-                    type="button"
-                    class="rounded-full p-2 text-on-surface-variant transition-colors hover:bg-surface-container-high lg:hidden"
-                    @click="mobileShowChat = false"
-                  >
-                    <span class="material-symbols-outlined">arrow_back</span>
-                  </button>
-                  <div v-if="selectedConversation.isSystemChannel" class="flex h-14 w-14 items-center justify-center rounded-full border border-amber-200 bg-amber-50 text-amber-700">
-                    <span class="material-symbols-outlined text-2xl">notifications_active</span>
-                  </div>
-                  <img
-                    v-else
-                    :src="selectedConversation.counterpartAvatarUrl || defaultAvatarUrl"
-                    :alt="selectedConversation.counterpartName"
-                    class="h-14 w-14 rounded-full object-cover border border-outline-variant/20"
-                  />
-                  <div class="min-w-0">
-                    <h2 class="truncate text-2xl font-extrabold text-teal-900">{{ selectedConversation.counterpartName }}</h2>
-                    <p class="truncate text-on-surface-variant">{{ selectedConversation.taskTitle }}</p>
-                  </div>
-                </div>
-                <button
-                  v-if="canViewSelectedTaskDetail"
-                  type="button"
-                  class="inline-flex items-center justify-center gap-2 self-start rounded-2xl bg-surface-container-low px-4 py-2 text-sm font-bold text-teal-900 transition-colors hover:bg-surface-container-high"
-                  @click="openSelectedTaskDetail"
-                >
-                  <span class="material-symbols-outlined text-base">open_in_new</span>
-                  查看需求详情
-                </button>
-              </div>
-            </div>
-
+          <div v-else class="flex-1 overflow-y-auto px-4">
             <div
-              ref="messageViewport"
-              class="min-h-0 flex-1 space-y-4 overflow-y-auto bg-[linear-gradient(180deg,rgba(240,253,250,0.85),rgba(255,255,255,0.96))] px-5 py-5 md:px-6 md:py-6"
-              @scroll="handleMessageScroll"
+              v-for="conv in filteredConversations"
+              :key="conv.key"
+              class="flex cursor-pointer items-center gap-3 rounded-2xl px-3 py-3 transition-colors hover:bg-surface-container-lowest"
+              :class="{ 'bg-surface-container-lowest shadow-sm': selectedConversation?.key === conv.key }"
+              @click="selectConversation(conv.key); mobileShowChat = true"
             >
-              <div v-for="group in groupedSelectedMessages" :key="group.label" class="space-y-4">
-                <div class="flex justify-center">
-                  <span class="rounded-full bg-white/85 px-4 py-1.5 text-xs font-bold text-teal-900 shadow-sm">
-                    {{ group.label }}
-                  </span>
-                </div>
-                <div
-                  v-for="message in group.messages"
-                  :key="message.id"
-                  class="flex"
-                  :class="message.direction === 'outgoing' ? 'justify-end' : 'justify-start'"
-                >
-                  <div class="max-w-[85%] md:max-w-[70%]">
-                    <div
-                      class="rounded-[1.75rem] px-5 py-4 shadow-sm"
-                      :class="resolveMessageBubbleClass(message)"
-                    >
-                      <div v-if="isSystemMessage(message)" class="mb-3 inline-flex items-center gap-2 rounded-full bg-amber-100 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-amber-800">
-                        <span class="material-symbols-outlined text-sm">notifications_active</span>
-                        系统提醒
-                      </div>
-                      <p class="whitespace-pre-wrap break-words leading-relaxed">{{ message.content }}</p>
-                      <button
-                        v-if="getMessageAction(message)"
-                        type="button"
-                        class="mt-4 inline-flex items-center gap-2 rounded-full bg-teal-900 px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-teal-800"
-                        @click="handleMessageAction(message)"
-                      >
-                        <span class="material-symbols-outlined text-sm">{{ getMessageAction(message)?.icon }}</span>
-                        {{ getMessageAction(message)?.label }}
-                      </button>
-                    </div>
-                    <p
-                      class="mt-2 text-xs"
-                      :class="message.direction === 'outgoing' ? 'text-right text-teal-800/70' : 'text-left text-on-surface-variant'"
-                    >
-                      {{ formatCreatedAt(message.createdAt) }}
-                    </p>
-                  </div>
-                </div>
+              <!-- Avatar -->
+              <div class="relative shrink-0">
+                <img
+                  :src="conv.counterpartAvatarUrl || defaultAvatarUrl"
+                  :alt="conv.counterpartName"
+                  class="h-12 w-12 rounded-full object-cover"
+                />
+                <span
+                  v-if="conv.unreadCount > 0"
+                  class="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-extrabold text-white"
+                >{{ conv.unreadCount > 9 ? '9+' : conv.unreadCount }}</span>
               </div>
-            </div>
 
-            <div v-if="!selectedConversation.isSystemChannel" class="shrink-0 border-t border-outline-variant/15 bg-white px-5 py-4 md:px-6 md:py-5">
-              <div v-if="newMessageNoticeCount > 0" class="mb-4 flex justify-center">
-                <button
-                  class="rounded-full bg-teal-900 px-4 py-2 text-sm font-bold text-white shadow-lg transition-colors hover:bg-teal-800"
-                  type="button"
-                  @click="jumpToLatestMessages"
+              <!-- Info -->
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center justify-between gap-2">
+                  <p class="truncate text-sm font-extrabold text-teal-900">{{ conv.counterpartName }}</p>
+                  <span class="shrink-0 text-[11px] text-on-surface-variant/60">{{ formatTime(conv.lastCreatedAt) }}</span>
+                </div>
+                <p class="truncate text-xs text-on-surface-variant/70">{{ conv.taskTitle }}</p>
+                <p class="mt-0.5 truncate text-[13px] leading-relaxed" :class="conv.unreadCount > 0 ? 'font-semibold text-on-surface' : 'text-on-surface-variant'">
+                  <span v-if="conv.lastDirection === 'outgoing'" class="mr-1 text-on-surface-variant/50">你:</span>
+                  {{ conv.lastMessage }}
+                </p>
+              </div>
+
+              <!-- System badge -->
+              <span v-if="conv.isSystemChannel" class="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-amber-700">系统</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat View -->
+        <div
+          v-if="selectedConversation"
+          class="flex w-full min-w-0 flex-col border-l border-outline-variant/10 bg-surface-container-lowest/60"
+          :class="{ 'hidden sm:flex': !mobileShowChat }"
+        >
+          <!-- Chat Header -->
+          <div class="flex shrink-0 items-center gap-3 border-b border-outline-variant/10 px-4 py-3">
+            <button
+              class="rounded-full p-1.5 text-on-surface-variant hover:bg-surface-container-low sm:hidden"
+              @click="mobileShowChat = false"
+            >
+              <span class="material-symbols-outlined">arrow_back</span>
+            </button>
+            <img
+              v-if="!selectedConversation.isSystemChannel"
+              :src="selectedConversation.counterpartAvatarUrl || defaultAvatarUrl"
+              :alt="selectedConversation.counterpartName"
+              class="h-10 w-10 rounded-full object-cover"
+            />
+            <div class="min-w-0 flex-1">
+              <p class="truncate text-sm font-extrabold text-teal-900">{{ selectedConversation.counterpartName }}</p>
+              <p class="truncate text-xs text-on-surface-variant">{{ selectedConversation.taskTitle }}</p>
+            </div>
+            <RouterLink
+              v-if="canViewSelectedTaskDetail"
+              :to="`/detail/${selectedConversation!.taskId}`"
+              class="rounded-full bg-teal-900 px-4 py-1.5 text-xs font-bold text-white hover:bg-teal-800"
+            >查看帖子</RouterLink>
+          </div>
+
+          <!-- Messages -->
+          <div
+            ref="messageViewport"
+            class="flex-1 overflow-y-auto px-4 py-3"
+            @scroll="handleScroll"
+          >
+            <!-- New messages notice -->
+            <div
+              v-if="newMessageNoticeCount > 0"
+              class="mb-3 cursor-pointer rounded-full bg-primary px-4 py-2 text-center text-xs font-extrabold text-white shadow-lg"
+              @click="newMessageNoticeCount = 0; scrollMessagesToBottom('smooth')"
+            >{{ newMessageNoticeCount }} 条新消息</div>
+
+            <div v-for="(group, idx) in chatMessageGroups" :key="idx">
+              <p class="my-3 text-center text-[11px] font-semibold text-on-surface-variant/50">{{ group.label }}</p>
+              <div
+                v-for="msg in group.items"
+                :key="msg.id"
+                class="mb-2 flex"
+                :class="msg.direction === 'outgoing' ? 'justify-end' : 'justify-start'"
+              >
+                <!-- System message -->
+                <div
+                  v-if="msg.direction === 'system'"
+                  class="mx-auto max-w-sm rounded-2xl bg-amber-50 px-4 py-2.5 text-center"
                 >
-                  有 {{ newMessageNoticeCount }} 条新消息，点击查看
-                </button>
-              </div>
-              <div v-if="sendError" class="mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">
-                {{ sendError }}
-              </div>
-              <div class="flex flex-col gap-4 md:flex-row md:items-end">
-                <div class="flex-1">
-                  <label class="mb-2 block text-sm font-bold text-on-surface" for="message-input">
-                    发送给 {{ selectedConversation.counterpartName }}
-                  </label>
-                  <textarea
-                    id="message-input"
-                    v-model="composer"
-                    class="min-h-28 w-[96%] mx-auto rounded-3xl border border-outline-variant/20 bg-surface px-3 py-4 text-on-surface outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
-                    placeholder="输入你想沟通的内容..."
-                    @keydown.enter.exact.prevent="handleSendMessage"
-                  ></textarea>
-                  <p class="mt-2 text-xs text-on-surface-variant">
-                    按 Enter 发送，按 Shift + Enter 换行。
+                  <p class="text-xs leading-relaxed text-amber-800">{{ msg.content }}</p>
+                  <button
+                    v-if="msg.taskId"
+                    class="mt-2 rounded-full bg-amber-200 px-3 py-1 text-[10px] font-extrabold text-amber-900 hover:bg-amber-300"
+                    @click="router.push(`/detail/${msg.taskId}`)"
+                  >查看详情</button>
+                </div>
+
+                <!-- User message -->
+                <div v-else class="max-w-[75%]">
+                  <div
+                    class="rounded-2xl px-4 py-2.5 text-sm leading-relaxed"
+                    :class="msg.direction === 'outgoing'
+                      ? 'bg-teal-900 text-white rounded-br-md'
+                      : 'bg-white text-on-surface rounded-bl-md shadow-sm border border-outline-variant/10'"
+                  >{{ msg.content }}</div>
+                  <p class="mt-0.5 text-[10px] text-on-surface-variant/50" :class="msg.direction === 'outgoing' ? 'text-right' : 'text-left'">
+                    {{ formatMessageTime(msg.createdAt) }}
                   </p>
                 </div>
-                <button
-                  class="rounded-3xl bg-gradient-to-br from-primary to-primary-dim px-6 py-4 font-bold text-on-primary shadow-lg shadow-primary/20 transition-all hover:scale-[1.01] active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
-                  type="button"
-                  :disabled="sending"
-                  @click="handleSendMessage"
-                >
-                  {{ sending ? '发送中...' : '发送消息' }}
-                </button>
               </div>
             </div>
-            <div v-else class="shrink-0 border-t border-outline-variant/15 bg-amber-50/60 px-6 py-5 text-sm text-amber-900">
-              系统提醒会集中展示在这里，点击消息卡片内的按钮可直接进入对应详情页或互评页。
+
+            <div v-if="selectedConversation.messages.length === 0" class="flex-1 flex items-center justify-center py-16">
+              <p class="text-sm text-on-surface-variant/50">暂无消息，发送第一条开始沟通</p>
             </div>
-          </template>
-        </section>
+          </div>
+
+          <!-- Composer -->
+          <div class="shrink-0 border-t border-outline-variant/10 bg-surface-container-lowest px-4 py-3">
+            <div v-if="sendError" class="mb-2 text-[11px] font-medium text-rose-600">{{ sendError }}</div>
+            <div class="flex items-end gap-2">
+              <textarea
+                v-model="composer"
+                rows="1"
+                class="min-h-[42px] max-h-32 flex-1 resize-none rounded-2xl border border-outline-variant/15 bg-surface-container-low px-4 py-2.5 text-sm outline-none transition focus:border-primary/50"
+                placeholder="输入消息..."
+                :disabled="sending"
+                @keydown.enter.exact.prevent="handleSendMessage"
+                @input="autoResize"
+              ></textarea>
+              <button
+                class="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full bg-teal-900 text-white transition hover:bg-teal-800 disabled:opacity-40"
+                :disabled="sending || !composer.trim()"
+                @click="handleSendMessage"
+              >
+                <span class="material-symbols-outlined text-lg">{{ sending ? 'progress_activity' : 'send' }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty chat state -->
+        <div v-if="!selectedConversation && !mobileShowChat" class="hidden flex-1 sm:flex items-stretch">
+          <div class="flex w-full items-center justify-center bg-gradient-to-br from-surface-container-lowest to-surface-container-low/50">
+            <div class="mx-auto max-w-xs text-center px-6 py-12">
+              <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-[2rem] bg-surface-container-low shadow-sm">
+                <span class="material-symbols-outlined text-4xl text-on-surface-variant/30">forum</span>
+              </div>
+              <h3 class="mt-6 text-lg font-extrabold text-teal-900">选择一个会话</h3>
+              <p class="mt-2 text-sm leading-relaxed text-on-surface-variant/60">从左侧会话列表中选择一个联系人，即可在这里查看和发送消息</p>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
-
-    <AppBottomNav />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { RouterLink, useRoute, useRouter } from 'vue-router'
-import AppBottomNav from '../components/AppBottomNav.vue'
-import AppTopNav from '../components/AppTopNav.vue'
+import { RouterLink, useRouter } from 'vue-router'
 import { usePreferences } from '../composables/usePreferences'
 import { DEFAULT_AVATAR_URL } from '../constants/assets'
 import { messageApi } from '../services/api'
@@ -273,7 +219,7 @@ type RawMessage = {
   taskId?: number | null
   content: string
   status?: string
-  createdAt?: string
+  createdAt: string
   senderName?: string
   senderAvatarUrl?: string
   receiverName?: string
@@ -281,35 +227,9 @@ type RawMessage = {
   taskTitle?: string
 }
 
-type ConversationMessage = RawMessage & {
-  direction: 'incoming' | 'outgoing'
-}
-
-type Conversation = {
-  key: string
-  counterpartId: number
-  counterpartName: string
-  counterpartAvatarUrl: string
-  taskId: number | null
-  taskTitle: string
-  unreadCount: number
-  lastCreatedAt?: string
-  lastMessage: string
-  lastDirection: 'incoming' | 'outgoing'
-  messages: ConversationMessage[]
-  isDraft?: boolean
-  hasSystemReminder?: boolean
-  isSystemChannel?: boolean
-}
-
-type MessageGroup = {
-  label: string
-  messages: ConversationMessage[]
-}
-
-const route = useRoute()
 const router = useRouter()
-const { formatLocaleDateLabel, formatLocaleDateTime } = usePreferences()
+const { formatLocaleDateLabel } = usePreferences()
+
 const messages = ref<RawMessage[]>([])
 const selectedKey = ref('')
 const composer = ref('')
@@ -320,393 +240,195 @@ const mobileShowChat = ref(false)
 const fetchError = ref('')
 const sendError = ref('')
 const messageViewport = ref<HTMLElement | null>(null)
-const isNearBottom = ref(true)
 const newMessageNoticeCount = ref(0)
+
 const currentUser = computed(() => storedUser.value || {})
 const defaultAvatarUrl = DEFAULT_AVATAR_URL
-let pollingTimer: number | null = null
 
-const normalizeMessages = (response: any): RawMessage[] => {
-  if (Array.isArray(response)) return response
-  if (Array.isArray(response?.data)) return response.data
-  return []
-}
+// === Conversation Aggregation ===
 
-const isSystemRawMessage = (message: RawMessage) => /^【/.test(message.content || '')
+const toConversationKey = (taskId: number | null, counterpartId: number) =>
+  `${taskId ?? 'no-task'}-${counterpartId}`
 
-const toConversationKey = (taskId: number | null, counterpartId: number) => `${taskId ?? 'no-task'}-${counterpartId}`
+const conversations = computed(() => {
+  const map = new Map<string, {
+    key: string
+    counterpartId: number
+    counterpartName: string
+    counterpartAvatarUrl: string
+    taskId: number | null
+    taskTitle: string
+    unreadCount: number
+    lastMessage: string
+    lastDirection: string
+    lastCreatedAt: string
+    hasSystemReminder: boolean
+    isSystemChannel: boolean
+    messages: any[]
+  }>()
 
-const draftConversation = computed<Conversation | null>(() => {
-  const counterpartId = Number(route.query.userId)
-  if (!counterpartId) return null
+  for (const raw of messages.value) {
+    const isOutgoing = Number(raw.senderId) === Number(currentUser.value?.id)
+    const counterpartId = isOutgoing ? Number(raw.receiverId) : Number(raw.senderId)
+    const taskId = raw.taskId == null ? null : Number(raw.taskId)
+    const isSystem = (raw.content || '').startsWith('【')
 
-  const taskIdValue = route.query.taskId
-  const taskId = taskIdValue ? Number(taskIdValue) : null
-  const key = toConversationKey(Number.isFinite(taskId as number) ? taskId : null, counterpartId)
+    const key = isSystem ? 'system-channel' : toConversationKey(taskId, counterpartId)
 
-  if (messages.value.some((message) => {
-    const isOutgoing = Number(message.senderId) === Number(currentUser.value?.id)
-    const otherUserId = isOutgoing ? Number(message.receiverId) : Number(message.senderId)
-    const messageTaskId = message.taskId == null ? null : Number(message.taskId)
-    return otherUserId === counterpartId && messageTaskId === (Number.isFinite(taskId as number) ? taskId : null)
-  })) {
-    return null
-  }
-
-  return {
-    key,
-    counterpartId,
-    counterpartName: String(route.query.userName || `用户 #${counterpartId}`),
-    counterpartAvatarUrl: defaultAvatarUrl,
-    taskId: Number.isFinite(taskId as number) ? taskId : null,
-    taskTitle: String(route.query.taskTitle || '未关联任务'),
-    unreadCount: 0,
-    lastCreatedAt: undefined,
-    lastMessage: '还没有消息，发一条开始沟通吧。',
-    lastDirection: 'outgoing',
-    messages: [],
-    isDraft: true
-  }
-})
-
-const conversations = computed<Conversation[]>(() => {
-  const map = new Map<string, Conversation>()
-  const currentUserId = Number(currentUser.value?.id)
-  const systemMessages: ConversationMessage[] = []
-
-  for (const rawMessage of [...messages.value].sort((a, b) => new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime())) {
-    const isOutgoing = Number(rawMessage.senderId) === currentUserId
-    if (!isOutgoing && isSystemRawMessage(rawMessage)) {
-      systemMessages.push({
-        ...rawMessage,
-        direction: 'incoming'
-      })
-      continue
-    }
-    const counterpartId = isOutgoing ? Number(rawMessage.receiverId) : Number(rawMessage.senderId)
-    const counterpartName = isOutgoing
-      ? rawMessage.receiverName || `用户 #${rawMessage.receiverId}`
-      : rawMessage.senderName || `用户 #${rawMessage.senderId}`
-    const counterpartAvatarUrl = isOutgoing ? rawMessage.receiverAvatarUrl || defaultAvatarUrl : rawMessage.senderAvatarUrl || defaultAvatarUrl
-    const taskId = rawMessage.taskId == null ? null : Number(rawMessage.taskId)
-    const key = toConversationKey(taskId, counterpartId)
-
-    if (!map.has(key)) {
-      map.set(key, {
+    let conv = map.get(key)
+    if (!conv) {
+      conv = {
         key,
-        counterpartId,
-        counterpartName,
-        counterpartAvatarUrl,
-        taskId,
-        taskTitle: rawMessage.taskTitle || '未关联任务',
+        counterpartId: isSystem ? 0 : counterpartId,
+        counterpartName: isSystem ? '系统通知' : (isOutgoing ? raw.receiverName : raw.senderName) || `用户 #${counterpartId}`,
+        counterpartAvatarUrl: isSystem ? '' : (isOutgoing ? raw.receiverAvatarUrl : raw.senderAvatarUrl) || '',
+        taskId: isSystem ? null : taskId,
+        taskTitle: isSystem ? '系统消息与提醒' : raw.taskTitle || '未关联任务',
         unreadCount: 0,
-        lastCreatedAt: rawMessage.createdAt,
-        lastMessage: rawMessage.content,
-        lastDirection: isOutgoing ? 'outgoing' : 'incoming',
-        messages: [],
+        lastMessage: '',
+        lastDirection: '',
+        lastCreatedAt: '',
         hasSystemReminder: false,
-        isSystemChannel: false
-      })
+        isSystemChannel: isSystem,
+        messages: []
+      }
+      map.set(key, conv)
     }
 
-    const conversation = map.get(key)!
-    conversation.messages.push({
-      ...rawMessage,
-      direction: isOutgoing ? 'outgoing' : 'incoming'
+    conv.messages.push({
+      ...raw,
+      direction: isSystem ? 'system' : isOutgoing ? 'outgoing' : 'incoming',
+      taskId: raw.taskId == null ? null : Number(raw.taskId)
     })
-    conversation.lastCreatedAt = rawMessage.createdAt
-    conversation.lastMessage = rawMessage.content
-    conversation.lastDirection = isOutgoing ? 'outgoing' : 'incoming'
 
-    if (!isOutgoing && rawMessage.status === 'unread') {
-      conversation.unreadCount += 1
-    }
-    if (!isOutgoing && /^【/.test(rawMessage.content || '')) {
-      conversation.hasSystemReminder = true
-    }
+    if (!isOutgoing && raw.status !== 'read') conv.unreadCount++
+    if (isSystem) conv.hasSystemReminder = true
   }
 
-  const list = Array.from(map.values())
-    .map((conversation) => ({
-      ...conversation,
-      messages: conversation.messages.sort((a, b) => new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime())
-    }))
-    .sort((a, b) => new Date(b.lastCreatedAt || 0).getTime() - new Date(a.lastCreatedAt || 0).getTime())
-
-  if (systemMessages.length > 0) {
-    const unreadCount = systemMessages.filter((message) => message.status === 'unread').length
-    const lastMessage = systemMessages[systemMessages.length - 1]
-    list.unshift({
-      key: 'system-channel',
-      counterpartId: 0,
-      counterpartName: '系统提醒',
-      counterpartAvatarUrl: defaultAvatarUrl,
-      taskId: null,
-      taskTitle: '任务、帖子与互评提醒',
-      unreadCount,
-      lastCreatedAt: lastMessage?.createdAt,
-      lastMessage: lastMessage?.content || '暂无系统提醒',
-      lastDirection: 'incoming',
-      messages: systemMessages,
-      hasSystemReminder: true,
-      isSystemChannel: true
-    })
-  }
-
-  if (draftConversation.value) {
-    const insertIndex = list.findIndex((conversation) => !conversation.isSystemChannel)
-    if (insertIndex === -1) {
-      list.push(draftConversation.value)
-    } else {
-      list.splice(insertIndex, 0, draftConversation.value)
+  const result = Array.from(map.values())
+  for (const conv of result) {
+    conv.messages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+    const last = conv.messages[conv.messages.length - 1]
+    if (last) {
+      conv.lastMessage = last.content
+      conv.lastDirection = last.direction
+      conv.lastCreatedAt = last.createdAt
     }
   }
 
-  return list
+  result.sort((a, b) => new Date(b.lastCreatedAt || 0).getTime() - new Date(a.lastCreatedAt || 0).getTime())
+
+  // System channel always at top
+  const systemChannel = result.find(c => c.isSystemChannel)
+  const regularChannels = result.filter(c => !c.isSystemChannel)
+  return systemChannel ? [systemChannel, ...regularChannels] : regularChannels
 })
-
-const unreadConversationCount = computed(() => conversations.value.filter((conversation) => conversation.unreadCount > 0).length)
 
 const filteredConversations = computed(() => {
-  if (!showUnreadOnly.value) return conversations.value
-  return conversations.value.filter((conversation) => conversation.unreadCount > 0)
+  if (showUnreadOnly.value) return conversations.value.filter(c => c.unreadCount > 0)
+  return conversations.value
 })
 
-const selectedConversation = computed(() => conversations.value.find((conversation) => conversation.key === selectedKey.value) || null)
-const canViewSelectedTaskDetail = computed(() => (
-  !selectedConversation.value?.isSystemChannel && selectedConversation.value?.taskId != null
-))
+const selectedConversation = computed(() =>
+  conversations.value.find(c => c.key === selectedKey.value) || null
+)
 
-const groupedSelectedMessages = computed<MessageGroup[]>(() => {
-  if (!selectedConversation.value) return []
+const canViewSelectedTaskDetail = computed(() => {
+  const c = selectedConversation.value
+  return c && c.taskId && !c.isSystemChannel
+})
 
-  const groups: MessageGroup[] = []
-  for (const message of selectedConversation.value.messages) {
-    const label = formatMessageGroupLabel(message.createdAt)
-    const lastGroup = groups[groups.length - 1]
-    if (!lastGroup || lastGroup.label !== label) {
-      groups.push({ label, messages: [message] })
-      continue
+// === Message grouping for chat ===
+
+const chatMessageGroups = computed(() => {
+  const msgs = selectedConversation.value?.messages || []
+  if (!msgs.length) return []
+
+  const groups: { label: string; items: any[] }[] = []
+  let currentLabel = ''
+  let currentItems: any[] = []
+
+  for (const msg of msgs) {
+    const label = formatLocaleDateLabel(msg.createdAt) || ''
+
+    if (label !== currentLabel) {
+      if (currentItems.length) groups.push({ label: currentLabel, items: currentItems })
+      currentLabel = label
+      currentItems = []
     }
-    lastGroup.messages.push(message)
+    currentItems.push(msg)
   }
+  if (currentItems.length) groups.push({ label: currentLabel, items: currentItems })
 
   return groups
 })
 
-const formatCreatedAt = (value?: string) => {
-  return formatLocaleDateTime(value, {
-    month: 'numeric',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  }, '刚刚')
-}
+// === Helpers ===
 
-const formatMessageGroupLabel = (value?: string) => {
-  if (!value) return '刚刚'
-
-  const date = new Date(value)
-  const today = new Date()
-  const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate())
-  const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate())
-  const diffDays = Math.round((todayOnly.getTime() - dateOnly.getTime()) / 86400000)
-
-  if (diffDays === 0) return '今天'
-  if (diffDays === 1) return '昨天'
-
-  return formatLocaleDateLabel(value, {
-    month: 'long',
-    day: 'numeric',
-    weekday: 'long'
-  }, '刚刚')
-}
-
-const scrollMessagesToBottom = async (behavior: ScrollBehavior = 'smooth') => {
-  await nextTick()
-  if (!messageViewport.value) return
-  messageViewport.value.scrollTo({
-    top: messageViewport.value.scrollHeight,
-    behavior
-  })
-  isNearBottom.value = true
-  newMessageNoticeCount.value = 0
-}
-
-const updateNearBottomState = () => {
-  if (!messageViewport.value) {
-    isNearBottom.value = true
-    return
+const formatTime = (d?: string) => {
+  if (!d) return ''
+  const date = new Date(d)
+  const now = new Date()
+  const diff = now.getTime() - date.getTime()
+  if (diff < 86400000 && date.getDate() === now.getDate()) {
+    return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
   }
-
-  const distanceToBottom =
-    messageViewport.value.scrollHeight - messageViewport.value.scrollTop - messageViewport.value.clientHeight
-  isNearBottom.value = distanceToBottom < 96
-  if (isNearBottom.value) {
-    newMessageNoticeCount.value = 0
-  }
+  if (diff < 172800000 && date.getDate() === now.getDate() - 1) return '昨天'
+  return date.toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' })
 }
 
-const handleMessageScroll = () => {
-  updateNearBottomState()
+const formatMessageTime = (d?: string) => {
+  if (!d) return ''
+  const date = new Date(d)
+  return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
 }
 
-const jumpToLatestMessages = () => {
-  scrollMessagesToBottom()
+const autoResize = (e: Event) => {
+  const el = e.target as HTMLTextAreaElement
+  el.style.height = 'auto'
+  el.style.height = Math.min(el.scrollHeight, 140) + 'px'
 }
 
-const openSelectedTaskDetail = () => {
-  if (!canViewSelectedTaskDetail.value || selectedConversation.value?.taskId == null) return
-  router.push(`/detail/${selectedConversation.value.taskId}`)
-}
-
-const isSystemMessage = (message: ConversationMessage) => (
-  message.direction === 'incoming' && /^【/.test(message.content || '')
-)
-
-const resolveMessageBubbleClass = (message: ConversationMessage) => {
-  if (message.direction === 'outgoing') {
-    return 'bg-teal-900 text-white rounded-br-md'
-  }
-  if (isSystemMessage(message)) {
-    return 'rounded-bl-md border border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 text-amber-950'
-  }
-  return 'bg-white text-on-surface rounded-bl-md border border-outline-variant/15'
-}
-
-const getMessageAction = (message: ConversationMessage) => {
-  if (!message.taskId || !isSystemMessage(message)) {
-    return null
-  }
-
-  const content = String(message.content || '')
-  if (content.includes('互评') || content.includes('评价')) {
-    return { label: '进入互评页', icon: 'rate_review' }
-  }
-  if (content.includes('帖子') || content.includes('评论') || content.includes('回复')) {
-    return { label: '查看帖子详情', icon: 'forum' }
-  }
-  return { label: '查看需求详情', icon: 'open_in_new' }
-}
-
-const handleMessageAction = (message: ConversationMessage) => {
-  if (!message.taskId) return
-  const action = getMessageAction(message)
-  if (!action) return
-
-  if (action.label === '进入互评页') {
-    router.push(`/detail/${message.taskId}/review`)
-    return
-  }
-
-  router.push(`/detail/${message.taskId}`)
-}
-
-const syncSelectedConversation = () => {
-  const counterpartId = Number(route.query.userId)
-  const taskIdValue = route.query.taskId
-  const parsedTaskId = taskIdValue ? Number(taskIdValue) : null
-  const taskId = Number.isFinite(parsedTaskId as number) ? parsedTaskId : null
-
-  if (counterpartId) {
-    const key = toConversationKey(taskId, counterpartId)
-    const matched = conversations.value.find((conversation) => conversation.key === key)
-    if (matched) {
-      selectedKey.value = matched.key
-      return
-    }
-  }
-
-  if (!selectedKey.value && filteredConversations.value.length > 0) {
-    selectedKey.value = filteredConversations.value[0].key
-    return
-  }
-
-  if (selectedKey.value && !filteredConversations.value.some((conversation) => conversation.key === selectedKey.value)) {
-    selectedKey.value = filteredConversations.value[0]?.key || conversations.value[0]?.key || ''
-  }
-}
-
-const markConversationAsRead = async (conversation: Conversation | null) => {
-  if (!conversation) return
-
-  const unreadIncoming = conversation.messages.filter((message) => message.direction === 'incoming' && message.status === 'unread')
-  if (unreadIncoming.length === 0) return
-
-  const ids = unreadIncoming.map(m => m.id)
-  try {
-    await messageApi.markAsReadBatch(ids)
-    for (const id of ids) {
-      const target = messages.value.find((item) => item.id === id)
-      if (target) target.status = 'read'
-    }
-  } catch (error) {
-    console.error('标记已读失败:', error)
-  }
-}
-
-const selectConversation = (key: string) => {
-  selectedKey.value = key
-  mobileShowChat.value = true
-}
+// === Data Fetching ===
 
 const fetchMessages = async (options?: { silent?: boolean }) => {
   const silent = options?.silent ?? false
-  if (!silent) {
-    loading.value = true
-  }
-  if (!silent) {
-    fetchError.value = ''
-  }
+  if (!silent) { loading.value = true; fetchError.value = '' }
 
   try {
     const response = await messageApi.getMessages() as RawMessage[]
-    const previousSelectedKey = selectedKey.value
-    const previousMessageCount = selectedConversation.value?.messages.length ?? 0
-    const previousSelectedConversation = selectedConversation.value
-    const previousIncomingIds = new Set(
-      (previousSelectedConversation?.messages || [])
-        .filter((message) => message.direction === 'incoming')
-        .map((message) => message.id)
-    )
-    messages.value = normalizeMessages(response)
-    syncSelectedConversation()
-    const nextSelectedConversation =
-      conversations.value.find((conversation) => conversation.key === (selectedKey.value || previousSelectedKey)) || null
-    const nextMessageCount = nextSelectedConversation?.messages.length ?? 0
-    const newIncomingCount = (nextSelectedConversation?.messages || []).filter(
-      (message) => message.direction === 'incoming' && !previousIncomingIds.has(message.id)
-    ).length
-    if (nextMessageCount > previousMessageCount) {
-      if (newIncomingCount > 0 && !isNearBottom.value) {
-        newMessageNoticeCount.value += newIncomingCount
-      } else {
-        scrollMessagesToBottom(silent ? 'auto' : 'smooth')
+
+    if (silent && messages.value.length > 0) {
+      const existingIds = new Set(messages.value.map(m => m.id))
+      const newMessages = response.filter(m => !existingIds.has(m.id))
+      if (newMessages.length > 0) {
+        messages.value = [...messages.value, ...newMessages]
+        if (selectedConversation.value && !mobileShowChat.value) {
+          newMessageNoticeCount.value += newMessages.filter(
+            m => Number(m.receiverId) === Number(currentUser.value?.id)
+          ).length
+        }
+      }
+    } else {
+      const previousCount = messages.value.length
+      messages.value = response
+      if (silent && response.length !== previousCount && selectedConversation.value && !mobileShowChat.value) {
+        newMessageNoticeCount.value += Math.max(0, response.length - previousCount)
       }
     }
   } catch (error) {
     console.error('获取消息失败:', error)
-    if (!silent) {
-      fetchError.value = '获取消息失败，请稍后重试。'
-      messages.value = []
-    }
+    if (!silent) fetchError.value = '获取消息失败，请稍后重试。'
   } finally {
-    if (!silent) {
-      loading.value = false
-    }
+    if (!silent) loading.value = false
   }
 }
 
-const handleRefreshMessages = () => {
-  fetchMessages()
-}
+const handleRefreshMessages = () => fetchMessages()
 
 const handleSendMessage = async () => {
   if (!selectedConversation.value) return
-  if (!composer.value.trim()) {
-    sendError.value = '请输入消息内容。'
-    return
-  }
+  if (!composer.value.trim()) { sendError.value = '请输入消息内容。'; return }
 
   sending.value = true
   sendError.value = ''
@@ -717,62 +439,83 @@ const handleSendMessage = async () => {
       taskId: selectedConversation.value.taskId ?? undefined,
       content: composer.value.trim()
     }) as Record<string, any>
+
     messages.value.push({
-      ...payload,
-      id: Number(payload.id ?? Date.now()),
-      senderId: Number(payload.senderId ?? currentUser.value?.id),
-      receiverId: Number(payload.receiverId ?? selectedConversation.value.counterpartId),
-      taskId: payload.taskId ?? selectedConversation.value.taskId,
-      content: payload.content ?? composer.value.trim(),
-      status: payload.status ?? 'read',
-      createdAt: payload.createdAt ?? new Date().toISOString(),
-      senderName: payload.senderName ?? currentUser.value?.name,
-      senderAvatarUrl: payload.senderAvatarUrl ?? currentUser.value?.avatarUrl,
-      receiverName: payload.receiverName ?? selectedConversation.value.counterpartName,
-      receiverAvatarUrl: payload.receiverAvatarUrl ?? selectedConversation.value.counterpartAvatarUrl,
-      taskTitle: payload.taskTitle ?? selectedConversation.value.taskTitle
+      id: payload.id || Date.now(),
+      senderId: Number(currentUser.value?.id),
+      receiverId: selectedConversation.value.counterpartId,
+      taskId: selectedConversation.value.taskId ?? null,
+      content: composer.value.trim(),
+      createdAt: payload.createdAt || new Date().toISOString(),
+      status: 'read'
     })
+
     composer.value = ''
-    syncSelectedConversation()
-    scrollMessagesToBottom()
-  } catch (error) {
-    console.error('发送消息失败:', error)
-    sendError.value = '发送消息失败，请稍后重试。'
+    scrollMessagesToBottom('smooth')
+  } catch (err: any) {
+    sendError.value = err?.response?.data?.message || '发送失败，请稍后重试。'
   } finally {
     sending.value = false
   }
 }
 
-watch(
-  () => [route.query.userId, route.query.taskId, messages.value.length, showUnreadOnly.value],
-  () => {
-    syncSelectedConversation()
+const markConversationAsRead = async (conv: any) => {
+  if (!conv) return
+  const unreadIds = (conv.messages || [])
+    .filter((m: any) => m.direction === 'incoming' && m.status !== 'read')
+    .map((m: any) => Number(m.id))
+  if (unreadIds.length > 0) {
+    try {
+      await messageApi.markAsReadBatch(unreadIds)
+      for (const id of unreadIds) {
+        const msg = messages.value.find(m => m.id === id)
+        if (msg) msg.status = 'read'
+      }
+    } catch { /* ignore */ }
   }
-)
+}
 
-watch(
-  selectedConversation,
-  (conversation) => {
-    markConversationAsRead(conversation)
-    sendError.value = ''
+const selectConversation = (key: string) => {
+  selectedKey.value = key
+  mobileShowChat.value = true
+  newMessageNoticeCount.value = 0
+}
+
+const scrollMessagesToBottom = (behavior: ScrollBehavior = 'auto') => {
+  nextTick(() => {
+    const el = messageViewport.value
+    if (el) el.scrollTo({ top: el.scrollHeight, behavior })
+  })
+}
+
+const handleScroll = () => {
+  const el = messageViewport.value
+  if (!el) return
+  const threshold = 60
+  if (el.scrollHeight - el.scrollTop - el.clientHeight < threshold) {
     newMessageNoticeCount.value = 0
-    if (conversation) {
-      scrollMessagesToBottom('auto')
-    }
-  },
-  { immediate: true }
-)
+  }
+}
 
+// === Watch & Lifecycle ===
+
+watch(selectedConversation, (conv) => {
+  markConversationAsRead(conv)
+  sendError.value = ''
+  if (conv) scrollMessagesToBottom('auto')
+}, { immediate: true })
+
+let pollingTimer: number | null = null
 let lastUnreadCount = 0
 
 onMounted(async () => {
   await fetchMessages()
+
   try {
     const res = await messageApi.getUnreadCount() as any
     lastUnreadCount = res?.count ?? 0
   } catch { /* ignore */ }
 
-  // Poll unread count (lightweight), only refetch full messages when count changes
   pollingTimer = window.setInterval(async () => {
     try {
       const res = await messageApi.getUnreadCount() as any
@@ -781,7 +524,7 @@ onMounted(async () => {
         lastUnreadCount = currentCount
         await fetchMessages({ silent: true })
       }
-    } catch { /* ignore polling errors */ }
+    } catch { /* ignore */ }
   }, 5000)
 })
 

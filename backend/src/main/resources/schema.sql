@@ -93,6 +93,7 @@ CREATE TABLE IF NOT EXISTS tasks (
     impact_text VARCHAR(255) NULL,
     map_image_url VARCHAR(500) NULL,
     contact_info VARCHAR(255) NULL,
+    image_urls JSON NULL,
     review_status VARCHAR(32) NOT NULL DEFAULT 'approved',
     review_note VARCHAR(255) NULL,
     reviewed_by BIGINT NULL,
@@ -651,4 +652,29 @@ CREATE TABLE IF NOT EXISTS user_verifications (
     PRIMARY KEY (id),
     KEY idx_user_verifications_user_id (user_id),
     KEY idx_user_verifications_status (status)
+);
+
+CREATE TABLE IF NOT EXISTS notifications (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    type VARCHAR(50) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    reference_type VARCHAR(50) NULL,
+    reference_id BIGINT NULL,
+    is_read TINYINT(1) NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    KEY idx_notifications_user_id_read (user_id, is_read),
+    KEY idx_notifications_created_at (created_at)
+);
+
+CREATE TABLE IF NOT EXISTS task_favorites (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    task_id BIGINT NOT NULL,
+    created_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_task_favorites_user_task (user_id, task_id),
+    KEY idx_task_favorites_user_id (user_id)
 );

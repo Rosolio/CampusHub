@@ -89,4 +89,12 @@
     <delete id="delete" parameterType="java.lang.Long">
         DELETE FROM feedback WHERE id = #{id}
     </delete>
+
+    <select id="countByStatus" resultType="int">
+        SELECT COUNT(*) FROM feedback WHERE status = #{status}
+    </select>
+
+    <select id="countAll" resultType="int">
+        SELECT COUNT(*) FROM feedback
+    </select>
 </mapper>

@@ -1,6 +1,5 @@
 <template>
   <div class="page-shell bg-surface font-body text-on-surface">
-    <AppTopNav />
 
     <main class="page-shell-main page-shell-main--narrow">
       <PageBackHeader />
@@ -112,12 +111,9 @@
       </div>
     </main>
 
-    <AppBottomNav />
   </div>
 </template>
 
 <script setup lang="ts">
-import AppBottomNav from '../../components/AppBottomNav.vue'
-import AppTopNav from '../../components/AppTopNav.vue'
 import PageBackHeader from '../../components/PageBackHeader.vue'
 </script>

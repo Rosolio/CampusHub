@@ -13,4 +13,5 @@ public interface UserVerificationMapper {
     int insert(UserVerification verification);
     int update(UserVerification verification);
     int delete(Long id);
+    int countPendingVerifications();
 }

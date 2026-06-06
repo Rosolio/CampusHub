@@ -171,6 +171,16 @@ public class AdminController {
             .body(resource);
     }
 
+    @PutMapping("/users/batch-status")
+    public Map<String, Object> batchUpdateUserStatus(@RequestBody Map<String, Object> body, Authentication authentication) {
+        return adminService.batchUpdateUserStatus(getCurrentUserId(authentication), body);
+    }
+
+    @PutMapping("/tasks/batch-review")
+    public Map<String, Object> batchReviewTasks(@RequestBody Map<String, Object> body, Authentication authentication) {
+        return adminService.batchReviewTasks(getCurrentUserId(authentication), body);
+    }
+
     private Long getCurrentUserId(Authentication authentication) {
         return Long.parseLong(authentication.getName());
     }

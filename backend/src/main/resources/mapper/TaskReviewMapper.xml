@@ -22,9 +22,9 @@
     <select id="selectById" resultMap="TaskReviewResultMap">
         SELECT tr.*,
                reviewer.name AS reviewer_name,
-               reviewer.avatar_url AS reviewer_avatar_url,
+               CASE WHEN reviewer.avatar_url LIKE 'data:%' THEN NULL ELSE reviewer.avatar_url END AS reviewer_avatar_url,
                reviewee.name AS reviewee_name,
-               reviewee.avatar_url AS reviewee_avatar_url
+               CASE WHEN reviewee.avatar_url LIKE 'data:%' THEN NULL ELSE reviewee.avatar_url END AS reviewee_avatar_url
         FROM task_reviews tr
         LEFT JOIN users reviewer ON tr.reviewer_id = reviewer.id
         LEFT JOIN users reviewee ON tr.reviewee_id = reviewee.id
@@ -34,9 +34,9 @@
     <select id="selectByTaskId" resultMap="TaskReviewResultMap">
         SELECT tr.*,
                reviewer.name AS reviewer_name,
-               reviewer.avatar_url AS reviewer_avatar_url,
+               CASE WHEN reviewer.avatar_url LIKE 'data:%' THEN NULL ELSE reviewer.avatar_url END AS reviewer_avatar_url,
                reviewee.name AS reviewee_name,
-               reviewee.avatar_url AS reviewee_avatar_url
+               CASE WHEN reviewee.avatar_url LIKE 'data:%' THEN NULL ELSE reviewee.avatar_url END AS reviewee_avatar_url
         FROM task_reviews tr
         LEFT JOIN users reviewer ON tr.reviewer_id = reviewer.id
         LEFT JOIN users reviewee ON tr.reviewee_id = reviewee.id
@@ -57,9 +57,9 @@
     <select id="selectByTaskIdAndReviewerId" resultMap="TaskReviewResultMap">
         SELECT tr.*,
                reviewer.name AS reviewer_name,
-               reviewer.avatar_url AS reviewer_avatar_url,
+               CASE WHEN reviewer.avatar_url LIKE 'data:%' THEN NULL ELSE reviewer.avatar_url END AS reviewer_avatar_url,
                reviewee.name AS reviewee_name,
-               reviewee.avatar_url AS reviewee_avatar_url
+               CASE WHEN reviewee.avatar_url LIKE 'data:%' THEN NULL ELSE reviewee.avatar_url END AS reviewee_avatar_url
         FROM task_reviews tr
         LEFT JOIN users reviewer ON tr.reviewer_id = reviewer.id
         LEFT JOIN users reviewee ON tr.reviewee_id = reviewee.id

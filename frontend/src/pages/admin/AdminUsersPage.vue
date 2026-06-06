@@ -38,77 +38,65 @@
         </div>
       </div>
 
-      <div class="mt-6 overflow-hidden rounded-3xl border border-slate-200 bg-white">
-        <div class="hidden grid-cols-[1.1fr_1fr_1fr_0.8fr_1.3fr] gap-4 border-b border-slate-200 bg-slate-50 px-5 py-4 text-[11px] font-extrabold uppercase tracking-[0.2em] text-slate-500 lg:grid">
-          <span>用户</span>
-          <span>学号 / 邮箱</span>
-          <span>专业</span>
-          <span>状态</span>
-          <span>操作</span>
-        </div>
-
-        <div v-if="paginatedUsers.length === 0" class="px-5 py-10 text-center text-sm font-medium text-slate-500">
-          没有匹配的用户。
-        </div>
-
-        <div v-else>
-          <div
-            v-for="user in paginatedUsers"
-            :key="user.id"
-            class="border-b border-slate-200 px-5 py-4 last:border-b-0"
-          >
-            <div class="grid gap-4 lg:grid-cols-[1.1fr_1fr_1fr_0.8fr_1.3fr] lg:items-center">
-              <div class="min-w-0">
-                <div class="flex flex-wrap items-center gap-2">
-                  <p class="text-sm font-extrabold text-slate-900">{{ user.name }}</p>
-                  <span v-if="user.role === 'ADMIN'" class="rounded-full bg-slate-950 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.14em] text-white">
-                    Admin
-                  </span>
+      <div class="mt-6 overflow-x-auto rounded-2xl border border-slate-200 bg-white">
+        <table class="w-full min-w-[700px]">
+          <thead>
+            <tr class="border-b border-slate-200 bg-slate-50 text-left text-[11px] font-extrabold uppercase tracking-[0.2em] text-slate-500">
+              <th class="px-5 py-3 w-[20%]">用户</th>
+              <th class="px-5 py-3 w-[20%]">学号 / 邮箱</th>
+              <th class="px-5 py-3 w-[12%]">专业</th>
+              <th class="px-5 py-3 w-[10%]">状态</th>
+              <th class="px-5 py-3 w-[18%]">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-if="paginatedUsers.length === 0">
+              <td colspan="5" class="px-5 py-10 text-center text-sm font-medium text-slate-500">
+                没有匹配的用户。
+              </td>
+            </tr>
+            <tr
+              v-for="user in paginatedUsers"
+              :key="user.id"
+              class="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/50 transition-colors"
+            >
+              <td class="px-5 py-3.5">
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-extrabold text-slate-900">{{ user.name }}</span>
+                  <span v-if="user.role === 'ADMIN'" class="rounded-full bg-slate-950 px-2 py-1 text-[9px] font-extrabold uppercase tracking-[0.14em] text-white">Admin</span>
                 </div>
-                <p v-if="user.disabledReason" class="mt-1 text-xs font-semibold text-rose-700">禁用原因：{{ user.disabledReason }}</p>
-              </div>
-
-              <div class="min-w-0 text-sm text-slate-600">
+                <p v-if="user.disabledReason" class="mt-0.5 text-[11px] font-semibold text-rose-600">禁用原因：{{ user.disabledReason }}</p>
+              </td>
+              <td class="px-5 py-3.5 text-sm">
                 <p class="font-bold text-slate-800">{{ user.studentId }}</p>
-                <p class="truncate">{{ user.email }}</p>
-              </div>
-
-              <div class="text-sm font-medium text-slate-600">
-                {{ user.major || '未填写专业' }}
-              </div>
-
-              <div>
+                <p class="truncate text-slate-500 text-xs">{{ user.email }}</p>
+              </td>
+              <td class="px-5 py-3.5 text-sm text-slate-600">{{ user.major || '-' }}</td>
+              <td class="px-5 py-3.5">
                 <span
-                  class="rounded-full px-3 py-1 text-xs font-extrabold uppercase tracking-[0.14em]"
-                  :class="user.status === 'ACTIVE' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-700'"
-                >
-                  {{ userStatusLabel(user.status) }}
-                </span>
-              </div>
-
-              <div class="flex flex-wrap gap-2">
-                <button
-                  v-if="user.role !== 'ADMIN'"
-                  type="button"
-                  class="rounded-xl bg-slate-900 px-3 py-2 text-xs font-extrabold text-white transition hover:bg-slate-800 disabled:opacity-45"
-                  :disabled="pendingUserIds.has(user.id) || user.status === 'ACTIVE'"
-                  @click="changeUserStatus(user, 'ACTIVE')"
-                >
-                  启用
-                </button>
-                <button
-                  v-if="user.role !== 'ADMIN'"
-                  type="button"
-                  class="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-extrabold text-rose-700 transition hover:bg-rose-100 disabled:opacity-45"
-                  :disabled="pendingUserIds.has(user.id) || user.status === 'DISABLED'"
-                  @click="changeUserStatus(user, 'DISABLED')"
-                >
-                  禁用
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+                  class="rounded-full px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.12em]"
+                  :class="user.status === 'ACTIVE' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'"
+                >{{ userStatusLabel(user.status) }}</span>
+              </td>
+              <td class="px-5 py-3.5">
+                <div class="flex gap-2">
+                  <button
+                    v-if="user.role !== 'ADMIN'"
+                    class="rounded-lg bg-slate-900 px-3 py-1.5 text-[11px] font-extrabold text-white hover:bg-slate-800 disabled:opacity-40"
+                    :disabled="pendingUserIds.has(user.id) || user.status === 'ACTIVE'"
+                    @click="changeUserStatus(user, 'ACTIVE')"
+                  >启用</button>
+                  <button
+                    v-if="user.role !== 'ADMIN'"
+                    class="rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-[11px] font-extrabold text-rose-600 hover:bg-rose-100 disabled:opacity-40"
+                    :disabled="pendingUserIds.has(user.id) || user.status === 'DISABLED'"
+                    @click="changeUserStatus(user, 'DISABLED')"
+                  >禁用</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
       <div class="flex flex-col gap-3 pt-2 md:flex-row md:items-center md:justify-between">
@@ -135,6 +123,31 @@
         </div>
       </div>
     </section>
+
+    <div v-if="showDisableDialog" class="fixed inset-0 z-[70] flex items-center justify-center bg-slate-950/45 px-6" @click.self="showDisableDialog = false">
+      <div class="w-full max-w-lg rounded-[2rem] bg-white p-8 shadow-2xl">
+        <div class="mb-6 flex items-start justify-between gap-4">
+          <div>
+            <h3 class="text-xl font-extrabold text-slate-900">禁用用户</h3>
+            <p class="mt-1 text-sm text-slate-500">{{ disableTargetUser?.name }} ({{ disableTargetUser?.studentId }})</p>
+          </div>
+          <button type="button" class="rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600" @click="showDisableDialog = false">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        <label class="block text-sm font-bold text-slate-700 mb-2">禁用原因</label>
+        <textarea
+          v-model="disableReason"
+          class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-rose-300 focus:ring-2 focus:ring-rose-100"
+          rows="3"
+          placeholder="请输入禁用原因..."
+        ></textarea>
+        <div class="mt-6 flex items-center justify-end gap-3">
+          <button type="button" class="rounded-xl px-5 py-3 text-sm font-bold text-slate-600 hover:bg-slate-100" @click="showDisableDialog = false">取消</button>
+          <button type="button" class="rounded-xl bg-rose-600 px-5 py-3 text-sm font-bold text-white hover:bg-rose-700 disabled:opacity-50" @click="confirmDisableUser">确认禁用</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -178,14 +191,41 @@ const loadUsers = async () => {
   }
 }
 
+const showDisableDialog = ref(false)
+const disableReason = ref('')
+const disableTargetUser = ref<AdminUser | null>(null)
+
+const openDisableDialog = (user: AdminUser) => {
+  disableTargetUser.value = user
+  disableReason.value = user.disabledReason || '违规内容发布'
+  showDisableDialog.value = true
+}
+
+const confirmDisableUser = async () => {
+  const user = disableTargetUser.value
+  if (!user) return
+  showDisableDialog.value = false
+  pendingUserIds.value.add(user.id)
+  try {
+    await adminApi.updateUserStatus(user.id, { status: 'DISABLED', disabledReason: disableReason.value || '违规内容发布' })
+    await loadUsers()
+  } catch (err: any) {
+    error.value = err?.response?.data?.message || '用户状态更新失败'
+  } finally {
+    pendingUserIds.value.delete(user.id)
+    disableTargetUser.value = null
+  }
+}
+
 const changeUserStatus = async (user: AdminUser, status: 'ACTIVE' | 'DISABLED') => {
-  const reason = status === 'DISABLED'
-    ? window.prompt('请输入禁用原因', user.disabledReason || '违规内容发布') || ''
-    : ''
+  if (status === 'DISABLED') {
+    openDisableDialog(user)
+    return
+  }
 
   pendingUserIds.value.add(user.id)
   try {
-    await adminApi.updateUserStatus(user.id, { status, disabledReason: reason })
+    await adminApi.updateUserStatus(user.id, { status, disabledReason: '' })
     await loadUsers()
   } catch (err: any) {
     error.value = err?.response?.data?.message || '用户状态更新失败'

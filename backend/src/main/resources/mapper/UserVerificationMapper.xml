@@ -63,4 +63,8 @@
     <delete id="delete" parameterType="java.lang.Long">
         DELETE FROM user_verifications WHERE id = #{id}
     </delete>
+
+    <select id="countPendingVerifications" resultType="int">
+        SELECT COUNT(*) FROM user_verifications WHERE status = 'PENDING'
+    </select>
 </mapper>

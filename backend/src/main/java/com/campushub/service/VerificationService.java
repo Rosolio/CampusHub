@@ -16,13 +16,16 @@ public class VerificationService {
     private final UserVerificationMapper verificationMapper;
     private final UserMapper userMapper;
     private final MessageService messageService;
+    private final NotificationService notificationService;
     private final RedisTemplate<String, Object> redisTemplate;
 
     public VerificationService(UserVerificationMapper verificationMapper, UserMapper userMapper,
-                               MessageService messageService, RedisTemplate<String, Object> redisTemplate) {
+                               MessageService messageService, NotificationService notificationService,
+                               RedisTemplate<String, Object> redisTemplate) {
         this.verificationMapper = verificationMapper;
         this.userMapper = userMapper;
         this.messageService = messageService;
+        this.notificationService = notificationService;
         this.redisTemplate = redisTemplate;
     }
 
@@ -76,6 +79,14 @@ public class VerificationService {
             4L, userId, null,
             "您的校园认证申请已提交，请耐心等待管理员审核。"
         );
+        notificationService.createNotification(
+            userId,
+            "VERIFICATION_RESULT",
+            "认证申请已提交",
+            "您的校园认证申请已提交，请耐心等待管理员审核",
+            "verification",
+            null
+        );
 
         return verificationMapper.selectByUserId(userId);
     }
@@ -111,6 +122,14 @@ public class VerificationService {
                 4L, verification.getUserId(), null,
                 "恭喜，您的校园认证已通过！"
             );
+            notificationService.createNotification(
+                verification.getUserId(),
+                "VERIFICATION_RESULT",
+                "认证已通过",
+                "恭喜，您的校园认证已通过！",
+                "verification",
+                verificationId
+            );
         } else if ("REJECTED".equals(status)) {
             verification.setRejectReason(rejectReason);
             userMapper.updateVerifiedStatus(verification.getUserId(), "NONE");
@@ -118,6 +137,14 @@ public class VerificationService {
             messageService.sendSystemTaskMessage(
                 4L, verification.getUserId(), null,
                 "您的校园认证未通过，原因：" + (rejectReason != null ? rejectReason : "资料不符合要求") + "。请重新上传资料。"
+            );
+            notificationService.createNotification(
+                verification.getUserId(),
+                "VERIFICATION_RESULT",
+                "认证未通过",
+                "您的校园认证未通过，原因：" + (rejectReason != null ? rejectReason : "资料不符合要求"),
+                "verification",
+                verificationId
             );
         } else {
             throw new RuntimeException("无效的审核状态");

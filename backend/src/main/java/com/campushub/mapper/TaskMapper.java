@@ -35,4 +35,16 @@ public interface TaskMapper {
     int insert(Task task);
     int update(Task task);
     int delete(Long id);
+
+    /** Search tasks by keyword across title, description, category, location */
+    List<Task> searchTasks(@Param("keyword") String keyword,
+                           @Param("mode") String mode,
+                           @Param("offset") int offset,
+                           @Param("size") int size);
+
+    int countSearchTasks(@Param("keyword") String keyword,
+                         @Param("mode") String mode);
+
+    /** Find tasks past expiry that are still pending */
+    List<Task> selectExpiredPendingTasks(@Param("now") LocalDateTime now);
 }

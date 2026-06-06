@@ -1,9 +1,8 @@
 <template>
   <div class="page-shell min-h-screen bg-background text-on-background">
-    <AppTopNav :avatar-url="currentUser.avatarUrl || defaultAvatarUrl" />
 
     <main class="page-shell-main max-w-6xl">
-      <PageBackHeader to="/" label="返回列表" />
+      <PageBackHeader :to="isTopicPost ? '/home?tab=topic' : '/home'" label="返回列表" />
 
       <div v-if="feedbackMessage" class="mb-6 rounded-2xl border px-4 py-3 text-sm font-medium" :class="feedbackType === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-rose-200 bg-rose-50 text-rose-700'">
         {{ feedbackMessage }}
@@ -48,11 +47,22 @@
                 {{ request.description || '暂无详细描述。' }}
               </p>
 
+              <div v-if="detailImages.length > 0" class="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                <div
+                  v-for="(img, idx) in detailImages"
+                  :key="idx"
+                  class="aspect-square cursor-pointer overflow-hidden rounded-2xl"
+                  @click="showImageLightbox = true; lightboxIndex = idx"
+                >
+                  <img :src="img" class="h-full w-full object-cover" :alt="'图片 ' + (idx + 1)" />
+                </div>
+              </div>
+
               <div class="mt-6 flex flex-wrap items-center gap-3">
                 <button
                   type="button"
                   class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition-all"
-                  :class="isTopicLiked ? 'bg-white text-rose-600' : 'border border-white/20 bg-white/10 text-white hover:bg-white/20'"
+                  :class="[isTopicLiked ? 'bg-white text-rose-600' : 'border border-white/20 bg-white/10 text-white hover:bg-white/20', likeAnimating ? 'like-animate' : '']"
                   :disabled="topicLikeLoading || isOwnTask || isExpiredTopic"
                   @click="toggleTopicLike"
                 >
@@ -120,6 +130,17 @@
                   <p class="mt-5 text-lg leading-8 text-on-surface-variant">
                     {{ request.description || '暂无详细描述。' }}
                   </p>
+
+                  <div v-if="detailImages.length > 0" class="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                    <div
+                      v-for="(img, idx) in detailImages"
+                      :key="idx"
+                      class="aspect-square cursor-pointer overflow-hidden rounded-2xl"
+                      @click="showImageLightbox = true; lightboxIndex = idx"
+                    >
+                      <img :src="img" class="h-full w-full object-cover" :alt="'图片 ' + (idx + 1)" />
+                    </div>
+                  </div>
 
                   <div class="mt-6 grid gap-4 md:grid-cols-3">
                     <div class="rounded-[1.75rem] bg-teal-900 px-5 py-5 text-white shadow-sm">
@@ -527,15 +548,40 @@
       </div>
     </div>
 
-    <AppBottomNav />
+    <div v-if="showImageLightbox" class="fixed inset-0 z-[70] flex items-center justify-center bg-black/90" @click.self="showImageLightbox = false">
+      <button type="button" class="absolute right-6 top-6 rounded-full bg-white/20 p-3 text-white hover:bg-white/30" @click="showImageLightbox = false">
+        <span class="material-symbols-outlined text-2xl">close</span>
+      </button>
+      <button
+        v-if="detailImages.length > 1"
+        type="button"
+        class="absolute left-6 top-1/2 -translate-y-1/2 rounded-full bg-white/20 p-3 text-white hover:bg-white/30"
+        @click.stop="lightboxIndex = (lightboxIndex - 1 + detailImages.length) % detailImages.length"
+      >
+        <span class="material-symbols-outlined text-2xl">chevron_left</span>
+      </button>
+      <img
+        :src="detailImages[lightboxIndex]"
+        class="max-h-[85vh] max-w-[90vw] rounded-2xl object-contain"
+        :alt="'图片 ' + (lightboxIndex + 1)"
+      />
+      <button
+        v-if="detailImages.length > 1"
+        type="button"
+        class="absolute right-6 top-1/2 -translate-y-1/2 rounded-full bg-white/20 p-3 text-white hover:bg-white/30"
+        @click.stop="lightboxIndex = (lightboxIndex + 1) % detailImages.length"
+      >
+        <span class="material-symbols-outlined text-2xl">chevron_right</span>
+      </button>
+      <p class="absolute bottom-8 text-sm text-white/70">{{ lightboxIndex + 1 }} / {{ detailImages.length }}</p>
+    </div>
+
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import AppBottomNav from '../components/AppBottomNav.vue'
-import AppTopNav from '../components/AppTopNav.vue'
 import PageBackHeader from '../components/PageBackHeader.vue'
 import { useConfirm } from '../composables/useConfirm'
 import { usePreferences } from '../composables/usePreferences'
@@ -1055,11 +1101,13 @@ const openContactDialog = () => {
     return
   }
   contactError.value = ''
-  contactMessage.value = isTopicPost.value
-    ? `你好，我看了你发布的“${request.value.title || '这条帖子'}”，想进一步了解一下。`
-    : isOwnTask.value
-      ? `你好，关于“${request.value.title || '这项任务'}”，我想和你确认一下履约细节。`
-      : `你好，我对“${request.value.title || '这项任务'}”感兴趣，想确认一下时间和具体地点。`
+  if (!contactMessage.value) {
+    contactMessage.value = isTopicPost.value
+      ? `你好，我看了你发布的”${request.value.title || '这条帖子'}”，想进一步了解一下。`
+      : isOwnTask.value
+        ? `你好，关于”${request.value.title || '这项任务'}”，我想和你确认一下履约细节。`
+        : `你好，我对”${request.value.title || '这项任务'}”感兴趣，想确认一下时间和具体地点。`
+  }
   showContactDialog.value = true
 }
 
@@ -1158,6 +1206,25 @@ const handleDeleteTask = async () => {
   }
 }
 
+const likeAnimating = ref(false)
+const showImageLightbox = ref(false)
+const lightboxIndex = ref(0)
+
+const detailImages = computed(() => {
+  try {
+    const raw = request.value?.imageUrls
+    if (!raw) return []
+    const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw
+    if (!Array.isArray(parsed)) return []
+    return parsed.map((url: string) => {
+      if (url.startsWith('http')) return url
+      return url.startsWith('/api') ? url : `/api${url}`
+    })
+  } catch {
+    return []
+  }
+})
+
 const toggleTopicLike = async () => {
   if (!isTopicPost.value) return
   if (isExpiredTopic.value) {
@@ -1179,6 +1246,10 @@ const toggleTopicLike = async () => {
       ...request.value,
       ...nextTaskState
     })
+    if (!isTopicLiked.value) {
+      likeAnimating.value = true
+      setTimeout(() => { likeAnimating.value = false }, 400)
+    }
   } catch (error: any) {
     console.error('帖子点赞操作失败:', error)
     setFeedback(error?.response?.data?.message || '帖子点赞操作失败，请稍后重试。', 'error')

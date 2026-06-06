@@ -1,6 +1,5 @@
 <template>
   <div class="min-h-screen bg-surface font-body text-on-surface">
-    <AppTopNav />
 
     <main class="mx-auto max-w-7xl px-6 pb-24 pt-24">
       <section class="mb-8 overflow-hidden rounded-[2rem] bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.96),rgba(236,253,245,0.96)_36%,rgba(223,245,255,0.92)_68%,rgba(248,250,252,0.95)_100%)] p-6 shadow-sm md:p-8">
@@ -207,6 +206,31 @@
               >
                 {{ option.label }}
               </button>
+            </div>
+
+            <div class="mt-3 flex flex-wrap items-center gap-3">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-on-surface-variant/70">排序:</span>
+                <select v-model="sortBy" class="rounded-full bg-surface-container-low px-3 py-2 text-sm font-semibold text-teal-900 outline-none" @change="fetchTasks">
+                  <option value="newest">最新发布</option>
+                  <option value="most_likes">最多点赞</option>
+                  <option value="most_comments">最多评论</option>
+                  <option value="highest_reward">最高奖励</option>
+                </select>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-on-surface-variant/70">状态:</span>
+                <button
+                  v-for="s in statusOptions"
+                  :key="s.value"
+                  type="button"
+                  class="rounded-full px-3 py-1.5 text-xs font-semibold transition-all"
+                  :class="statusFilter === s.value ? 'bg-teal-900 text-white' : 'bg-surface-container-low text-on-surface-variant hover:bg-cyan-50/70'"
+                  @click="statusFilter = statusFilter === s.value ? '' : s.value; fetchTasks()"
+                >
+                  {{ s.label }}
+                </button>
+              </div>
             </div>
           </div>
         </section>
@@ -549,15 +573,12 @@
       <span class="absolute right-full mr-4 whitespace-nowrap rounded-xl bg-teal-900 px-4 py-2 text-sm font-headline text-white opacity-0 transition-opacity group-hover:opacity-100">发布</span>
     </RouterLink>
 
-    <AppBottomNav />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
-import AppBottomNav from '../components/AppBottomNav.vue'
-import AppTopNav from '../components/AppTopNav.vue'
 import { announcementApi, taskApi } from '../services/api'
 
 const route = useRoute()
@@ -606,6 +627,11 @@ const availableTimeOptions = [
   { value: 'tomorrow', label: '明天' },
   { value: 'anytime', label: '不限时间' }
 ]
+const statusOptions = [
+  { value: 'open', label: '待接单' },
+  { value: 'in_progress', label: '进行中' },
+  { value: 'completed', label: '已完成' }
+]
 const activeCategory = ref('全部任务')
 const selectedTopicEntryCategory = ref('二手闲置')
 const selectedDemandEntryCategory = ref('跑腿代办')
@@ -623,6 +649,8 @@ const topicError = ref('')
 const topicActiveCategory = ref('全部话题')
 const topicKeyword = ref('')
 const topicCurrentPage = ref(1)
+const sortBy = ref('newest')
+const statusFilter = ref('')
 const topicPageSize = 8
 
 const pinnedAnnouncements = computed(() => announcements.value.filter((item) => item.pinned).slice(0, 3))
@@ -741,7 +769,9 @@ const fetchTasks = async () => {
       location: selectedLocation.value || undefined,
       availableAt: resolveAvailableAt(),
       taskMode: 'task',
-      size: 50
+      size: 50,
+      sortBy: sortBy.value !== 'newest' ? sortBy.value : undefined,
+      status: statusFilter.value || undefined
     }) as any
     const rawTasks = Array.isArray(response) ? response : Array.isArray(response?.data) ? response.data : []
     tasks.value = rawTasks.map(mapTaskToCard)
@@ -771,7 +801,7 @@ const fetchTopicPosts = async () => {
     const response = await taskApi.getTasks({
       taskMode: 'topic',
       mode: 'latest',
-      size: 200
+      size: 50
     }) as any
     const rawTasks = Array.isArray(response) ? response : Array.isArray(response?.data) ? response.data : []
     topicPosts.value = rawTasks.map(mapTopicToCard)

@@ -61,7 +61,7 @@
               学生登录
             </button>
             <button
-              class="pb-3 text-sm font-medium font-headline transition-colors bg-transparent"
+              class="pb-3 text-sm font-bold font-headline transition-colors bg-transparent"
               :class="activeTab === 'register' ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant/60 hover:text-on-surface'"
               type="button"
               @click="switchTab('register')"

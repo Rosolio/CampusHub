@@ -1,6 +1,5 @@
 <template>
   <div class="page-shell bg-surface font-body text-on-surface">
-    <AppTopNav :avatar-url="form.avatarUrl || defaultAvatarUrl" />
 
     <main class="page-shell-main page-shell-main--narrow">
       <PageBackHeader />
@@ -106,14 +105,11 @@
       </div>
     </main>
 
-    <AppBottomNav />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import AppBottomNav from '../../components/AppBottomNav.vue'
-import AppTopNav from '../../components/AppTopNav.vue'
 import FormField from '../../components/FormField.vue'
 import PageBackHeader from '../../components/PageBackHeader.vue'
 import { DEFAULT_AVATAR_URL } from '../../constants/assets'

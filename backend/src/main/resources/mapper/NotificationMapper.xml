@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.campushub.mapper.NotificationMapper">
+    <resultMap id="NotificationResultMap" type="com.campushub.entity.Notification">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="type" column="type"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="referenceType" column="reference_type"/>
+        <result property="referenceId" column="reference_id"/>
+        <result property="isRead" column="is_read"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="NotificationResultMap">
+        SELECT * FROM notifications WHERE id = #{id}
+    </select>
+
+    <select id="selectByUserId" resultMap="NotificationResultMap">
+        SELECT * FROM notifications
+        WHERE user_id = #{userId}
+        ORDER BY created_at DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="countUnreadByUserId" resultType="int">
+        SELECT COUNT(*) FROM notifications
+        WHERE user_id = #{userId} AND is_read = 0
+    </select>
+
+    <insert id="insert" parameterType="com.campushub.entity.Notification" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO notifications (user_id, type, title, content, reference_type, reference_id, is_read, created_at)
+        VALUES (#{userId}, #{type}, #{title}, #{content}, #{referenceType}, #{referenceId}, #{isRead}, #{createdAt})
+    </insert>
+
+    <update id="updateReadStatus">
+        UPDATE notifications SET is_read = #{isRead} WHERE id = #{id}
+    </update>
+
+    <update id="markAllReadByUserId">
+        UPDATE notifications SET is_read = 1 WHERE user_id = #{userId} AND is_read = 0
+    </update>
+</mapper>

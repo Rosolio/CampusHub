@@ -1,6 +1,5 @@
 <template>
   <div class="min-h-screen bg-surface pb-24 font-body text-on-surface md:pb-0">
-    <AppTopNav />
 
     <main class="mx-auto max-w-5xl px-6 pb-12 pt-24">
       <PageBackHeader to="/home" label="返回社区" />
@@ -45,11 +44,12 @@
             </div>
 
             <div>
-              <div class="flex items-center justify-between gap-3">
-                <p class="text-sm font-bold text-teal-950">优先级</p>
-                <p class="text-xs font-semibold text-on-surface-variant">当前类型默认推荐：{{ feedbackPriorityLabel(defaultPriorityForType(form.type)) }}</p>
-              </div>
-              <div class="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <button type="button" class="flex items-center gap-2 text-sm font-bold text-teal-900 hover:text-teal-700 transition-colors" @click="showAdvancedOptions = !showAdvancedOptions">
+                <span class="material-symbols-outlined text-base">{{ showAdvancedOptions ? 'expand_less' : 'expand_more' }}</span>
+                高级选项
+                <span class="text-xs font-medium text-on-surface-variant ml-1">（优先级: {{ feedbackPriorityLabel(form.priority) }}）</span>
+              </button>
+              <div v-if="showAdvancedOptions" class="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                 <button
                   v-for="item in feedbackPriorities"
                   :key="item.value"
@@ -159,14 +159,11 @@
       </div>
     </main>
 
-    <AppBottomNav />
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import AppBottomNav from '../components/AppBottomNav.vue'
-import AppTopNav from '../components/AppTopNav.vue'
 import PageBackHeader from '../components/PageBackHeader.vue'
 import { feedbackApi } from '../services/api'
 
@@ -175,6 +172,7 @@ type FeedbackPriority = 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT'
 
 const loading = ref(false)
 const submitting = ref(false)
+const showAdvancedOptions = ref(false)
 const withdrawingId = ref<number | null>(null)
 const error = ref('')
 const successMessage = ref('')

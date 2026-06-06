@@ -51,7 +51,10 @@
     </select>
 
     <select id="selectAdminUsers" resultMap="UserResultMap">
-        SELECT *
+        SELECT id, student_id, name, email, password,
+               CASE WHEN avatar_url LIKE 'data:%' THEN NULL ELSE avatar_url END AS avatar_url,
+               major, role, status, verified_status, disabled_reason,
+               score, points, last_login_at, created_at, updated_at
         FROM users
         ORDER BY created_at DESC
     </select>
@@ -117,4 +120,12 @@
     <delete id="delete" parameterType="java.lang.Long">
         DELETE FROM users WHERE id = #{id}
     </delete>
+
+    <select id="selectTopByPoints" resultType="com.campushub.entity.User">
+        SELECT id, name, avatar_url AS avatarUrl, points, score
+        FROM users
+        WHERE role != 'ADMIN' AND status = 'ACTIVE'
+        ORDER BY points DESC
+        LIMIT #{limit}
+    </select>
 </mapper>

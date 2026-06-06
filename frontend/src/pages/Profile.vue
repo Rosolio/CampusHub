@@ -1,6 +1,5 @@
 <template>
   <div class="page-shell bg-background text-on-surface md:pt-20">
-    <AppTopNav :avatar-url="currentUser.avatarUrl || defaultAvatarUrl" />
 
     <main class="page-shell-main max-w-7xl">
       <section class="relative mb-10">
@@ -201,6 +200,15 @@
           >
             <span class="material-symbols-outlined text-lg">volunteer_activism</span>
             我的服务
+          </button>
+          <button
+            @click="activeTab = 'favorites'"
+            class="flex items-center gap-2 rounded-2xl px-6 py-3 text-sm font-bold transition-all shadow-sm"
+            :class="activeTab === 'favorites' ? 'bg-teal-900 text-white' : 'bg-surface-container-low text-on-surface-variant hover:text-on-surface'"
+            type="button"
+          >
+            <span class="material-symbols-outlined text-lg">bookmark</span>
+            我的收藏
           </button>
         </div>
 
@@ -500,6 +508,39 @@
           </div>
         </div>
       </section>
+
+      <!-- Favorites Tab -->
+      <section v-if="activeTab === 'favorites'" class="rounded-[1.75rem] bg-surface-container-lowest p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h2 class="text-2xl font-extrabold text-on-surface">我的收藏</h2>
+            <p class="text-sm text-on-surface-variant mt-1">收藏的任务和话题帖</p>
+          </div>
+        </div>
+        <div v-if="favoriteTasksLoading" class="text-center py-12 text-on-surface-variant">加载中...</div>
+        <div v-else-if="favoriteTasks.length === 0" class="text-center py-12">
+          <span class="material-symbols-outlined text-6xl text-on-surface-variant/30">bookmark</span>
+          <p class="mt-4 text-lg font-semibold text-on-surface-variant">暂无收藏</p>
+          <p class="mt-1 text-sm text-on-surface-variant/70">浏览任务或话题时点击收藏按钮即可添加</p>
+        </div>
+        <div v-else class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <RouterLink
+            v-for="task in favoriteTasks"
+            :key="task.id"
+            :to="`/detail/${task.id}`"
+            class="group block rounded-[1.5rem] bg-surface-container-low p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+          >
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <span class="rounded-full bg-cyan-100 px-3 py-1 text-[11px] font-bold uppercase text-cyan-800">{{ task.category }}</span>
+                <span class="text-xs text-on-surface-variant">{{ task.status === 'pending' ? '待接单' : task.status === 'completed' ? '已完成' : '进行中' }}</span>
+              </div>
+              <h3 class="text-lg font-extrabold text-teal-950 group-hover:text-teal-800 transition-colors">{{ task.title }}</h3>
+              <p class="mt-2 line-clamp-2 text-sm text-on-surface-variant">{{ task.description }}</p>
+            </div>
+          </RouterLink>
+        </div>
+      </section>
     </main>
 
     <div v-if="showPointRecordsDialog" class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/45 px-6" @click.self="closePointRecordsDialog">
@@ -557,15 +598,12 @@
       </div>
     </div>
 
-    <AppBottomNav />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
-import AppBottomNav from '../components/AppBottomNav.vue'
-import AppTopNav from '../components/AppTopNav.vue'
 import { useConfirm } from '../composables/useConfirm'
 import { usePreferences } from '../composables/usePreferences'
 import { showToast } from '../composables/useToast'
@@ -573,7 +611,7 @@ import { DEFAULT_AVATAR_URL, DEFAULT_TASK_IMAGE } from '../constants/assets'
 import { taskApi, userApi } from '../services/api'
 import { storedUser, setStoredUser } from '../utils/auth'
 
-type TabKey = 'requests' | 'topics' | 'services'
+type TabKey = 'requests' | 'topics' | 'services' | 'favorites'
 type StatusFilter = 'all' | 'active' | 'completed' | 'canceled'
 
 const props = defineProps<{
@@ -590,6 +628,8 @@ const myServiceTasks = ref<any[]>([])
 const receivedLikeCount = ref(0)
 const activeStatusFilter = ref<StatusFilter>('all')
 const historyKeyword = ref('')
+const favoriteTasks = ref<any[]>([])
+const favoriteTasksLoading = ref(false)
 const deletingTaskId = ref<number | null>(null)
 const cancelingServiceTaskId = ref<number | null>(null)
 const completingTaskId = ref<number | null>(null)
@@ -971,6 +1011,24 @@ const handleUnacceptTask = async (task: any) => {
     cancelingServiceTaskId.value = null
   }
 }
+
+const fetchFavoriteTasks = async () => {
+  favoriteTasksLoading.value = true
+  try {
+    const response = await taskApi.getFavoriteTasks() as any
+    favoriteTasks.value = Array.isArray(response) ? response : []
+  } catch {
+    favoriteTasks.value = []
+  } finally {
+    favoriteTasksLoading.value = false
+  }
+}
+
+watch(activeTab, (tab) => {
+  if (tab === 'favorites') {
+    fetchFavoriteTasks()
+  }
+})
 
 onMounted(() => {
   fetchProfileData()

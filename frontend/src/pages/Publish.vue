@@ -1,6 +1,5 @@
 <template>
   <div class="min-h-screen bg-surface font-body text-on-surface pb-24 md:pb-0">
-    <AppTopNav />
 
     <main class="mx-auto max-w-4xl px-6 pb-12 pt-24">
       <PageBackHeader to="/" label="返回社区" />
@@ -27,7 +26,7 @@
       </section>
 
       <section class="rounded-[2rem] bg-surface-container-lowest p-8 shadow-sm">
-        <div v-if="error" class="mb-6 rounded-2xl border border-rose-200 bg-rose-50 px-2 py-3 text-sm font-medium text-rose-700">
+        <div v-if="error" class="mb-6 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">
           {{ error }}
         </div>
 
@@ -36,7 +35,7 @@
             <input
               v-model="form.title"
               type="text"
-              class="w-full rounded-2xl border border-outline-variant/15 bg-surface-container-low px-2 py-3 transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
+              class="w-full rounded-2xl border border-outline-variant/15 bg-surface-container-low px-4 py-3 transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
               :placeholder="activeConfig.titlePlaceholder"
             />
           </FormField>
@@ -45,23 +44,25 @@
             <textarea
               v-model="form.description"
               rows="5"
-              class="w-full resize-none rounded-2xl border border-outline-variant/15 bg-surface-container-low px-2 py-3 transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
+              class="w-full resize-none rounded-2xl border border-outline-variant/15 bg-surface-container-low px-4 py-3 transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
               :placeholder="activeConfig.descriptionPlaceholder"
             ></textarea>
           </FormField>
+
+          <ImageUploader v-model="form.imageUrls" />
 
           <div class="grid gap-6 md:grid-cols-2">
             <FormField :label="activeConfig.locationLabel">
               <input
                 v-model="form.location"
                 type="text"
-                class="w-full rounded-2xl border border-outline-variant/15 bg-surface-container-low px-2 py-3 transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
+                class="w-full rounded-2xl border border-outline-variant/15 bg-surface-container-low px-4 py-3 transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
                 :placeholder="activeConfig.locationPlaceholder"
               />
             </FormField>
 
             <FormField :label="activeConfig.timeLabel">
-              <div v-if="activeConfig.mode === 'topic'" class="mb-3 flex items-center justify-between rounded-2xl border border-cyan-100 bg-cyan-50/60 px-2 py-3 text-sm">
+              <div v-if="activeConfig.mode === 'topic'" class="mb-3 flex items-center justify-between rounded-2xl border border-cyan-100 bg-cyan-50/60 px-4 py-3 text-sm">
                 <div>
                   <p class="font-semibold text-teal-900">长期有效</p>
                   <p class="mt-1 text-xs leading-5 text-teal-800/75">开启后帖子不会自动截止，也不会因为到期而隐藏。</p>
@@ -78,7 +79,7 @@
               <input
                 v-model="form.deadline"
                 type="datetime-local"
-                class="w-full rounded-2xl border border-outline-variant/15 bg-surface-container-low px-2 py-3 transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
+                class="w-full rounded-2xl border border-outline-variant/15 bg-surface-container-low px-4 py-3 transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
                 :placeholder="activeConfig.timePlaceholder"
                 :disabled="activeConfig.mode === 'topic' && form.topicLongTerm"
                 :class="{ 'cursor-not-allowed opacity-60': activeConfig.mode === 'topic' && form.topicLongTerm }"
@@ -96,7 +97,7 @@
                 type="number"
                 min="1"
                 step="1"
-                class="w-full rounded-2xl border border-outline-variant/15 bg-surface-container-low px-2 py-3 transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
+                class="w-full rounded-2xl border border-outline-variant/15 bg-surface-container-low px-4 py-3 transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
                 placeholder="请输入金额（元）"
               />
             </FormField>
@@ -141,7 +142,7 @@
             <input
               v-model="form.contactInfo"
               type="text"
-              class="w-full rounded-2xl border border-outline-variant/15 bg-surface-container-low px-2 py-3 transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
+              class="w-full rounded-2xl border border-outline-variant/15 bg-surface-container-low px-4 py-3 transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
               placeholder="例如：微信 abc123 / QQ 123456 / 手机尾号 6789"
             />
           </FormField>
@@ -157,16 +158,14 @@
       </section>
     </main>
 
-    <AppBottomNav />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import AppBottomNav from '../components/AppBottomNav.vue'
-import AppTopNav from '../components/AppTopNav.vue'
 import FormField from '../components/FormField.vue'
+import ImageUploader from '../components/ImageUploader.vue'
 import PageBackHeader from '../components/PageBackHeader.vue'
 import { usePreferences } from '../composables/usePreferences'
 import { showToast } from '../composables/useToast'
@@ -197,7 +196,8 @@ const form = ref({
   deadline: '',
   urgent: false,
   contactInfo: '',
-  topicLongTerm: false
+  topicLongTerm: false,
+  imageUrls: [] as string[]
 })
 
 const activeCategory = computed(() => categories.find((category) => category.value === form.value.category) || categories[0])
@@ -312,7 +312,8 @@ const submitForm = async () => {
       impactText: activeCategory.value.impactText,
       mapImageUrl: '',
       contactInfo: isTaskMode ? '' : form.value.contactInfo.trim(),
-      expiresAt: !isTaskMode && form.value.topicLongTerm ? undefined : form.value.deadline.trim()
+      expiresAt: !isTaskMode && form.value.topicLongTerm ? undefined : form.value.deadline.trim(),
+      imageUrls: form.value.imageUrls.length > 0 ? JSON.stringify(form.value.imageUrls) : undefined
     }
 
     const response = await taskApi.createTask(payload) as Record<string, any>
