@@ -12,6 +12,7 @@
   - 前端 `npm run lint`：通过
   - 性能优化：全表扫描→索引分页、OR→UNION ALL、N+1→批量、全量轮询→计数轮询
   - 安全加固：第三方登录已移除、UserVO 防泄露、JWT type claim、角色鉴权、限频
+- 线上部署：<https://campushub.icu>（Nginx + systemd，2026-06）
 
 ## 交付物索引
 
