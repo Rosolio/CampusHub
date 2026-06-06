@@ -32,8 +32,8 @@
 | P2  | 安全加固    | 移除第三方登录、JWT 安全、限频    |   3h | 后端 A  | 已完成  | UserVO 防泄露、type claim、角色鉴权、接口限频                                               |
 | 测试  | 单元/集成测试 | 核心服务测试与主流程验证         |   4h | 测试 A  | 已完成  | 后端 `70` 个测试通过（10 个测试类）                                                         |
 | 测试  | 前端质量检查  | 前端 build 和 lint      |   2h | 前端 B  | 已完成  | `npm run build`、`npm run lint` 通过                                               |
-| 运维  | CI/CD   | GitLab 流水线、构建与部署脚本   |   3h | 运维 A  | 基本完成 | `.gitlab-ci.yml`、`.gitlab/backend.yml`、`.gitlab/frontend.yml`、`deploy.sh` 存在    |
-| 演示  | 运行与部署   | 本地脚本、线上部署说明、演示账号     |   2h | 全员    | 已完成  | `README.md`、`start.sh`、`deploy.sh` 已提供                                          |
+| 运维  | CI/CD   | GitLab 流水线、构建与部署脚本   |   3h | 运维 A  | 已完成 | `.gitlab-ci.yml`、`.gitlab/backend.yml`、`.gitlab/frontend.yml`、`deploy.sh` 存在    |
+| 演示  | 运行与部署   | 本地脚本、线上部署说明、演示账号     |   2h | 全员    | 已完成  | 已部署至 <https://campushub.icu>，`README.md`、`start.sh`、`deploy.sh` 已提供          |
 
 ## 3. 必须进入本阶段交付的内容
 
