@@ -6,131 +6,249 @@
 - 每条日志都包含现象、根因、修复方案和验证结果
 - 以 `dev` 分支现有代码与本次验证结论为依据
 
-## 2. 安全类 Bug（commit `62aa029`）
+## 2. Bug 清单
 
-### Bug 01：注册限频绕过
-- **现象**：注册时未调用登录限频检查，可绕过 `auth:login_attempts` 限频
-- **根因**：`AuthService` 注册流程隐式登录路径缺少 `enforceLoginRateLimit()` 调用
-- **修复**：在注册流程的隐式登录路径中增加限频检查
-- **验证**：限频逻辑统一应用于登录和注册
+### Bug 01：旧数据话题帖模式冲突
 
-### Bug 02：JWT token type 缺失
-- **现象**：access token 可被当作 refresh token 使用
-- **根因**：`JwtUtil` 未在 JWT claims 中区分 token 类型
-- **修复**：`generateToken()` 写入 `"type":"access"`，`generateRefreshToken()` 写入 `"type":"refresh"`，`refreshToken()` 校验类型
-- **验证**：`AuthTest.testRefreshToken` 通过
+**问题现象**
 
-### Bug 03：密码哈希通过 API 泄露
-- **现象**：`/users/me`、`/admin/users` 返回 `User` 实体含 `password` 字段
-- **根因**：`User` 实体未对 `password` 做 `@JsonIgnore`，未使用安全 DTO
-- **修复**：创建 `UserVO` DTO，排除 `password` 和 `disabledReason`
-- **验证**：API 响应不再包含密码哈希
+- 某些旧帖子本质是话题帖，但 `taskMode` 存成了 `task`
+- 导致评论、点赞或页面行为与预期不一致
 
-### Bug 04：JWT 过滤器硬编码角色
-- **现象**：所有用户被设为 `USER` authority，管理员无法识别
-- **根因**：过滤器未查询数据库获取实际角色
-- **修复**：注入 `UserMapper`，调用 `selectRoleById()` 获取实际角色
-- **验证**：`SecurityConfig` 中 `/admin/**` 权限控制生效
+**根因分析**
 
-### Bug 05：管理员路径无权限保护
-- **现象**：`/admin/**` 接口无 Spring Security 权限校验
-- **根因**：`SecurityConfig` 未对 `/admin/**` 添加 `hasAuthority` 限制
-- **修复**：添加 `.requestMatchers("/admin/**").hasAuthority("ADMIN")`
-- **验证**：普通用户访问返回 403
+- 早期数据字段设计或迁移阶段，没有统一对 `category`、`badgeSecondary`、`impactText` 和 `taskMode` 做归一化
 
-### Bug 06：GlobalExceptionHandler 不返回 403
-- **现象**：权限类异常返回 400 而非 403
-- **根因**：`GlobalExceptionHandler` 统一将所有 `RuntimeException` 映射为 400
-- **修复**：新增 `AUTHORITY_ERROR_CODES` 映射表，增加 SLF4J 日志
-- **验证**：权限类异常正确返回 403 FORBIDDEN
+**修复方案**
 
-## 3. 业务逻辑类 Bug
+- 引入 `TaskModeResolver`
+- 在读取或处理任务前根据旧字段推断并修正真实模式
 
-### Bug 07：旧数据话题帖模式冲突
-- **现象**：旧帖子 `taskMode` 存成 `task` 但实际是话题帖，导致评论/点赞行为异常
-- **根因**：早期数据字段未统一归一化
-- **修复**：引入 `TaskModeResolver`，读取时根据 `category`、`badgeSecondary`、`impactText` 推断真实模式
-- **验证**：`TaskModeResolverTest` 通过，`TaskTest` 和 `TaskCommentTest` 旧数据兼容场景通过
+**验证结果**
 
-### Bug 08：普通任务误进入话题评论链路
-- **现象**：跑腿任务未做类型校验，可能被当作话题帖评论
-- **根因**：任务与话题共用 `tasks` 表，评论服务缺少模式判断
-- **修复**：评论创建前增加"是否为话题帖"业务校验
-- **验证**：`TaskCommentTest.testTaskModeCannotComment` 通过
+- `TaskModeResolverTest` 通过
+- `TaskCommentTest` 中旧数据兼容场景通过
+- `TaskTest` 中旧话题帖点赞兼容场景通过
 
-### Bug 09：重复评价导致业务数据失真
-- **现象**：同一用户可对同一任务重复提交评价，积分和信用分重复结算
-- **根因**：前端限制按钮状态无法防止并发重试
-- **修复**：Service 层增加重复评价判断，数据层唯一约束兜底
-- **验证**：`TaskReviewTest.testCannotReviewSameTaskTwice` 通过
+### Bug 02：普通任务误进入话题评论链路
 
-### Bug 10：非参与者越权确认完成
-- **现象**：无关用户可调用完成接口破坏订单状态流转
-- **根因**：完成逻辑仅校验登录，不校验参与身份
-- **修复**：完成前校验调用者必须是发布者或接单者
-- **验证**：`TaskTest.testOnlyTaskParticipantsCanCompleteTask` 通过
+**问题现象**
 
-## 4. 性能类 Bug（commit `81fc2dc` 起）
+- 跑腿任务若未做类型校验，可能被当作话题帖评论
 
-### Bug 11：社区首页全表扫描导致响应慢、频繁失败
-- **现象**：`GET /api/tasks` 耗时数秒，数据增多后超时，缓存频繁失效
-- **根因**：
-  - `selectAll()` 无 WHERE 子句、无 LIMIT，返回全表
-  - 评论数用 `GROUP BY task_comments` 全表聚合子查询
-  - 过滤/排序全部在 Java 内存中完成
-  - 单 key `tasks:all` 缓存，任何变更即全量失效，TTL 仅 5 分钟
-- **修复**：
-  - 新增 `selectFeedTasks` 分页查询（WHERE + LIMIT/OFFSET）
-  - 全表 GROUP BY 改为 `(SELECT COUNT(*) FROM task_comments WHERE task_id = t.id)`
-  - 分类/状态/过期筛选下推到 SQL
-  - Redis 改为参数化 key `tasks:feed:{queryHash}`，TTL 2 分钟
-  - 添加复合索引 `(review_status, task_mode, status, created_at)` 等
-- **验证**：`TaskPerformanceTest`（6 个用例）全部通过，后端响应 2-3ms
+**根因分析**
 
-### Bug 12：消息查询 OR 条件不走索引
-- **现象**：`WHERE sender_id=? OR receiver_id=?` 导致全表扫描
-- **根因**：MySQL 无法对 OR 条件使用复合索引，`ORDER BY created_at DESC` 强制 filesort
-- **修复**：改为 `(SELECT ... WHERE sender_id=?) UNION ALL (SELECT ... WHERE receiver_id=?)`，两分支独立走各自的复合索引
-- **验证**：`MessageTest`（4 个用例）通过，后端响应 2ms
+- 任务与话题共用 `tasks` 表，若缺少模式判断，评论服务无法正确限制入口
 
-### Bug 13：消息标记已读 N+1 请求
-- **现象**：进入会话时对每条未读消息发一次 HTTP 请求，10 条 = 10 次
-- **根因**：`markAsRead` 仅支持单条更新，前端循环调用
-- **修复**：新增 `PUT /messages/read` 批量接口接受 `{ids: [...]}`，前端改用 `markAsReadBatch`
-- **验证**：10 条消息从 10 次 HTTP 降为 1 次
+**修复方案**
 
-### Bug 14：消息页 5 秒全量轮询
-- **现象**：每 5 秒重新拉取全部 200 条消息 + 3 表 JOIN
-- **根因**：前端 `setInterval(fetchMessages, 5000)` 不分是否有新消息
-- **修复**：改为轮询轻量 `/messages/unread/count`，仅在计数变化时拉全量
-- **验证**：99% 的轮询周期只发 1 次轻量计数请求
+- 评论创建前增加“当前内容是否为话题帖”的业务校验
 
-### Bug 15：个人中心 N+1 评价查询
-- **现象**：对每个已完成任务发一次 `getTaskReviews(taskId)`，10 个任务 = 11 次 HTTP
-- **根因**：`fetchReviewStatuses` 中 `Promise.all(completedTaskIds.map(...))`
-- **修复**：改用 `getTaskReviewsBatch` 单次批量查询
-- **验证**：从 N+1 次 HTTP 降为 1 次
+**验证结果**
 
-### Bug 16：selectByRequesterId/selectByHelperId 无 LIMIT
-- **现象**：个人中心历史数据查询无行数限制
-- **根因**：Mapper XML 缺少 LIMIT 子句
-- **修复**：添加 `LIMIT 200`
-- **验证**：`TaskTest` 全部 15 个测试通过
+- `TaskCommentTest.testTaskModeCannotComment` 通过
+- 异常信息为“当前内容不是话题帖”
 
-## 5. UI/交互类 Bug
+### Bug 03：重复评价导致业务数据失真
 
-### Bug 17：详情页加载时话题/任务布局闪烁
-- **现象**：点击需求详情后短暂显示话题帖布局，然后切换到任务布局
-- **根因**：`inferTaskMode({})` 对空对象默认返回 `'topic'`，页面在 API 返回前已渲染
-- **修复**：添加 `detailLoading` 状态，数据加载前显示占位，不渲染任何布局
-- **验证**：不再闪烁
+**问题现象**
 
-### Bug 18：注册页点击协议/隐私跳转登录页
-- **现象**：注册页点击"用户协议"或"隐私政策"被重定向到登录页
-- **根因**：`/settings/agreement` 和 `/settings/privacy` 设了 `requiresAuth: true`
-- **修复**：新建独立页面 `/agreement` 和 `/privacy`，无鉴权要求，简洁布局
-- **验证**：注册页可直接打开协议和隐私政策
+- 同一用户可能对同一任务重复提交评价，造成积分和信用分重复结算
 
-## 6. 总结
+**根因分析**
 
-37 个修复项覆盖安全（6）、业务逻辑（4）、性能（6）、UI/交互（2）四个维度。安全与业务类以测试驱动修复，性能类以数据库查询优化 + 缓存重构为核心，UI 类以加载状态和路由权限为关键。
+- 若只靠前端限制按钮状态，无法防止重复提交或并发重试
+
+**修复方案**
+
+- Service 层增加重复评价判断
+- 数据层增加唯一约束兜底
+
+**验证结果**
+
+- `TaskReviewTest.testCannotReviewSameTaskTwice` 通过
+
+### Bug 04：非参与者越权确认完成
+
+**问题现象**
+
+- 与任务无关的用户若能调用完成接口，会破坏订单状态流转
+
+**根因分析**
+
+- 任务完成逻辑若仅校验登录，不校验参与身份，就会出现越权
+
+**修复方案**
+
+- 完成任务前校验调用者必须是发布者或接单者
+
+**验证结果**
+
+- `TaskTest.testOnlyTaskParticipantsCanCompleteTask` 通过
+
+### Bug 05：CI 流水线质量门不足
+
+**问题现象**
+
+- GitLab CI 当前只做构建，不自动跑测试和静态检查
+
+**根因分析**
+
+- `.gitlab/backend.yml` 使用 `mvn clean package -DskipTests`
+- `.gitlab/frontend.yml` 只做 `npm install` 和 `npm run build`
+
+**修复方案**
+
+- 文档上已识别缺口
+- 后续应补 `mvn test`、`checkstyle`、`npm run lint` 和覆盖率统计
+
+**验证结果**
+
+- 本地手工验证可通过，但流水线层面仍待补强
+
+### Bug 06：通知表缺失导致测试报错
+
+**问题现象**
+
+- 新增 `NotificationController` 后测试运行时提示 `notifications` 表不存在
+
+**根因分析**
+
+- `init_test_schema.sql` 仅包含 P0/P1 阶段表结构，未同步新增的 `notifications`、`task_favorites`、`user_verifications` 等表
+
+**修复方案**
+
+- 将主 `schema.sql` 中的新增表定义同步至 `init_test_schema.sql`
+- 同步添加 `image_urls`、`verified_status`、`priority`、`like_count` 等新列
+
+**验证结果**
+
+- `mvn test` 通过，70 个测试全部成功
+
+### Bug 07：数据库表结构固化导致新增列不生效
+
+**问题现象**
+
+- `schema.sql` 使用 `CREATE TABLE IF NOT EXISTS`，测试数据库已存在旧表时新列不会自动添加
+
+**根因分析**
+
+- `spring.sql.init.mode=always` 仅在首次建表时生效，存量库中的表结构不会变更
+
+**修复方案**
+
+- 使用 `DROP DATABASE IF EXISTS campusaid; CREATE DATABASE campusaid;` 重建测试数据库
+- 或改用迁移脚本 `ALTER TABLE` 同步新增列
+
+**验证结果**
+
+- `mvn clean test` 通过，所有 70 个测试通过
+
+### Bug 08：管理员后台用户列表 base64 头像导致响应膨胀
+
+**问题现象**
+
+- 管理后台用户列表返回 4MB+ 数据，页面加载极慢
+
+**根因分析**
+
+- SQL 查询直接包含 `avatar_url`（base64 MEDIUMTEXT），未做字段裁剪
+
+**修复方案**
+
+- SQL 查询中去掉 `avatar_url` 字段
+- 仅在有需要时单独加载头像
+
+**验证结果**
+
+- 管理员用户列表响应时间恢复正常，页面加载流畅
+
+### Bug 09：空聊天状态文本导致会话卡片折叠
+
+**问题现象**
+
+- 没有任何历史消息的会话在列表中高度为 0，视觉效果异常
+
+**根因分析**
+
+- 空白文本区域缺少 `min-height` 或占位符
+
+**修复方案**
+
+- 为空会话添加占位文本："暂无消息"
+
+**验证结果**
+
+- 空会话在消息列表中正常显示
+
+### Bug 10：话题详情返回按钮导航到错误标签页
+
+**问题现象**
+
+- 从话题广场进入详情后点击返回，回到首页而非话题标签页
+
+**根因分析**
+
+- 返回逻辑硬编码为 `router.back()`，未保留前一路由的 tab 状态
+
+**修复方案**
+
+- 改为显式导航到话题标签页
+
+**验证结果**
+
+- 返回按钮现在正确进入话题标签页
+
+### Bug 11：未登录用户无法访问上传的图片
+
+**问题现象**
+
+- 匿名用户看到的页面中图片无法加载
+
+**根因分析**
+
+- 图片 URL 的静态资源接口需要认证
+
+**修复方案**
+
+- 静态资源接口调整为允许匿名访问
+
+**验证结果**
+
+- 未登录用户也可以正常查看已上传的图片
+
+### Bug 12：createTask API 类型签名缺少 imageUrls 字段
+
+**问题现象**
+
+- TypeScript 编译报错，前端 API 层无法传递图片 URL 数组
+
+**根因分析**
+
+- `createTask` 函数的 TypeScript 类型定义未包含 `imageUrls` 属性
+
+**修复方案**
+
+- 在前端 API 服务层补充 `imageUrls: string[]` 类型定义
+
+**验证结果**
+
+- 前端编译通过，图片上传功能正常
+
+## 3. 总结
+
+当前累计记录 12 个修复项，覆盖以下类别：
+
+1. **旧数据兼容**（Bug 01、02）— `TaskModeResolver` 统一归一化
+2. **业务权限校验**（Bug 03、04）— 重复评价拦截、越权完成校验
+3. **工程化质量门**（Bug 05、06、07）— CI 配置补齐、测试 Schema 同步
+4. **性能与安全**（Bug 08、11）— 大字段裁剪、匿名访问放行
+5. **UI 与交互**（Bug 09、10、12）— 空状态占位、导航修复、类型补齐
+
+前两类已通过代码与测试收敛，第三类在本次迭代中已实际解决（测试全部通过），第四、五类随 P2 功能开发同步修复。“代码完全不可用”，而是：
+
+1. 旧数据兼容
+2. 业务权限校验
+3. 工程化质量门
+
+前两类已基本通过代码与测试收敛，第三类仍是 P4 材料层面的主要风险。
