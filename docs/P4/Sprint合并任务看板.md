@@ -23,7 +23,14 @@
 | P1  | 消息中心    | 会话列表、未读数、已读处理        |   3h | 前端 D  | 已完成  | `/messages`、`/messages/{id}/read`、未读数接口可用                                       |
 | P1  | 反馈与仲裁   | 提交反馈、查看我的反馈、后台处理     |   3h | 前后端 D | 基本完成 | 学生端 `feedback` 和管理端处理接口存在，需进一步补流程证明                                             |
 | P1  | 管理后台    | 用户状态管理、内容审核、公告、仪表盘   |   4h | 前后端 D | 基本完成 | `/admin/*` 接口与 `/admin` 路由存在，基础页面已实现                                            |
-| 测试  | 单元/集成测试 | 核心服务测试与主流程验证         |   4h | 测试 A  | 已完成  | 后端 `43` 个测试通过                                                                   |
+| P2  | 图片上传    | 前端图片组件 + 后端文件接口       |   4h | 前后端 B | 已完成  | `FileController`、`ImageUploader.vue`，`image_urls` JSON 字段                          |
+| P2  | 搜索与推荐   | 关键词搜索 + 位置推荐          |   3h | 后端 A  | 已完成  | `SearchController`、`SearchResults.vue`、`TaskRecommendationQuery`                   |
+| P2  | 通知页     | 独立通知页面 + 未读计数         |   3h | 前端 D  | 已完成  | `NotificationController`、`Notifications.vue`、`is_read` 标记                         |
+| P2  | 任务收藏    | 收藏/取消收藏 + 收藏列表        |   2h | 后端 C  | 已完成  | `TaskFavoriteMapper`、唯一约束 + 收藏列表接口                                              |
+| P2  | 校园认证    | 学生认证提交 + 后台审核         |   4h | 前后端 C | 已完成  | `UserVerificationMapper`、`VerificationService`、认证状态字段                            |
+| P2  | 性能优化    | 分页/SQL 下推/UNION ALL/批量  |   4h | 后端 B  | 已完成  | `TaskPerformanceTest` 6 个测试覆盖，索引迁移 + N+1 消除                                    |
+| P2  | 安全加固    | 移除第三方登录、JWT 安全、限频    |   3h | 后端 A  | 已完成  | UserVO 防泄露、type claim、角色鉴权、接口限频                                               |
+| 测试  | 单元/集成测试 | 核心服务测试与主流程验证         |   4h | 测试 A  | 已完成  | 后端 `70` 个测试通过（10 个测试类）                                                         |
 | 测试  | 前端质量检查  | 前端 build 和 lint      |   2h | 前端 B  | 已完成  | `npm run build`、`npm run lint` 通过                                               |
 | 运维  | CI/CD   | GitLab 流水线、构建与部署脚本   |   3h | 运维 A  | 基本完成 | `.gitlab-ci.yml`、`.gitlab/backend.yml`、`.gitlab/frontend.yml`、`deploy.sh` 存在    |
 | 演示  | 运行与部署   | 本地脚本、线上部署说明、演示账号     |   2h | 全员    | 已完成  | `README.md`、`start.sh`、`deploy.sh` 已提供                                          |
@@ -37,7 +44,7 @@
 - 接单、完成、状态流转
 - 消息通知
 - 评价提交
-- 基础测试可运行
+- 基础测试可运行（70 个测试通过）
 
 ### 3.2 可以接受“基本可用”的内容
 

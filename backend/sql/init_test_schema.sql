@@ -3,6 +3,12 @@ USE campushub;
 
 SET FOREIGN_KEY_CHECKS = 0;
 
+DROP TABLE IF EXISTS notifications;
+DROP TABLE IF EXISTS task_favorites;
+DROP TABLE IF EXISTS user_verifications;
+DROP TABLE IF EXISTS task_comment_likes;
+DROP TABLE IF EXISTS task_likes;
+DROP TABLE IF EXISTS task_reviews;
 DROP TABLE IF EXISTS messages;
 DROP TABLE IF EXISTS feedback;
 DROP TABLE IF EXISTS announcements;
@@ -25,6 +31,7 @@ CREATE TABLE users (
     role VARCHAR(32) NOT NULL DEFAULT 'USER',
     status VARCHAR(32) NOT NULL DEFAULT 'ACTIVE',
     disabled_reason VARCHAR(255) NULL,
+    verified_status VARCHAR(20) NOT NULL DEFAULT 'NONE',
     score DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     points INT NOT NULL DEFAULT 0,
     last_login_at DATETIME NULL,
@@ -78,6 +85,7 @@ CREATE TABLE tasks (
     impact_text VARCHAR(255) NULL,
     map_image_url VARCHAR(500) NULL,
     contact_info VARCHAR(255) NULL,
+    image_urls JSON NULL,
     review_status VARCHAR(32) NOT NULL DEFAULT 'approved',
     review_note VARCHAR(255) NULL,
     reviewed_by BIGINT NULL,
@@ -147,6 +155,7 @@ CREATE TABLE feedback (
     title VARCHAR(255) NOT NULL,
     content TEXT NOT NULL,
     status VARCHAR(32) NOT NULL DEFAULT 'open',
+    priority VARCHAR(32) NOT NULL DEFAULT 'NORMAL',
     admin_reply TEXT NULL,
     admin_id BIGINT NULL,
     handled_at DATETIME NULL,
@@ -173,6 +182,7 @@ CREATE TABLE task_comments (
     author_id BIGINT NOT NULL,
     parent_id BIGINT NULL,
     content TEXT NOT NULL,
+    like_count INT NOT NULL DEFAULT 0,
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL,
     PRIMARY KEY (id),
@@ -181,12 +191,93 @@ CREATE TABLE task_comments (
     KEY idx_task_comments_parent_id (parent_id)
 );
 
-INSERT INTO users (id, student_id, name, email, password, avatar_url, major, role, status, disabled_reason, score, points, last_login_at, created_at, updated_at)
+CREATE TABLE task_likes (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    task_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
+    created_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_task_likes_task_user (task_id, user_id),
+    KEY idx_task_likes_task_id (task_id),
+    KEY idx_task_likes_user_id (user_id)
+);
+
+CREATE TABLE task_comment_likes (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    comment_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
+    created_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_task_comment_likes_comment_user (comment_id, user_id),
+    KEY idx_task_comment_likes_comment_id (comment_id),
+    KEY idx_task_comment_likes_user_id (user_id)
+);
+
+CREATE TABLE task_reviews (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    task_id BIGINT NOT NULL,
+    reviewer_id BIGINT NOT NULL,
+    reviewee_id BIGINT NOT NULL,
+    reviewer_role VARCHAR(32) NOT NULL,
+    rating INT NOT NULL,
+    content TEXT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_task_reviews_task_reviewer (task_id, reviewer_id),
+    KEY idx_task_reviews_task_id (task_id),
+    KEY idx_task_reviews_reviewee_id (reviewee_id)
+);
+
+CREATE TABLE user_verifications (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    type VARCHAR(20) NOT NULL DEFAULT 'STUDENT',
+    real_name VARCHAR(50) NULL,
+    student_id VARCHAR(50) NULL,
+    image_urls JSON NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+    reviewer_id BIGINT NULL,
+    reject_reason VARCHAR(500) NULL,
+    reviewed_at DATETIME NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    KEY idx_user_verifications_user_id (user_id),
+    KEY idx_user_verifications_status (status)
+);
+
+CREATE TABLE notifications (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    type VARCHAR(50) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    reference_type VARCHAR(50) NULL,
+    reference_id BIGINT NULL,
+    is_read TINYINT(1) NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    KEY idx_notifications_user_id_read (user_id, is_read),
+    KEY idx_notifications_created_at (created_at)
+);
+
+CREATE TABLE task_favorites (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    task_id BIGINT NOT NULL,
+    created_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_task_favorites_user_task (user_id, task_id),
+    KEY idx_task_favorites_user_id (user_id)
+);
+
+INSERT INTO users (id, student_id, name, email, password, avatar_url, major, role, status, disabled_reason, verified_status, score, points, last_login_at, created_at, updated_at)
 VALUES
-    (1, '20239999', '测试用户一', 'user1@example.com', '$2y$10$pDyLu1we/8IENxGEMGmBvOr4sKtzrDSfwG2TeailJfy2ZP05iFjZu', NULL, 'Computer Science', 'USER', 'ACTIVE', NULL, 10.00, 100, NOW(), NOW(), NOW()),
-    (2, '20239998', '测试用户二', 'user2@example.com', '$2y$10$pDyLu1we/8IENxGEMGmBvOr4sKtzrDSfwG2TeailJfy2ZP05iFjZu', NULL, 'Mathematics', 'USER', 'ACTIVE', NULL, 8.50, 80, NOW(), NOW(), NOW()),
-    (3, '20230001', '测试用户', 'test@example.com', '$2y$10$pDyLu1we/8IENxGEMGmBvOr4sKtzrDSfwG2TeailJfy2ZP05iFjZu', NULL, 'Software Engineering', 'USER', 'ACTIVE', NULL, 0.00, 0, NOW(), NOW(), NOW()),
-    (4, 'admin', '系统管理员', 'admin@campushub.local', '$2y$10$pDyLu1we/8IENxGEMGmBvOr4sKtzrDSfwG2TeailJfy2ZP05iFjZu', NULL, 'CampusHub Ops', 'ADMIN', 'ACTIVE', NULL, 10.00, 999, NOW(), NOW(), NOW());
+    (1, '20239999', '测试用户一', 'user1@example.com', '$2y$10$pDyLu1we/8IENxGEMGmBvOr4sKtzrDSfwG2TeailJfy2ZP05iFjZu', NULL, 'Computer Science', 'USER', 'ACTIVE', NULL, 'NONE', 10.00, 100, NOW(), NOW(), NOW()),
+    (2, '20239998', '测试用户二', 'user2@example.com', '$2y$10$pDyLu1we/8IENxGEMGmBvOr4sKtzrDSfwG2TeailJfy2ZP05iFjZu', NULL, 'Mathematics', 'USER', 'ACTIVE', NULL, 'NONE', 8.50, 80, NOW(), NOW(), NOW()),
+    (3, '20230001', '测试用户', 'test@example.com', '$2y$10$pDyLu1we/8IENxGEMGmBvOr4sKtzrDSfwG2TeailJfy2ZP05iFjZu', NULL, 'Software Engineering', 'USER', 'ACTIVE', NULL, 'NONE', 0.00, 0, NOW(), NOW(), NOW()),
+    (4, 'admin', '系统管理员', 'admin@campushub.local', '$2y$10$pDyLu1we/8IENxGEMGmBvOr4sKtzrDSfwG2TeailJfy2ZP05iFjZu', NULL, 'CampusHub Ops', 'ADMIN', 'ACTIVE', NULL, 'NONE', 10.00, 999, NOW(), NOW(), NOW());
 
 INSERT INTO user_settings (id, user_id, notification_enabled, theme, language, updated_at)
 VALUES
