@@ -36,17 +36,6 @@ const router = createRouter({
     if (savedPosition) {
       return savedPosition
     }
-    // Restore immediately (synchronous, before paint) to prevent flash
-    if (_to.name === 'home') {
-      const saved = sessionStorage.getItem('home_scroll')
-      if (saved) {
-        sessionStorage.removeItem('home_scroll')
-        try {
-          const pos = JSON.parse(saved)
-          return { top: pos.top, behavior: 'instant' }
-        } catch { /* ignore */ }
-      }
-    }
     return { top: 0 }
   },
   routes: [

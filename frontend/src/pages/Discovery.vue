@@ -984,7 +984,17 @@ onMounted(() => {
     fetchTasks(),
     fetchAnnouncements(),
     fetchTopicPosts()
-  ])
+  ]).then(() => {
+    // Smooth scroll to saved position after data loads
+    const saved = sessionStorage.getItem('home_scroll')
+    if (saved) {
+      sessionStorage.removeItem('home_scroll')
+      try {
+        const pos = JSON.parse(saved)
+        nextTick(() => window.scrollTo({ top: pos.top, behavior: 'smooth' }))
+      } catch { /* ignore */ }
+    }
+  })
 })
 
 // Save scroll position when leaving the page
