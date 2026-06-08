@@ -786,19 +786,17 @@ public class TaskService {
             taskMapper.update(task);
             invalidateFeedCache();
             redisTemplate.delete("tasks:" + task.getId());
-            messageService.sendSystemTaskMessage(
-                4L,
-                task.getRequesterId(),
-                task.getId(),
-                String.format("【自动取消】你的需求《%s》已超时未有人接单，系统已自动取消。", task.getTitle())
-            );
+            boolean isTopic = "topic".equals(task.getTaskMode());
+            String title = isTopic ? "话题帖已过期" : "任务已自动取消";
+            String msg = isTopic
+                ? String.format("【自动关闭】你的话题帖《%s》已超过截止时间，系统已自动关闭。", task.getTitle())
+                : String.format("【自动取消】你的需求《%s》已超时未有人接单，系统已自动取消。", task.getTitle());
+            String notificationContent = isTopic
+                ? String.format("你的话题帖《%s》已超过截止时间，已自动关闭", task.getTitle())
+                : String.format("你的需求《%s》已超时未有人接单，系统已自动取消", task.getTitle());
+            messageService.sendSystemTaskMessage(4L, task.getRequesterId(), task.getId(), msg);
             notificationService.createNotification(
-                task.getRequesterId(),
-                "SYSTEM",
-                "任务已自动取消",
-                String.format("你的需求《%s》已超时未有人接单，系统已自动取消", task.getTitle()),
-                "task",
-                task.getId()
+                task.getRequesterId(), "SYSTEM", title, notificationContent, isTopic ? "topic" : "task", task.getId()
             );
         }
     }

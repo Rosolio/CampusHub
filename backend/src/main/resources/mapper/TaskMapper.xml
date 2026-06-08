@@ -435,7 +435,6 @@
         FROM tasks t
         LEFT JOIN users u ON t.requester_id = u.id
         WHERE t.status = 'pending'
-          AND t.task_mode = 'task'
           AND t.expires_at IS NOT NULL
           AND t.expires_at <![CDATA[<]]> #{now}
         LIMIT 100
