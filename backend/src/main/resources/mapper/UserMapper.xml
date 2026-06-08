@@ -122,7 +122,7 @@
     </delete>
 
     <select id="selectTopByPoints" resultType="com.campushub.entity.User">
-        SELECT id, name, avatar_url AS avatarUrl, points, score
+        SELECT id, name, points, score
         FROM users
         WHERE role != 'ADMIN' AND status = 'ACTIVE'
         ORDER BY points DESC

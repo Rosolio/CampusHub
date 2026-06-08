@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -65,7 +66,6 @@ public class UserService {
             Map<String, Object> item = new HashMap<>();
             item.put("id", user.getId());
             item.put("name", user.getName());
-            item.put("avatarUrl", user.getAvatarUrl());
             item.put("points", user.getPoints());
             item.put("score", user.getScore());
             return item;
@@ -192,6 +192,17 @@ public class UserService {
             nextScore = BigDecimal.ZERO;
         }
         updateScore(userId, nextScore);
+    }
+
+    public void invalidateLeaderboardCache() {
+        // Try deleting common leaderboard keys
+        for (int l : new int[]{10, 20, 50, 100}) {
+            try {
+                redisTemplate.delete("leaderboard:" + l);
+            } catch (Exception e) {
+                // Silently skip
+            }
+        }
     }
 
 }

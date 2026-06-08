@@ -16,7 +16,8 @@ CREATE TABLE IF NOT EXISTS users (
     updated_at DATETIME NOT NULL,
     PRIMARY KEY (id),
     UNIQUE KEY uk_users_student_id (student_id),
-    UNIQUE KEY uk_users_email (email)
+    UNIQUE KEY uk_users_email (email),
+    KEY idx_users_points (points)
 );
 
 CREATE TABLE IF NOT EXISTS user_settings (

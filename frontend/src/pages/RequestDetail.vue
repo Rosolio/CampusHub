@@ -252,6 +252,7 @@
                   class="min-h-36 w-[96%] mx-auto block rounded-3xl border border-outline-variant/20 bg-surface px-3 py-4 text-on-surface outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
                   :placeholder="replyTarget ? '写下你的回复...' : '写下你的评论，发布后可获得 5 积分...'"
                   :disabled="isExpiredTopic"
+                  @keydown.enter.exact.prevent="submitComment"
                 ></textarea>
                 <div class="mt-3 flex justify-end">
                   <EmojiPicker :disabled="isExpiredTopic" align="right" @select="insertCommentEmoji" />
