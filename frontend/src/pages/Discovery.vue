@@ -984,19 +984,7 @@ onMounted(() => {
     fetchTasks(),
     fetchAnnouncements(),
     fetchTopicPosts()
-  ]).then(() => {
-    // Restore scroll position after data is loaded
-    nextTick(() => {
-      const saved = sessionStorage.getItem('home_scroll')
-      if (saved) {
-        sessionStorage.removeItem('home_scroll')
-        try {
-          const pos = JSON.parse(saved)
-          window.scrollTo({ top: pos.top, behavior: 'instant' })
-        } catch { /* ignore */ }
-      }
-    })
-  })
+  ])
 })
 
 // Save scroll position when leaving the page
