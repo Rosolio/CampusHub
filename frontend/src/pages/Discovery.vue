@@ -589,7 +589,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
-import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { RouterLink, useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 import { announcementApi, taskApi } from '../services/api'
 
 const route = useRoute()
@@ -984,6 +984,23 @@ onMounted(() => {
     fetchTasks(),
     fetchAnnouncements(),
     fetchTopicPosts()
-  ])
+  ]).then(() => {
+    // Restore scroll position after data is loaded
+    nextTick(() => {
+      const saved = sessionStorage.getItem('home_scroll')
+      if (saved) {
+        sessionStorage.removeItem('home_scroll')
+        try {
+          const pos = JSON.parse(saved)
+          window.scrollTo({ top: pos.top, behavior: 'instant' })
+        } catch { /* ignore */ }
+      }
+    })
+  })
+})
+
+// Save scroll position when leaving the page
+onBeforeRouteLeave(() => {
+  sessionStorage.setItem('home_scroll', JSON.stringify({ top: window.scrollY, left: 0 }))
 })
 </script>
