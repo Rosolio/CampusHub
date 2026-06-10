@@ -311,13 +311,6 @@ const handleCategoryChange = (category: string) => {
   const previousMode = activeCategory.value.mode
   const newMode = categories.find((c) => c.value === category)?.mode || 'task'
 
-  // Warn before clearing form on mode switch
-  const hasContent = form.value.title || form.value.description || form.value.location
-  if (previousMode !== newMode && hasContent) {
-    const confirmed = window.confirm('切换分类将清空已填内容，确定继续？')
-    if (!confirmed) return
-  }
-
   form.value.category = category
 
   if (previousMode !== newMode) {

@@ -89,7 +89,7 @@
                   >badge</span
                 >
                 <input
-                  class="w-full pl-10 pr-4 py-3.5 bg-surface-container-low ghost-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-on-surface-variant/40"
+                  class="w-[90%] mx-auto pl-10 pr-4 py-3.5 bg-surface-container-low ghost-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-on-surface-variant/40"
                   id="student-id"
                   placeholder="例如：20230045 或 wanppi"
                   type="text"
@@ -110,7 +110,7 @@
                   >lock</span
                 >
                 <input
-                  class="w-full pl-10 pr-10 py-3.5 bg-surface-container-low ghost-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-on-surface-variant/40"
+                  class="w-[85%] mx-auto pl-10 pr-10 py-3.5 bg-surface-container-low ghost-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-on-surface-variant/40"
                   id="password"
                   placeholder="••••••••"
                   :type="showLoginPassword ? 'text' : 'password'"
@@ -160,7 +160,7 @@
                   >badge</span
                 >
                 <input
-                  class="w-full pl-10 pr-4 py-3.5 bg-surface-container-low ghost-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-on-surface-variant/40"
+                  class="w-[90%] mx-auto pl-10 pr-4 py-3.5 bg-surface-container-low ghost-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-on-surface-variant/40"
                   id="reg-student-id"
                   placeholder="例如：20230045"
                   type="text"
@@ -178,7 +178,7 @@
                   >person</span
                 >
                 <input
-                  class="w-full pl-10 pr-4 py-3.5 bg-surface-container-low ghost-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-on-surface-variant/40"
+                  class="w-[90%] mx-auto pl-10 pr-4 py-3.5 bg-surface-container-low ghost-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-on-surface-variant/40"
                   id="reg-name"
                   placeholder="请输入您的昵称"
                   type="text"
@@ -196,7 +196,7 @@
                   >email</span
                 >
                 <input
-                  class="w-full pl-10 pr-4 py-3.5 bg-surface-container-low ghost-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-on-surface-variant/40"
+                  class="w-[90%] mx-auto pl-10 pr-4 py-3.5 bg-surface-container-low ghost-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-on-surface-variant/40"
                   id="reg-email"
                   placeholder="请输入您的邮箱"
                   type="email"
@@ -214,7 +214,7 @@
                   >lock</span
                 >
                 <input
-                  class="w-full pl-10 pr-10 py-3.5 bg-surface-container-low ghost-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-on-surface-variant/40"
+                  class="w-[85%] mx-auto pl-10 pr-10 py-3.5 bg-surface-container-low ghost-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-on-surface-variant/40"
                   id="reg-password"
                   placeholder="••••••••"
                   :type="showRegisterPassword ? 'text' : 'password'"
@@ -241,7 +241,7 @@
                   >lock</span
                 >
                 <input
-                  class="w-full pl-10 pr-10 py-3.5 bg-surface-container-low ghost-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-on-surface-variant/40"
+                  class="w-[85%] mx-auto pl-10 pr-10 py-3.5 bg-surface-container-low ghost-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-on-surface-variant/40"
                   id="reg-confirm-password"
                   placeholder="••••••••"
                   :type="showRegisterConfirmPassword ? 'text' : 'password'"
