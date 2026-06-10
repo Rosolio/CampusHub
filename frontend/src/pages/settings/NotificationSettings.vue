@@ -34,8 +34,9 @@
           <button
             type="button"
             class="w-full bg-gradient-to-br from-primary to-primary-dim text-on-primary font-bold py-4 rounded-xl shadow-lg hover:scale-[1.02] active:scale-95 transition-all duration-300"
+            @click="saveSettings"
           >
-            保存设置
+            {{ saved ? '已保存 ✓' : '保存设置' }}
           </button>
         </div>
       </div>
@@ -45,9 +46,16 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import PageBackHeader from '../../components/PageBackHeader.vue'
 import SettingsToggleItem from '../../components/SettingsToggleItem.vue'
+
+const saved = ref(false)
+
+const saveSettings = () => {
+  saved.value = true
+  setTimeout(() => { saved.value = false }, 2000)
+}
 
 const notificationState = reactive({
   enabled: true,
