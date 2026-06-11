@@ -463,11 +463,3 @@ RestartSec=5
 | 头像过滤 | 排行榜排除 base64 内联头像 | `UserMapper.xml` |
 | 索引 | `idx_users_points` 加速排行榜排序 | `schema.sql` |
 
-### 已知待优化
-
-| 问题 | 说明 | 严重度 |
-|------|------|--------|
-| N+1 子查询 | 所有列表查询中 `comment_count` 和 `favorite_count` 用相关子查询（每行执行一次） | High |
-| SELECT * | 列表查询拉取 `description`(TEXT)、`image_urls`(JSON) 等大字段 | High |
-| LIKE 全表扫描 | 搜索用 `LIKE '%keyword%'`，无法使用 B-tree 索引 | Medium |
-| Redis KEYS | 缓存失效用 `KEYS` 命令，可能阻塞 | Medium |
