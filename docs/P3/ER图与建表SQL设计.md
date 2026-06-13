@@ -1,5 +1,8 @@
 # ER 图与建表 SQL 设计
 
+> 本文档已根据当前 `dev` 分支实际数据库结构更新。新增表：`notifications`、`task_favorites`、`user_verifications`、`user_point_records`、`user_login_logs`、`task_likes`、`task_comment_likes`。
+> Mermaid 源码位于本目录 `images/` 下，图片也一并生成。
+
 ## 1. 设计原则
 
 - 优先复用当前项目已有表结构
@@ -24,6 +27,9 @@ erDiagram
     USERS ||--o{ ANNOUNCEMENTS : posts
     USERS ||--o{ MESSAGES : sends
     USERS ||--o{ MESSAGES : receives
+    USERS ||--o{ NOTIFICATIONS : receives
+    USERS ||--o{ TASK_FAVORITES : creates
+    USERS ||--o{ USER_VERIFICATIONS : applies
 
     TASKS ||--o{ TASK_PARTICIPANTS : contains
     TASKS ||--o{ TASK_COMMENTS : has
@@ -31,10 +37,14 @@ erDiagram
     TASKS ||--o{ TASK_REVIEWS : has
     TASKS ||--o{ MESSAGES : relates
     TASKS ||--o{ FEEDBACK : relates
+    TASKS ||--o{ TASK_FAVORITES : bookmarked
+    TASKS ||--o{ NOTIFICATIONS : triggers
 
     TASK_COMMENTS ||--o{ TASK_COMMENT_LIKES : has
     TASK_COMMENTS ||--o{ TASK_COMMENTS : replies
 ```
+
+![ER 图](./images/ER图与建表SQL设计_1.png)
 
 ## 3. 核心实体说明
 
@@ -51,6 +61,12 @@ erDiagram
 | `messages` | 站内消息 | `id` | `sender_id`、`receiver_id`、`task_id` |
 | `feedback` | 纠纷与反馈 | `id` | `user_id`、`admin_id` |
 | `announcements` | 公告 | `id` | `author_id` |
+| `notifications` | 系统通知 | `id` | `user_id`、`reference_id` |
+| `task_favorites` | 任务收藏 | `id` | `user_id`、`task_id` |
+| `user_verifications` | 校园认证 | `id` | `user_id`、`reviewer_id` |
+| `user_point_records` | 积分流水 | `id` | `user_id` |
+| `task_likes` | 任务点赞 | `id` | `task_id`、`user_id` |
+| `task_comment_likes` | 评论点赞 | `id` | `comment_id`、`user_id` |
 
 ## 4. 建表 SQL
 

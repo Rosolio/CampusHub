@@ -1,5 +1,7 @@
 # API 规范文档
 
+> 已根据当前 `dev` 分支实际控制器更新。新增接口：搜索、通知、文件上传、校园认证、Dashboard、收藏。
+
 ## 1. 设计依据
 
 本 API 规范基于以下内容统一整理：
@@ -342,6 +344,70 @@
 | `page` | integer | 否 | 页码 |
 | `size` | integer | 否 | 页大小 |
 | `status` | string | 否 | `UNREAD` / `READ` |
+
+## 5. AI 生成接口草案的审查记录
+
+| 检查项 | 发现的问题 | 修正结果 |
+|---|---|---|
+| 接口命名不一致 | AI 初稿混用了 `/task`、`/tasks`、`/order` | 统一为 REST 风格复数资源：`/tasks`、`/messages`、`/feedback` |
+| 缺少错误处理 | 初稿多数只写成功响应 | 为每个核心接口补充统一错误码与失败场景 |
+| 参数校验不完整 | 对 `rating`、`page`、`taskMode` 等缺少合法值范围 | 在规范中明确校验条件 |
+| 安全问题 | 初稿未写 Bearer Token、角色控制、禁用用户限制 | 增加认证方式、角色边界与资源访问限制 |
+
+### 4.11 搜索
+
+**GET** `/api/search`
+
+查询参数：
+
+| 字段 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `q` | string | 是 | 搜索关键词 |
+| `mode` | string | 否 | `task` / `topic` |
+| `page` | integer | 否 | 页码 |
+| `size` | integer | 否 | 每页条数 |
+
+### 4.12 通知
+
+**GET** `/api/notifications` — 通知列表
+**GET** `/api/notifications/unread-count` — 未读数
+**PUT** `/api/notifications/{id}/read` — 标记已读
+**PUT** `/api/notifications/read-all` — 全部已读
+
+### 4.13 文件上传
+
+**POST** `/api/files/upload`
+
+请求：`multipart/form-data` 格式，字段名 `file`
+
+成功响应：`{"url": "/files/uuid-filename.jpg"}`
+
+### 4.14 校园认证
+
+**GET** `/api/users/me/verification` — 查看认证状态
+**POST** `/api/users/me/verification` — 提交认证（multipart，含图片）
+
+### 4.15 Dashboard
+
+**GET** `/api/dashboard` — 个人主页聚合数据
+
+响应字段：
+
+| 字段 | 类型 | 说明 |
+|---|---|---|
+| `pendingReviewCount` | int | 待评价数 |
+| `pendingCompletionCount` | int | 待确认完成数 |
+| `unreadMessageCount` | int | 未读消息 |
+| `unreadNotificationCount` | int | 未读通知 |
+| `totalPoints` | int | 总积分 |
+| `leaderboardPosition` | int | 排行榜名次 |
+| `recommendedTasks` | array | 推荐任务列表 |
+
+### 4.16 收藏
+
+**POST** `/api/tasks/{id}/favorite` — 收藏
+**DELETE** `/api/tasks/{id}/favorite` — 取消收藏
+**GET** `/api/tasks/favorites` — 收藏列表
 
 ## 5. AI 生成接口草案的审查记录
 

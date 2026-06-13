@@ -1,0 +1,29 @@
+erDiagram
+    USERS ||--|| USER_SETTINGS : has
+    USERS ||--o{ USER_LOGIN_LOGS : creates
+    USERS ||--o{ USER_POINT_RECORDS : owns
+    USERS ||--o{ TASKS : publishes
+    USERS ||--o{ TASK_PARTICIPANTS : joins
+    USERS ||--o{ TASK_COMMENTS : writes
+    USERS ||--o{ TASK_LIKES : gives
+    USERS ||--o{ TASK_COMMENT_LIKES : gives
+    USERS ||--o{ TASK_REVIEWS : writes
+    USERS ||--o{ FEEDBACK : submits
+    USERS ||--o{ ANNOUNCEMENTS : posts
+    USERS ||--o{ MESSAGES : sends
+    USERS ||--o{ MESSAGES : receives
+    USERS ||--o{ NOTIFICATIONS : receives
+    USERS ||--o{ TASK_FAVORITES : creates
+    USERS ||--o{ USER_VERIFICATIONS : applies
+
+    TASKS ||--o{ TASK_PARTICIPANTS : contains
+    TASKS ||--o{ TASK_COMMENTS : has
+    TASKS ||--o{ TASK_LIKES : has
+    TASKS ||--o{ TASK_REVIEWS : has
+    TASKS ||--o{ MESSAGES : relates
+    TASKS ||--o{ FEEDBACK : relates
+    TASKS ||--o{ TASK_FAVORITES : bookmarked
+    TASKS ||--o{ NOTIFICATIONS : triggers
+
+    TASK_COMMENTS ||--o{ TASK_COMMENT_LIKES : has
+    TASK_COMMENTS ||--o{ TASK_COMMENTS : replies
