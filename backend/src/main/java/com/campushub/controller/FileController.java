@@ -49,7 +49,7 @@ public class FileController {
         Path targetPath = uploadPath.resolve(filename);
         file.transferTo(targetPath.toFile());
 
-        return Map.of("url", "/files/" + filename);
+        return Map.of("url", "/api/files/" + filename);
     }
 
     @GetMapping("/{filename}")
