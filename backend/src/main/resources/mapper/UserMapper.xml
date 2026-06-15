@@ -123,7 +123,7 @@
 
     <select id="selectTopByPoints" resultType="com.campushub.entity.User">
         SELECT id, name,
-               CASE WHEN avatar_url LIKE 'data:%' THEN NULL ELSE avatar_url END AS avatarUrl,
+               avatar_url AS avatarUrl,
                points, score
         FROM users
         WHERE role != 'ADMIN' AND status = 'ACTIVE'
