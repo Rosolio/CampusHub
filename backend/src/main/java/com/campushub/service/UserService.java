@@ -66,6 +66,7 @@ public class UserService {
             Map<String, Object> item = new HashMap<>();
             item.put("id", user.getId());
             item.put("name", user.getName());
+            item.put("avatarUrl", user.getAvatarUrl());
             item.put("points", user.getPoints());
             item.put("score", user.getScore());
             return item;
