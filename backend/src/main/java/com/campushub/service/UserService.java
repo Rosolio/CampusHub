@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -192,6 +193,17 @@ public class UserService {
             nextScore = BigDecimal.ZERO;
         }
         updateScore(userId, nextScore);
+    }
+
+    public void invalidateLeaderboardCache() {
+        // Try deleting common leaderboard keys
+        for (int l : new int[]{10, 20, 50, 100}) {
+            try {
+                redisTemplate.delete("leaderboard:" + l);
+            } catch (Exception e) {
+                // Silently skip
+            }
+        }
     }
 
 }

@@ -350,10 +350,17 @@
                       {{ taskStatusBadge(card.status) }}
                     </span>
                     <span
-                      v-if="card.matchScore !== null"
+                      v-if="recommendationMode === 'recommended' && card.matchScore !== null"
                       class="rounded-full border border-teal-200 bg-teal-50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-teal-800"
                     >
                       匹配度 {{ card.matchScore }}
+                    </span>
+                    <span
+                      v-if="recommendationMode === 'latest'"
+                      class="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-slate-600"
+                    >
+                      <span class="material-symbols-outlined text-sm">schedule</span>
+                      {{ formatTaskPublishTime(card.createdAt) }}
                     </span>
                   </div>
 
@@ -383,7 +390,7 @@
                     </div>
                   </div>
 
-                  <div v-if="card.matchReasons.length > 0" class="mt-4 flex flex-wrap gap-2">
+                  <div v-if="recommendationMode === 'recommended' && card.matchReasons.length > 0" class="mt-4 flex flex-wrap gap-2">
                     <span
                       v-for="reason in card.matchReasons.slice(0, 2)"
                       :key="reason"
@@ -472,6 +479,10 @@
                       <span class="inline-flex items-center gap-1">
                         <span class="material-symbols-outlined text-sm">favorite</span>
                         {{ card.likeCount || 0 }}
+                      </span>
+                      <span class="inline-flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">bookmark</span>
+                        {{ card.favoriteCount || 0 }}
                       </span>
                       <span class="inline-flex items-center gap-1">
                         <span class="material-symbols-outlined text-sm">chat_bubble</span>
@@ -578,7 +589,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
-import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { RouterLink, useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 import { announcementApi, taskApi } from '../services/api'
 
 const route = useRoute()
@@ -714,11 +725,13 @@ const mapTaskToCard = (task: any) => ({
   rewardText: task.rewardText || task.rewardTitle || '待补充',
   locationText: task.locationText,
   timeText: task.timeText,
+  createdAt: task.createdAt,
   matchScore: Number.isFinite(Number(task.matchScore)) ? Number(task.matchScore) : null,
   matchReasons: Array.isArray(task.matchReasons) ? task.matchReasons.filter(Boolean) : [],
   recommendationMode: task.recommendationMode,
   likeCount: Number(task.likeCount || 0),
   commentCount: Number(task.commentCount || 0),
+  favoriteCount: Number(task.favoriteCount || 0),
   publisher: task.requesterName || task.publisher || `用户 #${task.requesterId ?? ''}`
 })
 
@@ -734,6 +747,7 @@ const mapTopicToCard = (task: any) => ({
   timeText: task.timeText,
   likeCount: Number(task.likeCount || 0),
   commentCount: Number(task.commentCount || 0),
+  favoriteCount: Number(task.favoriteCount || 0),
   publisher: task.requesterName || task.publisher || `用户 #${task.requesterId ?? ''}`
 })
 
@@ -933,6 +947,31 @@ const formatAnnouncementTime = (value?: string) => {
   return `${date.getMonth() + 1}/${date.getDate()} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
 }
 
+const formatTaskPublishTime = (value?: string) => {
+  if (!value) return '刚刚发布'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return '刚刚发布'
+
+  const diffMs = Date.now() - date.getTime()
+  if (diffMs < 0) return '刚刚发布'
+
+  const diffMinutes = Math.floor(diffMs / 60000)
+  if (diffMinutes < 60) {
+    return `${Math.max(1, diffMinutes)} 分钟前发布`
+  }
+
+  const diffHours = Math.floor(diffMinutes / 60)
+  if (diffHours < 24) {
+    return `${diffHours} 小时前发布`
+  }
+
+  const month = date.getMonth() + 1
+  const day = date.getDate()
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+  return `${month}月${day}日 ${hours}:${minutes} 发布`
+}
+
 watch(filteredTopicPosts, () => {
   if (topicCurrentPage.value > totalTopicPages.value) {
     topicCurrentPage.value = totalTopicPages.value
@@ -945,6 +984,21 @@ onMounted(() => {
     fetchTasks(),
     fetchAnnouncements(),
     fetchTopicPosts()
-  ])
+  ]).then(() => {
+    // Smooth scroll to saved position after data loads
+    const saved = sessionStorage.getItem('home_scroll')
+    if (saved) {
+      sessionStorage.removeItem('home_scroll')
+      try {
+        const pos = JSON.parse(saved)
+        nextTick(() => window.scrollTo({ top: pos.top, behavior: 'smooth' }))
+      } catch { /* ignore */ }
+    }
+  })
+})
+
+// Save scroll position when leaving the page
+onBeforeRouteLeave(() => {
+  sessionStorage.setItem('home_scroll', JSON.stringify({ top: window.scrollY, left: 0 }))
 })
 </script>

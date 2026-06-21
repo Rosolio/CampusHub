@@ -39,7 +39,8 @@ CREATE TABLE users (
     updated_at DATETIME NOT NULL,
     PRIMARY KEY (id),
     UNIQUE KEY uk_users_student_id (student_id),
-    UNIQUE KEY uk_users_email (email)
+    UNIQUE KEY uk_users_email (email),
+    KEY idx_users_points (points)
 );
 
 CREATE TABLE user_settings (
@@ -274,10 +275,10 @@ CREATE TABLE task_favorites (
 
 INSERT INTO users (id, student_id, name, email, password, avatar_url, major, role, status, disabled_reason, verified_status, score, points, last_login_at, created_at, updated_at)
 VALUES
-    (1, '20239999', '测试用户一', 'user1@example.com', '$2y$10$pDyLu1we/8IENxGEMGmBvOr4sKtzrDSfwG2TeailJfy2ZP05iFjZu', NULL, 'Computer Science', 'USER', 'ACTIVE', NULL, 'NONE', 10.00, 100, NOW(), NOW(), NOW()),
-    (2, '20239998', '测试用户二', 'user2@example.com', '$2y$10$pDyLu1we/8IENxGEMGmBvOr4sKtzrDSfwG2TeailJfy2ZP05iFjZu', NULL, 'Mathematics', 'USER', 'ACTIVE', NULL, 'NONE', 8.50, 80, NOW(), NOW(), NOW()),
-    (3, '20230001', '测试用户', 'test@example.com', '$2y$10$pDyLu1we/8IENxGEMGmBvOr4sKtzrDSfwG2TeailJfy2ZP05iFjZu', NULL, 'Software Engineering', 'USER', 'ACTIVE', NULL, 'NONE', 0.00, 0, NOW(), NOW(), NOW()),
-    (4, 'admin', '系统管理员', 'admin@campushub.local', '$2y$10$pDyLu1we/8IENxGEMGmBvOr4sKtzrDSfwG2TeailJfy2ZP05iFjZu', NULL, 'CampusHub Ops', 'ADMIN', 'ACTIVE', NULL, 'NONE', 10.00, 999, NOW(), NOW(), NOW());
+    (1, '20239999', '测试用户一', 'user1@example.com', '$2y$10$pDyLu1we/8IENxGEMGmBvOr4sKtzrDSfwG2TeailJfy2ZP05iFjZu', NULL, 'Computer Science', 'USER', 'ACTIVE', NULL, 10.00, 100, DATE_SUB(NOW(), INTERVAL 30 DAY), NOW(), NOW()),
+    (2, '20239998', '测试用户二', 'user2@example.com', '$2y$10$pDyLu1we/8IENxGEMGmBvOr4sKtzrDSfwG2TeailJfy2ZP05iFjZu', NULL, 'Mathematics', 'USER', 'ACTIVE', NULL, 8.50, 80, DATE_SUB(NOW(), INTERVAL 30 DAY), NOW(), NOW()),
+    (3, '20230001', '测试用户', 'test@example.com', '$2y$10$pDyLu1we/8IENxGEMGmBvOr4sKtzrDSfwG2TeailJfy2ZP05iFjZu', NULL, 'Software Engineering', 'USER', 'ACTIVE', NULL, 0.00, 0, DATE_SUB(NOW(), INTERVAL 30 DAY), NOW(), NOW()),
+    (4, 'admin', '系统管理员', 'admin@campushub.local', '$2y$10$pDyLu1we/8IENxGEMGmBvOr4sKtzrDSfwG2TeailJfy2ZP05iFjZu', NULL, 'CampusHub Ops', 'ADMIN', 'ACTIVE', NULL, 10.00, 999, DATE_SUB(NOW(), INTERVAL 30 DAY), NOW(), NOW());
 
 INSERT INTO user_settings (id, user_id, notification_enabled, theme, language, updated_at)
 VALUES

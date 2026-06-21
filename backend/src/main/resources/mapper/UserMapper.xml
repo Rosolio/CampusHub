@@ -52,7 +52,7 @@
 
     <select id="selectAdminUsers" resultMap="UserResultMap">
         SELECT id, student_id, name, email, password,
-               CASE WHEN avatar_url LIKE 'data:%' THEN NULL ELSE avatar_url END AS avatar_url,
+               CASE WHEN avatar_url LIKE 'data:%' THEN NULL ELSE avatar_url END AS avatarUrl,
                major, role, status, verified_status, disabled_reason,
                score, points, last_login_at, created_at, updated_at
         FROM users
@@ -122,7 +122,9 @@
     </delete>
 
     <select id="selectTopByPoints" resultType="com.campushub.entity.User">
-        SELECT id, name, avatar_url AS avatarUrl, points, score
+        SELECT id, name,
+               avatar_url AS avatarUrl,
+               points, score
         FROM users
         WHERE role != 'ADMIN' AND status = 'ACTIVE'
         ORDER BY points DESC

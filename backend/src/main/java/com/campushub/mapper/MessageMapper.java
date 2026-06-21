@@ -20,5 +20,5 @@ public interface MessageMapper {
     int updateStatus(@Param("id") Long id, @Param("status") String status);
     int delete(Long id);
     int countUnreadByReceiverId(Long receiverId);
-    int markAsReadBatch(@Param("ids") List<Long> ids);
+    int markAsReadBatch(@Param("ids") List<Long> ids, @Param("currentUserId") Long currentUserId);
 }

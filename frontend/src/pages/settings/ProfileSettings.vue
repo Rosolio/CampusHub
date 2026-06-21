@@ -113,7 +113,7 @@ import { computed, onMounted, ref } from 'vue'
 import FormField from '../../components/FormField.vue'
 import PageBackHeader from '../../components/PageBackHeader.vue'
 import { DEFAULT_AVATAR_URL } from '../../constants/assets'
-import { userApi } from '../../services/api'
+import { userApi, fileApi } from '../../services/api'
 import { setStoredUser, storedUser } from '../../utils/auth'
 
 type FeedbackState = {
@@ -194,16 +194,25 @@ const handleAvatarChange = (event: Event) => {
     return
   }
 
-  const reader = new FileReader()
-  reader.onload = () => {
-    form.value.avatarUrl = typeof reader.result === 'string' ? reader.result : form.value.avatarUrl
-    feedback.value = { message: '', type: 'success' }
-  }
-  reader.onerror = () => {
-    feedback.value = { message: '头像读取失败，请换一张图片重试。', type: 'error' }
-  }
-  reader.readAsDataURL(file)
-}
+  // Upload via file API, store URL instead of base64
+  const prevUrl = form.value.avatarUrl
+  form.value.avatarUrl = ''
+  saving.value = true
+  feedback.value = { message: '上传头像中...', type: 'success' }
+
+  fileApi.upload(file)
+    .then((res: any) => {
+      const url = res?.url || res?.data?.url || ''
+      form.value.avatarUrl = url || prevUrl
+      feedback.value = { message: '头像已上传，记得保存。', type: 'success' }
+    })
+    .catch(() => {
+      form.value.avatarUrl = prevUrl
+      feedback.value = { message: '头像上传失败，请重试。', type: 'error' }
+    })
+    .finally(() => {
+      saving.value = false
+    })}
 
 const handleSave = async () => {
   if (!form.value.name.trim()) {

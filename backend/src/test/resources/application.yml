@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${TEST_DB_URL:jdbc:mysql://127.0.0.1:3306/campusaid?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai}
+    url: ${TEST_DB_URL:jdbc:mysql://127.0.0.1:3306/campushub?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai}
     username: ${TEST_DB_USERNAME:${DB_USERNAME:root}}
-    password: ${TEST_DB_PASSWORD:${DB_PASSWORD:Xgj2025.}}
+    password: ${TEST_DB_PASSWORD:${DB_PASSWORD:}}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   sql:

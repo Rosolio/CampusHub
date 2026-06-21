@@ -15,6 +15,8 @@
         <result property="senderAvatarUrl" column="sender_avatar_url"/>
         <result property="receiverName" column="receiver_name"/>
         <result property="receiverAvatarUrl" column="receiver_avatar_url"/>
+        <result property="senderLastLoginAt" column="sender_last_login_at"/>
+        <result property="receiverLastLoginAt" column="receiver_last_login_at"/>
         <result property="taskTitle" column="task_title"/>
     </resultMap>
 
@@ -24,6 +26,8 @@
                CASE WHEN sender.avatar_url LIKE 'data:%' THEN NULL ELSE sender.avatar_url END AS sender_avatar_url,
                receiver.name AS receiver_name,
                CASE WHEN receiver.avatar_url LIKE 'data:%' THEN NULL ELSE receiver.avatar_url END AS receiver_avatar_url,
+                   receiver.last_login_at AS receiver_last_login_at,
+                   sender.last_login_at AS sender_last_login_at,
                t.title AS task_title
         FROM messages m
         LEFT JOIN users sender ON m.sender_id = sender.id
@@ -39,18 +43,23 @@
                    CASE WHEN sender.avatar_url LIKE 'data:%' THEN NULL ELSE sender.avatar_url END AS sender_avatar_url,
                    receiver.name AS receiver_name,
                    CASE WHEN receiver.avatar_url LIKE 'data:%' THEN NULL ELSE receiver.avatar_url END AS receiver_avatar_url,
+                   receiver.last_login_at AS receiver_last_login_at,
+                   sender.last_login_at AS sender_last_login_at,
                    t.title AS task_title
             FROM messages m
             LEFT JOIN users sender ON m.sender_id = sender.id
             LEFT JOIN users receiver ON m.receiver_id = receiver.id
             LEFT JOIN tasks t ON m.task_id = t.id
             WHERE m.sender_id = #{userId}
+              AND m.content NOT REGEXP '^【(评论回复|帖子回复|评价通知|内容审核提醒|接单通知|等待互评|完成确认|自动取消)】'
             UNION ALL
             SELECT m.*,
                    sender.name AS sender_name,
                    CASE WHEN sender.avatar_url LIKE 'data:%' THEN NULL ELSE sender.avatar_url END AS sender_avatar_url,
                    receiver.name AS receiver_name,
                    CASE WHEN receiver.avatar_url LIKE 'data:%' THEN NULL ELSE receiver.avatar_url END AS receiver_avatar_url,
+                   receiver.last_login_at AS receiver_last_login_at,
+                   sender.last_login_at AS sender_last_login_at,
                    t.title AS task_title
             FROM messages m
             LEFT JOIN users sender ON m.sender_id = sender.id
@@ -75,6 +84,7 @@
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}
         </foreach>
+          AND receiver_id = #{currentUserId}
           AND status = 'unread'
     </update>
 
@@ -84,6 +94,8 @@
                CASE WHEN sender.avatar_url LIKE 'data:%' THEN NULL ELSE sender.avatar_url END AS sender_avatar_url,
                receiver.name AS receiver_name,
                CASE WHEN receiver.avatar_url LIKE 'data:%' THEN NULL ELSE receiver.avatar_url END AS receiver_avatar_url,
+                   receiver.last_login_at AS receiver_last_login_at,
+                   sender.last_login_at AS sender_last_login_at,
                t.title AS task_title
         FROM messages m
         LEFT JOIN users sender ON m.sender_id = sender.id
@@ -100,6 +112,8 @@
                CASE WHEN sender.avatar_url LIKE 'data:%' THEN NULL ELSE sender.avatar_url END AS sender_avatar_url,
                receiver.name AS receiver_name,
                CASE WHEN receiver.avatar_url LIKE 'data:%' THEN NULL ELSE receiver.avatar_url END AS receiver_avatar_url,
+                   receiver.last_login_at AS receiver_last_login_at,
+                   sender.last_login_at AS sender_last_login_at,
                t.title AS task_title
         FROM messages m
         LEFT JOIN users sender ON m.sender_id = sender.id
@@ -116,6 +130,8 @@
                CASE WHEN sender.avatar_url LIKE 'data:%' THEN NULL ELSE sender.avatar_url END AS sender_avatar_url,
                receiver.name AS receiver_name,
                CASE WHEN receiver.avatar_url LIKE 'data:%' THEN NULL ELSE receiver.avatar_url END AS receiver_avatar_url,
+                   receiver.last_login_at AS receiver_last_login_at,
+                   sender.last_login_at AS sender_last_login_at,
                t.title AS task_title
         FROM messages m
         LEFT JOIN users sender ON m.sender_id = sender.id
@@ -131,6 +147,8 @@
                CASE WHEN sender.avatar_url LIKE 'data:%' THEN NULL ELSE sender.avatar_url END AS sender_avatar_url,
                receiver.name AS receiver_name,
                CASE WHEN receiver.avatar_url LIKE 'data:%' THEN NULL ELSE receiver.avatar_url END AS receiver_avatar_url,
+                   receiver.last_login_at AS receiver_last_login_at,
+                   sender.last_login_at AS sender_last_login_at,
                t.title AS task_title
         FROM messages m
         LEFT JOIN users sender ON m.sender_id = sender.id

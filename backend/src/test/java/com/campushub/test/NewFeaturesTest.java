@@ -151,13 +151,24 @@ public class NewFeaturesTest extends IntegrationTestSupport {
         request.setImpactText("errand");
         Task task = taskService.createTask(request, 1L);
 
+        // Record baseline count before favoriting
+        int beforeCount = taskService.getFavoriteTasks(2L).size();
+
+        // User 2 favorites the task
         taskService.favoriteTask(task.getId(), 2L);
         List<Task> favorites = taskService.getFavoriteTasks(2L);
-        assertFalse(favorites.isEmpty());
+        assertEquals(beforeCount + 1, favorites.size());
+        assertTrue(favorites.stream().anyMatch(t -> t.getId().equals(task.getId())));
 
+        // User 2 unfavorites the task
         taskService.unfavoriteTask(task.getId(), 2L);
+
+        // Verify the count went back to baseline (the task is no longer favorited)
         List<Task> afterUnfavorite = taskService.getFavoriteTasks(2L);
-        assertTrue(afterUnfavorite.isEmpty());
+        assertEquals(beforeCount, afterUnfavorite.size(),
+            "Expected " + beforeCount + " after unfavorite, got " + afterUnfavorite.size() +
+            ": " + afterUnfavorite.stream().map(t -> t.getId() + "=" + t.getTitle()).toList());
+        assertTrue(afterUnfavorite.stream().noneMatch(t -> t.getId().equals(task.getId())));
     }
 
     @Test

@@ -56,6 +56,7 @@ public class TaskService {
     private final NotificationService notificationService;
     private final TaskRecommendationService taskRecommendationService;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final com.campushub.config.OnlineSessionManager onlineSessionManager;
 
     public TaskService(
         TaskMapper taskMapper,
@@ -69,7 +70,8 @@ public class TaskService {
         MessageService messageService,
         NotificationService notificationService,
         TaskRecommendationService taskRecommendationService,
-        RedisTemplate<String, Object> redisTemplate
+        RedisTemplate<String, Object> redisTemplate,
+        com.campushub.config.OnlineSessionManager onlineSessionManager
     ) {
         this.taskMapper = taskMapper;
         this.taskCommentMapper = taskCommentMapper;
@@ -83,6 +85,7 @@ public class TaskService {
         this.notificationService = notificationService;
         this.taskRecommendationService = taskRecommendationService;
         this.redisTemplate = redisTemplate;
+        this.onlineSessionManager = onlineSessionManager;
     }
 
     public List<Task> getTasks() {
@@ -189,6 +192,11 @@ public class TaskService {
                 throw new RuntimeException("帖子已截止，仅发布者自己可见");
             }
             task.setLikedByCurrentUser(isTaskLikedByUser(task, currentUserId));
+            task.setIsFavorited(isTaskFavoritedByUser(task, currentUserId));
+            task.setRequesterOnline(onlineSessionManager.isOnline(task.getRequesterId()));
+            if (task.getHelperId() != null) {
+                task.setHelperOnline(onlineSessionManager.isOnline(task.getHelperId()));
+            }
         }
         return task;
     }
@@ -240,6 +248,11 @@ public class TaskService {
 
         // 清除缓存
         invalidateFeedCache();
+
+        // 话题帖发布获得 5 积分
+        if (TaskModeResolver.isTopicTask(task)) {
+            userService.addPoints(requesterId, 5, "TOPIC_CREATION", "发布话题帖", "task", task.getId());
+        }
 
         if (requiresManualReview) {
             notifyTaskEvent(
@@ -555,7 +568,7 @@ public class TaskService {
         taskMapper.update(task);
         userService.addPoints(task.getRequesterId(), 1, "TOPIC_LIKE_REWARD", "帖子获赞奖励", "task", taskId);
 
-        redisTemplate.delete("tasks:all");
+        invalidateFeedCache();
         redisTemplate.delete("tasks:" + taskId);
 
         task.setLikedByCurrentUser(true);
@@ -578,7 +591,7 @@ public class TaskService {
         taskMapper.update(task);
         userService.addPoints(task.getRequesterId(), -1, "TOPIC_LIKE_REVOKE", "帖子取消点赞扣回", "task", taskId);
 
-        redisTemplate.delete("tasks:all");
+        invalidateFeedCache();
         redisTemplate.delete("tasks:" + taskId);
 
         task.setLikedByCurrentUser(false);
@@ -619,6 +632,13 @@ public class TaskService {
             return false;
         }
         return taskLikeMapper.selectByTaskIdAndUserId(normalizedTask.getId(), currentUserId) != null;
+    }
+
+    private boolean isTaskFavoritedByUser(Task task, Long currentUserId) {
+        if (currentUserId == null || task == null || task.getId() == null) {
+            return false;
+        }
+        return taskFavoriteMapper.selectByUserIdAndTaskId(currentUserId, task.getId()) != null;
     }
 
     private boolean isVisibleToUser(Task task, Long currentUserId) {
@@ -724,7 +744,6 @@ public class TaskService {
         return "task";
     }
 
-    @Transactional
     public void favoriteTask(Long taskId, Long userId) {
         Task task = taskMapper.selectById(taskId);
         if (task == null) {
@@ -738,14 +757,17 @@ public class TaskService {
         favorite.setTaskId(taskId);
         favorite.setCreatedAt(LocalDateTime.now());
         taskFavoriteMapper.insert(favorite);
+        invalidateFeedCache();
+        redisTemplate.delete("tasks:" + taskId);
     }
 
-    @Transactional
     public void unfavoriteTask(Long taskId, Long userId) {
         if (taskFavoriteMapper.selectByUserIdAndTaskId(userId, taskId) == null) {
             throw new RuntimeException("还没有收藏");
         }
         taskFavoriteMapper.deleteByUserIdAndTaskId(userId, taskId);
+        invalidateFeedCache();
+        redisTemplate.delete("tasks:" + taskId);
     }
 
     public List<Task> getFavoriteTasks(Long userId) {
@@ -769,19 +791,17 @@ public class TaskService {
             taskMapper.update(task);
             invalidateFeedCache();
             redisTemplate.delete("tasks:" + task.getId());
-            messageService.sendSystemTaskMessage(
-                4L,
-                task.getRequesterId(),
-                task.getId(),
-                String.format("【自动取消】你的需求《%s》已超时未有人接单，系统已自动取消。", task.getTitle())
-            );
+            boolean isTopic = "topic".equals(task.getTaskMode());
+            String title = isTopic ? "话题帖已过期" : "任务已自动取消";
+            String msg = isTopic
+                ? String.format("【自动关闭】你的话题帖《%s》已超过截止时间，系统已自动关闭。", task.getTitle())
+                : String.format("【自动取消】你的需求《%s》已超时未有人接单，系统已自动取消。", task.getTitle());
+            String notificationContent = isTopic
+                ? String.format("你的话题帖《%s》已超过截止时间，已自动关闭", task.getTitle())
+                : String.format("你的需求《%s》已超时未有人接单，系统已自动取消", task.getTitle());
+            messageService.sendSystemTaskMessage(4L, task.getRequesterId(), task.getId(), msg);
             notificationService.createNotification(
-                task.getRequesterId(),
-                "SYSTEM",
-                "任务已自动取消",
-                String.format("你的需求《%s》已超时未有人接单，系统已自动取消", task.getTitle()),
-                "task",
-                task.getId()
+                task.getRequesterId(), "SYSTEM", title, notificationContent, isTopic ? "topic" : "task", task.getId()
             );
         }
     }

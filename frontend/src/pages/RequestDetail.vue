@@ -69,6 +69,16 @@
                   <span class="material-symbols-outlined text-base">{{ isTopicLiked ? 'favorite' : 'favorite_border' }}</span>
                   {{ topicLikeLoading ? '处理中...' : `${topicLikeCount} 点赞` }}
                 </button>
+                <button
+                  type="button"
+                  class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition-all"
+                  :class="[isFavorited ? 'bg-white text-amber-600' : 'border border-white/20 bg-white/10 text-white hover:bg-white/20']"
+                  :disabled="favoriteLoading || isOwnTask"
+                  @click="toggleFavorite"
+                >
+                  <span class="material-symbols-outlined text-base">{{ isFavorited ? 'bookmark' : 'bookmark_border' }}</span>
+                  {{ favoriteLoading ? '处理中...' : (isFavorited ? '已收藏' : '收藏') }}
+                </button>
                 <p class="text-sm" :class="isOwnTask ? 'text-white/75' : 'text-white/65'">
                   {{ isExpiredTopic ? '帖子已截止，当前仅支持查看。' : isOwnTask ? '自己的帖子暂不支持自赞。' : '每次被点赞可为作者增加 1 积分。' }}
                 </p>
@@ -235,12 +245,19 @@
               <div v-if="isExpiredTopic" class="mb-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
                 这条话题帖已截止，当前仅支持查看，不能再点赞、评论或回复。
               </div>
-              <textarea
-                v-model="commentForm.content"
-                class="min-h-36 w-[96%] mx-auto rounded-3xl border border-outline-variant/20 bg-surface px-3 py-4 text-on-surface outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
-                :placeholder="replyTarget ? '写下你的回复...' : '写下你的评论，发布后可获得 5 积分...'"
-                :disabled="isExpiredTopic"
-              ></textarea>
+              <div class="relative">
+                <textarea
+                  ref="commentTextarea"
+                  v-model="commentForm.content"
+                  class="min-h-36 w-[96%] mx-auto block rounded-3xl border border-outline-variant/20 bg-surface px-3 py-4 text-on-surface outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
+                  :placeholder="replyTarget ? '写下你的回复...' : '写下你的评论，发布后可获得 5 积分...'"
+                  :disabled="isExpiredTopic"
+                  @keydown.enter.exact.prevent="submitComment"
+                ></textarea>
+                <div class="mt-3 flex justify-end">
+                  <EmojiPicker :disabled="isExpiredTopic" align="right" @select="insertCommentEmoji" />
+                </div>
+              </div>
               <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <p class="text-sm text-on-surface-variant">公开回复会展示在帖子下方，方便其他同学继续参与讨论。</p>
                 <button
@@ -367,7 +384,11 @@
                   class="h-24 w-24 rounded-full border-4 border-surface-container-low object-cover shadow-md"
                   :src="profilePanelAvatarUrl"
                 />
-                <div class="absolute bottom-1 right-1 h-6 w-6 rounded-full border-4 border-surface-container-lowest bg-tertiary"></div>
+                <div
+                  class="absolute bottom-1 right-1 h-6 w-6 rounded-full border-4 border-surface-container-lowest"
+                  :class="isRequesterOnline ? 'bg-emerald-400' : 'bg-gray-300'"
+                  :title="isRequesterOnline ? '在线' : '离线'"
+                ></div>
               </div>
               <p class="text-xs font-bold uppercase tracking-[0.2em] text-on-surface-variant">{{ profilePanelTitle }}</p>
               <h2 class="mt-2 text-xl font-extrabold text-on-surface">{{ profilePanelName }}</h2>
@@ -496,6 +517,17 @@
               </p>
             </div>
             <button
+              v-if="!isOwnTask"
+              type="button"
+              class="mt-4 w-full rounded-2xl border border-amber-200 bg-amber-50 py-4 text-sm font-bold transition-colors"
+              :class="isFavorited ? 'text-amber-700 hover:bg-amber-100' : 'text-amber-600 hover:bg-amber-100'"
+              :disabled="favoriteLoading"
+              @click="toggleFavorite"
+            >
+              <span class="material-symbols-outlined text-base align-middle mr-2">{{ isFavorited ? 'bookmark' : 'bookmark_border' }}</span>
+              {{ favoriteLoading ? '处理中...' : (isFavorited ? '已收藏' : '收藏任务') }}
+            </button>
+            <button
               v-if="canDeleteTask"
               type="button"
               class="mt-4 w-full rounded-2xl border border-rose-200 bg-rose-50 py-4 text-sm font-bold text-rose-600 transition-colors hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60"
@@ -529,12 +561,18 @@
         </div>
 
         <label class="mb-2 block text-sm font-bold text-on-surface" for="contact-message">发送内容</label>
-        <textarea
-          id="contact-message"
-          v-model="contactMessage"
-          class="min-h-40 w-[96%] mx-auto rounded-3xl border border-outline-variant/20 bg-surface px-3 py-4 text-on-surface outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
-          :placeholder="isTopicPost ? '例如：你好，我想进一步了解这条帖子。' : '例如：你好，我对这个需求感兴趣，想确认一下时间和具体地点。'"
-        ></textarea>
+        <div class="relative">
+          <textarea
+            id="contact-message"
+            ref="contactTextarea"
+            v-model="contactMessage"
+            class="min-h-40 w-[96%] mx-auto block rounded-3xl border border-outline-variant/20 bg-surface px-3 py-4 text-on-surface outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
+            :placeholder="isTopicPost ? '例如：你好，我想进一步了解这条帖子。' : '例如：你好，我对这个需求感兴趣，想确认一下时间和具体地点。'"
+          ></textarea>
+          <div class="mt-3 flex justify-end">
+            <EmojiPicker :disabled="contactLoading" align="right" @select="insertContactEmoji" />
+          </div>
+        </div>
         <p v-if="contactError" class="mt-3 text-sm font-medium text-rose-600">{{ contactError }}</p>
 
         <div class="mt-6 flex items-center justify-end gap-3">
@@ -580,8 +618,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import EmojiPicker from '../components/EmojiPicker.vue'
 import PageBackHeader from '../components/PageBackHeader.vue'
 import { useConfirm } from '../composables/useConfirm'
 import { usePreferences } from '../composables/usePreferences'
@@ -613,12 +652,15 @@ const reviews = ref<any[]>([])
 const reviewsLoading = ref(false)
 const replyTarget = ref<any | null>(null)
 const commentForm = ref({ content: '' })
+const commentTextarea = ref<HTMLTextAreaElement | null>(null)
 const contactLoading = ref(false)
 const acceptLoading = ref(false)
 const deleteLoading = ref(false)
 const topicLikeLoading = ref(false)
+const favoriteLoading = ref(false)
 const showContactDialog = ref(false)
 const contactMessage = ref('')
+const contactTextarea = ref<HTMLTextAreaElement | null>(null)
 const contactError = ref('')
 const feedbackMessage = ref('')
 const feedbackType = ref<FeedbackType>('success')
@@ -675,6 +717,8 @@ const profilePanelPoints = computed(() => {
   }
   return request.value?.requesterPoints || 0
 })
+const isRequesterOnline = computed(() => Boolean(request.value?.requesterOnline))
+
 const profilePanelTitle = computed(() => {
   if (!isTopicPost.value && isOwnTask.value && request.value?.helperId) {
     return '接单同学'
@@ -717,6 +761,7 @@ const canDeleteTask = computed(() => {
   return !['accepted', 'completion_pending', 'completed'].includes(String(request.value.status || ''))
 })
 const isTopicLiked = computed(() => Boolean(request.value?.likedByCurrentUser))
+const isFavorited = computed(() => Boolean(request.value?.isFavorited))
 const topicLikeCount = computed(() => Number(request.value?.likeCount || 0))
 const topicCommentCount = computed(() => Number(request.value?.commentCount || comments.value.length || 0))
 const helperDisplayName = computed(() => request.value?.helperName || '接单同学')
@@ -1095,6 +1140,36 @@ const submitComment = async () => {
   }
 }
 
+const insertAtCursor = (target: HTMLTextAreaElement | null, currentValue: string, value: string) => {
+  const start = target?.selectionStart ?? currentValue.length
+  const end = target?.selectionEnd ?? currentValue.length
+  const nextValue = currentValue.slice(0, start) + value + currentValue.slice(end)
+  const nextCursor = start + value.length
+  return { nextValue, nextCursor }
+}
+
+const insertCommentEmoji = (emoji: string) => {
+  const { nextValue, nextCursor } = insertAtCursor(commentTextarea.value, commentForm.value.content, emoji)
+  commentForm.value.content = nextValue
+  nextTick(() => {
+    const el = commentTextarea.value
+    if (!el) return
+    el.focus()
+    el.setSelectionRange(nextCursor, nextCursor)
+  })
+}
+
+const insertContactEmoji = (emoji: string) => {
+  const { nextValue, nextCursor } = insertAtCursor(contactTextarea.value, contactMessage.value, emoji)
+  contactMessage.value = nextValue
+  nextTick(() => {
+    const el = contactTextarea.value
+    if (!el) return
+    el.focus()
+    el.setSelectionRange(nextCursor, nextCursor)
+  })
+}
+
 const openContactDialog = () => {
   if (!canContactRequester.value) {
     setFeedback(isOwnTask.value ? '不能联系自己发布的内容。' : '当前内容暂时无法联系发布者。', 'error')
@@ -1255,6 +1330,31 @@ const toggleTopicLike = async () => {
     setFeedback(error?.response?.data?.message || '帖子点赞操作失败，请稍后重试。', 'error')
   } finally {
     topicLikeLoading.value = false
+  }
+}
+
+const toggleFavorite = async () => {
+  if (isOwnTask.value) {
+    setFeedback('不能收藏自己发布的内容。', 'error')
+    return
+  }
+
+  favoriteLoading.value = true
+  try {
+    if (isFavorited.value) {
+      await taskApi.unfavoriteTask(Number(props.id))
+      request.value = { ...request.value, isFavorited: false }
+      setFeedback('已取消收藏。', 'success')
+    } else {
+      await taskApi.favoriteTask(Number(props.id))
+      request.value = { ...request.value, isFavorited: true }
+      setFeedback('已添加收藏，可在个人主页查看。', 'success')
+    }
+  } catch (error: any) {
+    console.error('收藏操作失败:', error)
+    setFeedback(error?.response?.data?.message || '收藏操作失败，请稍后重试。', 'error')
+  } finally {
+    favoriteLoading.value = false
   }
 }
 

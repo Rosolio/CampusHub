@@ -13,10 +13,13 @@ public class MessageService {
 
     private final MessageMapper messageMapper;
     private final UserService userService;
+    private final com.campushub.config.OnlineSessionManager onlineSessionManager;
 
-    public MessageService(MessageMapper messageMapper, UserService userService) {
+    public MessageService(MessageMapper messageMapper, UserService userService,
+                          com.campushub.config.OnlineSessionManager onlineSessionManager) {
         this.messageMapper = messageMapper;
         this.userService = userService;
+        this.onlineSessionManager = onlineSessionManager;
     }
 
     public List<Message> getMessagesByReceiverId(Long receiverId) {
@@ -24,7 +27,16 @@ public class MessageService {
     }
 
     public List<Message> getMessagesByUserId(Long userId) {
-        return messageMapper.selectByUserId(userId);
+        List<Message> messages = messageMapper.selectByUserId(userId);
+        for (Message msg : messages) {
+            if (msg.getSenderId() != null) {
+                msg.setSenderOnline(onlineSessionManager.isOnline(msg.getSenderId()));
+            }
+            if (msg.getReceiverId() != null) {
+                msg.setReceiverOnline(onlineSessionManager.isOnline(msg.getReceiverId()));
+            }
+        }
+        return messages;
     }
 
     public Message sendMessage(MessageRequest request, Long senderId) {
@@ -78,7 +90,7 @@ public class MessageService {
 
     public int markAsReadBatch(List<Long> messageIds, Long currentUserId) {
         if (messageIds == null || messageIds.isEmpty()) return 0;
-        return messageMapper.markAsReadBatch(messageIds);
+        return messageMapper.markAsReadBatch(messageIds, currentUserId);
     }
 
     public int getUnreadCount(Long receiverId) {

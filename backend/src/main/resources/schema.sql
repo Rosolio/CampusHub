@@ -16,7 +16,8 @@ CREATE TABLE IF NOT EXISTS users (
     updated_at DATETIME NOT NULL,
     PRIMARY KEY (id),
     UNIQUE KEY uk_users_student_id (student_id),
-    UNIQUE KEY uk_users_email (email)
+    UNIQUE KEY uk_users_email (email),
+    KEY idx_users_points (points)
 );
 
 CREATE TABLE IF NOT EXISTS user_settings (
@@ -272,6 +273,21 @@ SET @add_tasks_contact_info = IF(
     'ALTER TABLE tasks ADD COLUMN contact_info VARCHAR(255) NULL AFTER map_image_url'
 );
 PREPARE stmt FROM @add_tasks_contact_info;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @add_tasks_image_urls = IF(
+    EXISTS (
+        SELECT 1
+        FROM information_schema.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = 'tasks'
+          AND COLUMN_NAME = 'image_urls'
+    ),
+    'SELECT 1',
+    'ALTER TABLE tasks ADD COLUMN image_urls JSON NULL AFTER contact_info'
+);
+PREPARE stmt FROM @add_tasks_image_urls;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 

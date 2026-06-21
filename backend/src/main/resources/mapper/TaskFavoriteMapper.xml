@@ -21,13 +21,15 @@
                CASE WHEN u.avatar_url LIKE 'data:%' THEN NULL ELSE u.avatar_url END AS requester_avatar_url,
                u.score AS requester_score,
                u.points AS requester_points,
+               u.last_login_at AS requester_last_login_at,
                helper.id AS helper_id,
                helper.name AS helper_name,
                helper.major AS helper_major,
                CASE WHEN helper.avatar_url LIKE 'data:%' THEN NULL ELSE helper.avatar_url END AS helper_avatar_url,
                helper.score AS helper_score,
                helper.points AS helper_points,
-               COALESCE((SELECT COUNT(*) FROM task_comments tc WHERE tc.task_id = t.id), 0) AS comment_count
+               COALESCE((SELECT COUNT(*) FROM task_comments tc WHERE tc.task_id = t.id), 0) AS comment_count,
+               COALESCE((SELECT COUNT(*) FROM task_favorites tf WHERE tf.task_id = t.id), 0) AS favorite_count
         FROM task_favorites f
         INNER JOIN tasks t ON f.task_id = t.id
         LEFT JOIN users u ON t.requester_id = u.id

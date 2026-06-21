@@ -65,4 +65,22 @@ public class MessageTest extends IntegrationTestSupport {
         assertTrue(count >= 0);
     }
 
+    @Test
+    public void testBatchMarkAsReadOnlyUpdatesReceiverMessages() {
+        MessageRequest request = new MessageRequest();
+        request.setReceiverId(2L);
+        request.setTaskId(1L);
+        request.setContent("批量已读权限测试");
+        Message message = messageService.sendMessage(request, 1L);
+
+        int before = messageService.getUnreadCount(2L);
+        int wrongUserUpdated = messageService.markAsReadBatch(List.of(message.getId()), 1L);
+        assertEquals(0, wrongUserUpdated);
+        assertEquals(before, messageService.getUnreadCount(2L));
+
+        int receiverUpdated = messageService.markAsReadBatch(List.of(message.getId()), 2L);
+        assertEquals(1, receiverUpdated);
+        assertEquals(before - 1, messageService.getUnreadCount(2L));
+    }
+
 }

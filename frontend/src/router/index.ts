@@ -27,10 +27,17 @@ const AdminProfilePage = () => import('../pages/admin/AdminProfilePage.vue')
 const AdminCommunityFeedPage = () => import('../pages/admin/AdminCommunityFeedPage.vue')
 const AdminVerificationPage = () => import('../pages/admin/AdminVerificationPage.vue')
 const VerificationPage = () => import('../pages/VerificationPage.vue')
+const LeaderboardPage = () => import('../pages/LeaderboardPage.vue')
 const NotFound = () => import('../pages/NotFound.vue')
 
 const router = createRouter({
   history: createWebHistory(),
+  scrollBehavior(_to, _from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition
+    }
+    return { top: 0 }
+  },
   routes: [
     {
       path: '/',
@@ -69,6 +76,7 @@ const router = createRouter({
     { path: '/settings/theme', name: 'themeSettings', component: ThemeSettings, meta: { requiresAuth: true } },
     { path: '/settings/language', name: 'languageSettings', component: LanguageSettings, meta: { requiresAuth: true } },
     { path: '/search', name: 'search', component: () => import('../pages/SearchResults.vue'), meta: { requiresAuth: true } },
+    { path: '/leaderboard', name: 'leaderboard', component: LeaderboardPage, meta: { requiresAuth: true } },
     { path: '/notifications', name: 'notifications', component: () => import('../pages/Notifications.vue'), meta: { requiresAuth: true } },
     { path: '/settings/about', name: 'aboutCampusHub', component: AboutCampusHub, meta: { requiresAuth: true } },
     { path: '/privacy', name: 'privacyPage', component: PrivacyPolicyPage },

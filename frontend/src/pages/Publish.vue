@@ -32,33 +32,45 @@
 
         <form class="space-y-6" @submit.prevent="submitForm">
           <FormField :label="activeConfig.titleLabel">
-            <input
-              v-model="form.title"
-              type="text"
-              class="w-full rounded-2xl border border-outline-variant/15 bg-surface-container-low px-4 py-3 transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
-              :placeholder="activeConfig.titlePlaceholder"
-            />
+            <div class="flex items-center gap-2">
+              <input
+                ref="titleInput"
+                v-model="form.title"
+                type="text"
+                class="min-w-0 flex-1 rounded-2xl border border-outline-variant/15 bg-surface-container-low px-4 py-3 transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
+                :placeholder="activeConfig.titlePlaceholder"
+              />
+              <EmojiPicker :disabled="loading" align="right" @select="insertTitleEmoji" />
+            </div>
           </FormField>
 
           <FormField :label="activeConfig.descriptionLabel">
             <textarea
+              ref="descriptionTextarea"
               v-model="form.description"
               rows="5"
               class="w-full resize-none rounded-2xl border border-outline-variant/15 bg-surface-container-low px-4 py-3 transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
               :placeholder="activeConfig.descriptionPlaceholder"
             ></textarea>
+            <div class="mt-3 flex justify-end">
+              <EmojiPicker :disabled="loading" align="right" @select="insertDescriptionEmoji" />
+            </div>
           </FormField>
 
           <ImageUploader v-model="form.imageUrls" />
 
           <div class="grid gap-6 md:grid-cols-2">
             <FormField :label="activeConfig.locationLabel">
-              <input
-                v-model="form.location"
-                type="text"
-                class="w-full rounded-2xl border border-outline-variant/15 bg-surface-container-low px-4 py-3 transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
-                :placeholder="activeConfig.locationPlaceholder"
-              />
+              <div class="flex items-center gap-2">
+                <input
+                  ref="locationInput"
+                  v-model="form.location"
+                  type="text"
+                  class="min-w-0 flex-1 rounded-2xl border border-outline-variant/15 bg-surface-container-low px-4 py-3 transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  :placeholder="activeConfig.locationPlaceholder"
+                />
+                <EmojiPicker :disabled="loading" align="right" @select="insertLocationEmoji" />
+              </div>
             </FormField>
 
             <FormField :label="activeConfig.timeLabel">
@@ -90,19 +102,19 @@
             </FormField>
           </div>
 
-          <div v-if="activeConfig.mode === 'task'" class="grid gap-6 md:grid-cols-2">
-            <FormField label="任务奖励" help="跑腿代办保留接单模式，支持明确酬劳与截止时间。">
+          <div v-if="activeConfig.mode === 'task'" class="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+            <FormField label="任务奖励" help="跑腿代办保留接单模式，支持明确酬劳与截止时间。" wrapper-class="min-w-0">
               <input
                 v-model="form.reward"
                 type="number"
                 min="1"
                 step="1"
-                class="w-full rounded-2xl border border-outline-variant/15 bg-surface-container-low px-4 py-3 transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
+                class="box-border min-w-0 w-full rounded-2xl border border-outline-variant/15 bg-surface-container-low px-4 py-3 transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
                 placeholder="请输入金额（元）"
               />
             </FormField>
 
-            <FormField label="紧急程度">
+            <FormField label="紧急程度" wrapper-class="min-w-0">
               <div class="grid grid-cols-2 gap-3">
                 <button
                   type="button"
@@ -139,12 +151,16 @@
           </div>
 
           <FormField v-if="activeConfig.mode === 'topic'" label="联系方式（可选）" help="会展示在话题帖详情里，方便感兴趣的同学直接联系你。">
-            <input
-              v-model="form.contactInfo"
-              type="text"
-              class="w-full rounded-2xl border border-outline-variant/15 bg-surface-container-low px-4 py-3 transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
-              placeholder="例如：微信 abc123 / QQ 123456 / 手机尾号 6789"
-            />
+            <div class="flex items-center gap-2">
+              <input
+                ref="contactInfoInput"
+                v-model="form.contactInfo"
+                type="text"
+                class="min-w-0 flex-1 rounded-2xl border border-outline-variant/15 bg-surface-container-low px-4 py-3 transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
+                placeholder="例如：微信 abc123 / QQ 123456 / 手机尾号 6789"
+              />
+              <EmojiPicker :disabled="loading" align="right" @select="insertContactInfoEmoji" />
+            </div>
           </FormField>
 
           <button
@@ -162,8 +178,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import EmojiPicker from '../components/EmojiPicker.vue'
 import FormField from '../components/FormField.vue'
 import ImageUploader from '../components/ImageUploader.vue'
 import PageBackHeader from '../components/PageBackHeader.vue'
@@ -186,6 +203,10 @@ const router = useRouter()
 const { formatLocaleDateTime } = usePreferences()
 const loading = ref(false)
 const error = ref('')
+const titleInput = ref<HTMLInputElement | null>(null)
+const descriptionTextarea = ref<HTMLTextAreaElement | null>(null)
+const locationInput = ref<HTMLInputElement | null>(null)
+const contactInfoInput = ref<HTMLInputElement | null>(null)
 
 const form = ref({
   title: '',
@@ -199,6 +220,53 @@ const form = ref({
   topicLongTerm: false,
   imageUrls: [] as string[]
 })
+
+const insertAtCursor = (
+  target: HTMLInputElement | HTMLTextAreaElement | null,
+  currentValue: string,
+  value: string
+) => {
+  const start = target?.selectionStart ?? currentValue.length
+  const end = target?.selectionEnd ?? currentValue.length
+  const nextValue = currentValue.slice(0, start) + value + currentValue.slice(end)
+  const nextCursor = start + value.length
+  return { nextValue, nextCursor }
+}
+
+const focusAfterInsert = (
+  target: HTMLInputElement | HTMLTextAreaElement | null,
+  cursor: number
+) => {
+  nextTick(() => {
+    if (!target) return
+    target.focus()
+    target.setSelectionRange(cursor, cursor)
+  })
+}
+
+const insertTitleEmoji = (emoji: string) => {
+  const { nextValue, nextCursor } = insertAtCursor(titleInput.value, form.value.title, emoji)
+  form.value.title = nextValue
+  focusAfterInsert(titleInput.value, nextCursor)
+}
+
+const insertDescriptionEmoji = (emoji: string) => {
+  const { nextValue, nextCursor } = insertAtCursor(descriptionTextarea.value, form.value.description, emoji)
+  form.value.description = nextValue
+  focusAfterInsert(descriptionTextarea.value, nextCursor)
+}
+
+const insertLocationEmoji = (emoji: string) => {
+  const { nextValue, nextCursor } = insertAtCursor(locationInput.value, form.value.location, emoji)
+  form.value.location = nextValue
+  focusAfterInsert(locationInput.value, nextCursor)
+}
+
+const insertContactInfoEmoji = (emoji: string) => {
+  const { nextValue, nextCursor } = insertAtCursor(contactInfoInput.value, form.value.contactInfo, emoji)
+  form.value.contactInfo = nextValue
+  focusAfterInsert(contactInfoInput.value, nextCursor)
+}
 
 const activeCategory = computed(() => categories.find((category) => category.value === form.value.category) || categories[0])
 
