@@ -249,6 +249,11 @@ public class TaskService {
         // 清除缓存
         invalidateFeedCache();
 
+        // 话题帖发布获得 5 积分
+        if (TaskModeResolver.isTopicTask(task)) {
+            userService.addPoints(requesterId, 5, "TOPIC_CREATION", "发布话题帖", "task", task.getId());
+        }
+
         if (requiresManualReview) {
             notifyTaskEvent(
                 requesterId,
