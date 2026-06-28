@@ -1,37 +1,36 @@
 <template>
   <div
-    class="bg-background font-body text-on-background selection:bg-primary-container selection:text-on-primary-container min-h-screen flex items-center justify-center p-6 md:p-12 overflow-x-hidden relative"
+    class="font-body text-on-background selection:bg-primary-container selection:text-on-primary-container min-h-screen flex items-center justify-center p-6 md:p-12 overflow-x-hidden relative"
   >
-    <!-- Decorative CSS background -->
-    <div class="fixed inset-0 z-0 pointer-events-none">
-      <div class="absolute inset-0 bg-gradient-to-br from-teal-50/60 via-amber-50/30 to-sky-50/60"></div>
-      <div class="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-teal-200/20 blur-3xl"></div>
-      <div class="absolute -bottom-32 -left-32 w-80 h-80 rounded-full bg-amber-200/20 blur-3xl"></div>
-      <div class="absolute top-1/3 left-1/4 w-64 h-64 rounded-full bg-sky-200/15 blur-3xl"></div>
+    <!-- Full page background -->
+    <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+      <div class="absolute -inset-4 bg-[url('/images/nju-login.jpg')] bg-cover bg-center blur-sm"></div>
+      <div class="absolute inset-0 bg-black/30"></div>
     </div>
 
     <main
       class="relative z-10 grid w-full max-w-6xl grid-cols-1 overflow-hidden rounded-[2rem] bg-surface-container-lowest shadow-[0_24px_48px_rgba(0,52,57,0.08)] md:grid-cols-[0.9fr_1.1fr] xl:grid-cols-[0.95fr_1.05fr]"
     >
-      <!-- Left Column: Branding & Illustration -->
-      <div class="relative hidden overflow-hidden bg-surface-container-low p-10 md:flex md:flex-col md:justify-between xl:p-12">
+      <!-- Left Column: Branding -->
+      <div class="relative hidden overflow-hidden bg-teal-950 p-10 md:flex md:flex-col md:justify-between xl:p-12">
         <div class="relative z-10">
           <div class="flex items-center gap-3 mb-12">
-            <div class="w-10 h-10 primary-gradient rounded-xl flex items-center justify-center text-white">
+            <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center text-white">
               <span class="material-symbols-outlined" data-icon="volunteer_activism">volunteer_activism</span>
             </div>
-            <span class="font-headline text-2xl font-extrabold tracking-tight text-teal-900">CampusHub</span>
+            <span class="font-headline text-2xl font-extrabold tracking-tight text-white">CampusHub</span>
           </div>
-          <h1 class="mb-6 font-headline text-4xl font-extrabold leading-[1.2] tracking-tight text-on-surface xl:text-5xl">
-            校园互助，<br /><span class="text-primary">让生活更美好</span>
+          <h1 class="mb-6 font-headline text-4xl font-extrabold leading-[1.2] tracking-tight text-white xl:text-5xl">
+            南大校园 · <br /><span class="text-amber-300">让互助成为习惯</span>
           </h1>
-          <p class="max-w-sm text-base leading-relaxed text-on-surface-variant xl:text-lg">
-            加入由学生主导的互助网络，共享资源，互相支持。
+          <p class="max-w-sm text-base leading-relaxed text-white/80 xl:text-lg">
+            南京大学校园互助平台，加入由学生主导的互助网络，共享资源，互相支持。
           </p>
         </div>
 
-        <!-- Background Decorative Orb -->
-        <div class="absolute -bottom-24 -left-24 w-64 h-64 bg-secondary/10 rounded-full blur-3xl"></div>
+        <div class="relative z-10 mt-auto">
+          <p class="text-xs text-white/40">南京大学 · CampusHub</p>
+        </div>
       </div>
 
       <!-- Right Column: Form Section -->

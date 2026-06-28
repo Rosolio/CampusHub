@@ -2,25 +2,30 @@
   <div class="min-h-screen bg-surface font-body text-on-surface">
 
     <main class="mx-auto max-w-7xl px-6 pb-24 pt-24">
-      <section class="mb-8 overflow-hidden rounded-[2rem] bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.96),rgba(236,253,245,0.96)_36%,rgba(223,245,255,0.92)_68%,rgba(248,250,252,0.95)_100%)] p-6 shadow-sm md:p-8">
-        <div class="grid gap-6 xl:grid-cols-[1.1fr_0.9fr] xl:items-start">
+      <!-- 
+        Hero 区背景：替换 bg-[url()] 中的图片路径为你自己的南大校园照片
+        推荐尺寸：1920×600px，放 frontend/public/images/nju-hero.jpg
+        示例：bg-[url('/images/nju-hero.jpg')]
+      -->
+      <section class="relative mb-8 overflow-hidden rounded-2xl bg-cover bg-center bg-[url('/images/nju-hero.jpg')] p-6 shadow-sm md:p-8 before:absolute before:inset-0 before:bg-gradient-to-r before:from-black/60 before:to-black/20 before:content-['']">
+        <div class="relative z-10 grid gap-6 xl:grid-cols-[1.1fr_0.9fr] xl:items-start">
           <div>
             <div class="mb-4 flex flex-wrap items-center gap-3">
-              <span class="rounded-full bg-teal-900 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-white">校园互助广场</span>
+              <span class="rounded-full bg-white/20 backdrop-blur-sm px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-white">校园互助广场</span>
             </div>
 
-            <h1 class="max-w-3xl text-4xl font-extrabold leading-[1.08] tracking-tight text-teal-950 md:text-5xl">
-              需求与话题，一站浏览
+            <h1 class="max-w-3xl text-4xl font-extrabold leading-[1.08] tracking-tight text-white md:text-5xl">
+              南大校园 · 互助同行
             </h1>
 
-            <p class="mt-4 max-w-2xl text-base leading-7 text-slate-600">
-              需求广场和话题广场平等呈现。跑腿代办、学习辅导等任务类内容，与二手闲置、恋爱交友等话题类内容，按需切换浏览。
+            <p class="mt-4 max-w-2xl text-base leading-7 text-white/80">
+              跑腿代办、学习辅导、二手闲置、恋爱交友——南大人的校园互助平台，需求与话题一站浏览。
             </p>
 
             <div class="mt-6 flex flex-wrap gap-3">
               <button
                 type="button"
-                class="inline-flex items-center gap-2 rounded-full bg-teal-950 px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-teal-900"
+                class="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-bold text-teal-900 transition-colors hover:bg-teal-50"
                 @click="scrollToTabBar"
               >
                 开始浏览
@@ -28,7 +33,7 @@
               </button>
               <RouterLink
                 to="/publish"
-                class="inline-flex items-center gap-2 rounded-full border border-teal-200 bg-white/80 px-5 py-3 text-sm font-bold text-teal-900 transition-colors hover:bg-white dark:hover:bg-white/10"
+                class="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 backdrop-blur-sm px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-white/20"
               >
                 发布
                 <span class="material-symbols-outlined text-base">add</span>
