@@ -12,7 +12,7 @@
       class="relative z-10 grid w-full max-w-6xl grid-cols-1 overflow-hidden rounded-[2rem] bg-surface-container-lowest shadow-[0_24px_48px_rgba(0,52,57,0.08)] md:grid-cols-[0.9fr_1.1fr] xl:grid-cols-[0.95fr_1.05fr]"
     >
       <!-- Left Column: Branding -->
-      <div class="relative hidden overflow-hidden bg-teal-950 p-10 md:flex md:flex-col md:justify-between xl:p-12">
+      <div class="relative hidden overflow-hidden bg-[#1a0033] p-10 md:flex md:flex-col md:justify-between xl:p-12">
         <div class="relative z-10">
           <div class="flex items-center gap-3 mb-12">
             <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center text-white">
@@ -41,7 +41,7 @@
             <div class="w-8 h-8 primary-gradient rounded-lg flex items-center justify-center text-white">
               <span class="material-symbols-outlined text-sm" data-icon="volunteer_activism">volunteer_activism</span>
             </div>
-            <span class="font-headline text-xl font-bold tracking-tight text-teal-900">CampusHub</span>
+            <span class="font-headline text-xl font-bold tracking-tight text-primary">CampusHub</span>
           </div>
 
           <div class="mb-10">

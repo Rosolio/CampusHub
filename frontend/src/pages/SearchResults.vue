@@ -23,7 +23,7 @@
             :key="opt.value"
             type="button"
             class="rounded-full px-4 py-2 text-sm font-semibold transition-all"
-            :class="mode === opt.value ? 'bg-teal-900 text-white shadow-sm' : 'bg-surface-container-low text-teal-900 hover:bg-surface-container-high'"
+            :class="mode === opt.value ? 'bg-primary text-white shadow-sm' : 'bg-surface-container-low text-primary hover:bg-surface-container-high'"
             @click="mode = opt.value; doSearch()"
           >
             {{ opt.label }}
@@ -74,7 +74,7 @@
                     {{ task.category }}
                   </span>
                 </div>
-                <h3 class="text-lg font-extrabold text-teal-950 group-hover:text-teal-800 transition-colors" v-html="highlightText(task.title)"></h3>
+                <h3 class="text-lg font-extrabold text-[#1a0033] group-hover:text-[#3d007a] transition-colors" v-html="highlightText(task.title)"></h3>
                 <p class="mt-2 line-clamp-2 text-sm text-on-surface-variant" v-html="highlightText(task.description || '')"></p>
                 <div class="mt-3 flex flex-wrap items-center gap-3 text-xs text-on-surface-variant">
                   <span v-if="task.locationText" class="flex items-center gap-1">
@@ -108,7 +108,7 @@
           <button
             :disabled="page <= 1"
             class="rounded-full px-4 py-2 text-sm font-bold transition-all disabled:opacity-30"
-            :class="page <= 1 ? 'bg-surface-container-low text-on-surface-variant' : 'bg-teal-900 text-white hover:bg-teal-800'"
+            :class="page <= 1 ? 'bg-surface-container-low text-on-surface-variant' : 'bg-primary text-white hover:bg-primary-dim'"
             @click="page--; doSearch()"
           >
             上一页
@@ -117,7 +117,7 @@
           <button
             :disabled="page >= totalPages"
             class="rounded-full px-4 py-2 text-sm font-bold transition-all disabled:opacity-30"
-            :class="page >= totalPages ? 'bg-surface-container-low text-on-surface-variant' : 'bg-teal-900 text-white hover:bg-teal-800'"
+            :class="page >= totalPages ? 'bg-surface-container-low text-on-surface-variant' : 'bg-primary text-white hover:bg-primary-dim'"
             @click="page++; doSearch()"
           >
             下一页

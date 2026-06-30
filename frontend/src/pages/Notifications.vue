@@ -4,12 +4,12 @@
     <main class="mx-auto max-w-3xl px-6 pb-12 pt-24">
       <div class="flex items-center justify-between mb-6">
         <div>
-          <h1 class="font-headline text-2xl font-extrabold text-teal-900 md:text-3xl">通知中心</h1>
+          <h1 class="font-headline text-2xl font-extrabold text-primary md:text-3xl">通知中心</h1>
           <p class="text-sm text-on-surface-variant">查看所有系统通知和动态提醒</p>
         </div>
         <button
           v-if="notifications.some(n => !n.isRead)"
-          class="rounded-full bg-teal-900 px-4 py-2 text-sm font-bold text-white hover:bg-teal-800 transition-colors"
+          class="rounded-full bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-primary-dim transition-colors"
           @click="markAllRead"
         >
           全部已读
@@ -49,7 +49,7 @@
             </div>
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2">
-                <p class="text-sm font-bold text-teal-950">{{ n.title }}</p>
+                <p class="text-sm font-bold text-[#1a0033]">{{ n.title }}</p>
                 <span v-if="!n.isRead" class="h-2 w-2 rounded-full bg-primary shrink-0"></span>
               </div>
               <p class="mt-1 text-sm text-on-surface-variant line-clamp-2">{{ n.content }}</p>

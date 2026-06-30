@@ -135,7 +135,7 @@
         <article class="rounded-[2rem] bg-surface-container-lowest p-6 shadow-sm">
           <p class="text-sm font-bold uppercase tracking-[0.2em] text-on-surface-variant">评价摘要</p>
           <div class="mt-4 flex items-center gap-3">
-            <p class="text-4xl font-extrabold text-teal-900">{{ averageReviewStars }}</p>
+            <p class="text-4xl font-extrabold text-primary">{{ averageReviewStars }}</p>
             <span class="material-symbols-outlined text-3xl text-amber-500" style="font-variation-settings:'FILL' 1;">star</span>
           </div>
           <p class="mt-2 text-sm text-on-surface-variant">这里显示你收到的任务互评平均星级，按真实互评记录实时计算。</p>
@@ -163,7 +163,7 @@
 
         <article class="rounded-[2rem] bg-surface-container-lowest p-6 shadow-sm">
           <p class="text-sm font-bold uppercase tracking-[0.2em] text-on-surface-variant">内容发布概览</p>
-          <p class="mt-4 text-4xl font-extrabold text-teal-900">{{ myTopicPosts.length }}</p>
+          <p class="mt-4 text-4xl font-extrabold text-primary">{{ myTopicPosts.length }}</p>
           <p class="mt-2 text-sm text-on-surface-variant">这是你累计发布的话题帖数量，和订单统计分开展示。</p>
           <div class="mt-4 flex flex-wrap gap-2">
             <span class="rounded-full bg-rose-100 px-4 py-2 text-sm font-semibold text-rose-700">话题互动单独统计</span>
@@ -177,7 +177,7 @@
           <button
             @click="activeTab = 'requests'"
             class="flex items-center gap-2 rounded-2xl px-6 py-3 text-sm font-bold transition-all shadow-sm"
-            :class="activeTab === 'requests' ? 'bg-teal-900 text-white' : 'bg-surface-container-low text-on-surface-variant hover:text-on-surface'"
+            :class="activeTab === 'requests' ? 'bg-primary text-white' : 'bg-surface-container-low text-on-surface-variant hover:text-on-surface'"
             type="button"
           >
             <span class="material-symbols-outlined text-lg">assignment</span>
@@ -186,7 +186,7 @@
           <button
             @click="activeTab = 'topics'"
             class="flex items-center gap-2 rounded-2xl px-6 py-3 text-sm font-bold transition-all shadow-sm"
-            :class="activeTab === 'topics' ? 'bg-teal-900 text-white' : 'bg-surface-container-low text-on-surface-variant hover:text-on-surface'"
+            :class="activeTab === 'topics' ? 'bg-primary text-white' : 'bg-surface-container-low text-on-surface-variant hover:text-on-surface'"
             type="button"
           >
             <span class="material-symbols-outlined text-lg">forum</span>
@@ -195,7 +195,7 @@
           <button
             @click="activeTab = 'services'"
             class="flex items-center gap-2 rounded-2xl px-6 py-3 text-sm font-bold transition-all shadow-sm"
-            :class="activeTab === 'services' ? 'bg-teal-900 text-white' : 'bg-surface-container-low text-on-surface-variant hover:text-on-surface'"
+            :class="activeTab === 'services' ? 'bg-primary text-white' : 'bg-surface-container-low text-on-surface-variant hover:text-on-surface'"
             type="button"
           >
             <span class="material-symbols-outlined text-lg">volunteer_activism</span>
@@ -204,7 +204,7 @@
           <button
             @click="activeTab = 'favorites'"
             class="flex items-center gap-2 rounded-2xl px-6 py-3 text-sm font-bold transition-all shadow-sm"
-            :class="activeTab === 'favorites' ? 'bg-teal-900 text-white' : 'bg-surface-container-low text-on-surface-variant hover:text-on-surface'"
+            :class="activeTab === 'favorites' ? 'bg-primary text-white' : 'bg-surface-container-low text-on-surface-variant hover:text-on-surface'"
             type="button"
           >
             <span class="material-symbols-outlined text-lg">bookmark</span>
@@ -220,7 +220,7 @@
               :key="filter.value"
               type="button"
               class="rounded-full px-4 py-2 text-sm font-bold transition-colors"
-              :class="activeStatusFilter === filter.value ? 'bg-teal-900 text-white' : 'bg-surface-container-low text-teal-900 hover:bg-surface-container-high'"
+              :class="activeStatusFilter === filter.value ? 'bg-primary text-white' : 'bg-surface-container-low text-primary hover:bg-surface-container-high'"
               @click="activeStatusFilter = filter.value"
             >
               {{ filter.label }}
@@ -372,7 +372,7 @@
             <div class="flex flex-col gap-5 sm:flex-row">
               <div class="h-24 w-full flex-shrink-0 rounded-2xl bg-gradient-to-br from-amber-400 via-rose-400 to-sky-500 p-[2px] sm:w-24">
                 <div class="flex h-full w-full items-center justify-center rounded-[0.95rem] bg-white">
-                  <span class="material-symbols-outlined text-4xl text-teal-900">forum</span>
+                  <span class="material-symbols-outlined text-4xl text-primary">forum</span>
                 </div>
               </div>
               <div class="flex-1 space-y-4">
@@ -541,14 +541,14 @@
             <div class="flex flex-col gap-5 sm:flex-row">
               <div class="h-24 w-full flex-shrink-0 rounded-2xl bg-gradient-to-br from-amber-400 via-rose-400 to-sky-500 p-[2px] sm:w-24">
                 <div class="flex h-full w-full items-center justify-center rounded-[0.95rem] bg-white">
-                  <span class="material-symbols-outlined text-4xl text-teal-900">{{ task.taskMode === 'task' ? 'task_alt' : 'forum' }}</span>
+                  <span class="material-symbols-outlined text-4xl text-primary">{{ task.taskMode === 'task' ? 'task_alt' : 'forum' }}</span>
                 </div>
               </div>
               <div class="flex-1 space-y-4">
                 <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div class="flex flex-wrap gap-2">
                     <span class="rounded-full px-3 py-1 text-[10px] font-bold uppercase"
-                      :class="task.taskMode === 'task' ? 'bg-teal-100 text-teal-800' : 'bg-amber-100 text-amber-800'">
+                      :class="task.taskMode === 'task' ? 'bg-teal-100 text-[#3d007a]' : 'bg-amber-100 text-amber-800'">
                       {{ task.taskMode === 'task' ? '需求帖' : '话题帖' }}
                     </span>
                     <span class="rounded-full bg-surface-container-high px-3 py-1 text-[10px] font-bold uppercase text-on-surface-variant">{{ task.category || '校园互助' }}</span>

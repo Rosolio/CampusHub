@@ -25,7 +25,7 @@
             <div class="mt-6 flex flex-wrap gap-3">
               <button
                 type="button"
-                class="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-bold text-teal-900 transition-colors hover:bg-teal-50"
+                class="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-bold text-primary transition-colors hover:bg-[#f0e6ff]"
                 @click="scrollToTabBar"
               >
                 开始浏览
@@ -44,7 +44,7 @@
           <div class="grid gap-4 md:grid-cols-2">
             <button
               type="button"
-              class="group rounded-[1.6rem] bg-teal-950 p-5 text-left text-white shadow-[0_18px_40px_rgba(15,23,42,0.14)] transition-all hover:-translate-y-0.5 hover:shadow-[0_22px_50px_rgba(15,23,42,0.18)]"
+              class="group rounded-[1.6rem] bg-[#1a0033] p-5 text-left text-white shadow-[0_18px_40px_rgba(15,23,42,0.14)] transition-all hover:-translate-y-0.5 hover:shadow-[0_22px_50px_rgba(15,23,42,0.18)]"
               @click="switchToTab('demand')"
             >
               <div class="flex items-start justify-between gap-4">
@@ -66,7 +66,7 @@
                   type="button"
                   class="rounded-full px-3 py-1.5 text-xs font-semibold transition-all"
                   :class="selectedDemandEntryCategory === category
-                    ? 'bg-white text-teal-900 shadow-sm'
+                    ? 'bg-white text-primary shadow-sm'
                     : 'bg-white/10 text-cyan-50 hover:bg-white/20'"
                   @click.stop="selectDemandCategory(category)"
                 >
@@ -88,10 +88,10 @@
             >
               <div class="flex items-start justify-between gap-4">
                 <div>
-                  <p class="text-xs font-bold uppercase tracking-[0.18em] text-teal-700/60">话题广场</p>
-                  <h2 class="mt-2 text-2xl font-extrabold text-teal-950">公开互动</h2>
+                  <p class="text-xs font-bold uppercase tracking-[0.18em] text-[#5c00b3]/60">话题广场</p>
+                  <h2 class="mt-2 text-2xl font-extrabold text-[#1a0033]">公开互动</h2>
                 </div>
-                <div class="rounded-2xl bg-teal-50 p-3 text-teal-900 ring-1 ring-teal-100">
+                <div class="rounded-2xl bg-teal-50 p-3 text-primary ring-1 ring-teal-100">
                   <span class="material-symbols-outlined text-3xl">forum</span>
                 </div>
               </div>
@@ -105,14 +105,14 @@
                   type="button"
                   class="rounded-full px-3 py-1.5 text-xs font-semibold transition-all"
                   :class="selectedTopicEntryCategory === category
-                    ? 'bg-teal-900 text-white shadow-sm'
-                    : 'bg-surface-container-low text-teal-900 hover:bg-teal-50'"
+                    ? 'bg-primary text-white shadow-sm'
+                    : 'bg-surface-container-low text-primary hover:bg-[#f0e6ff]'"
                   @click.stop="selectTopicCategory(category)"
                 >
                   {{ category }}
                 </button>
               </div>
-              <div class="mt-5 inline-flex items-center gap-2 text-sm font-bold text-teal-900 transition-all group-hover:gap-3">
+              <div class="mt-5 inline-flex items-center gap-2 text-sm font-bold text-primary transition-all group-hover:gap-3">
                 进入话题广场
                 <span class="material-symbols-outlined text-base">arrow_forward</span>
               </div>
@@ -126,7 +126,7 @@
           type="button"
           class="flex items-center gap-2 rounded-2xl px-6 py-3 text-sm font-bold transition-all shadow-sm"
           :class="activeTab === 'demand'
-            ? 'bg-teal-900 text-white'
+            ? 'bg-primary text-white'
             : 'bg-surface-container-low text-on-surface-variant hover:text-on-surface'"
           @click="setTab('demand')"
         >
@@ -137,7 +137,7 @@
           type="button"
           class="flex items-center gap-2 rounded-2xl px-6 py-3 text-sm font-bold transition-all shadow-sm"
           :class="activeTab === 'topic'
-            ? 'bg-teal-900 text-white'
+            ? 'bg-primary text-white'
             : 'bg-surface-container-low text-on-surface-variant hover:text-on-surface'"
           @click="setTab('topic')"
         >
@@ -150,8 +150,8 @@
         <section class="rounded-[1.75rem] bg-surface-container-lowest p-4 shadow-sm sm:p-5">
           <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <p class="text-sm font-bold uppercase tracking-[0.14em] text-teal-700/65">当前可接单任务</p>
-              <h2 class="mt-2 text-2xl font-extrabold text-teal-950">先筛选，再查看详情</h2>
+              <p class="text-sm font-bold uppercase tracking-[0.14em] text-[#5c00b3]/65">当前可接单任务</p>
+              <h2 class="mt-2 text-2xl font-extrabold text-[#1a0033]">先筛选，再查看详情</h2>
             </div>
             <div class="flex flex-wrap gap-2">
               <button
@@ -159,7 +159,7 @@
                 :key="mode.value"
                 type="button"
                 class="flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-all"
-                :class="recommendationMode === mode.value ? 'bg-teal-950 text-white shadow-sm' : 'bg-surface-container-low text-on-surface-variant hover:bg-cyan-50/70'"
+                :class="recommendationMode === mode.value ? 'bg-[#1a0033] text-white shadow-sm' : 'bg-surface-container-low text-on-surface-variant hover:bg-cyan-50/70'"
                 @click="setRecommendationMode(mode.value)"
               >
                 <span class="material-symbols-outlined text-lg">{{ mode.icon }}</span>
@@ -183,7 +183,7 @@
 
           <div class="mt-5 grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
             <label class="flex items-center gap-3 rounded-2xl bg-surface-container-low px-4 py-3 text-sm font-semibold text-on-surface-variant">
-              <span class="material-symbols-outlined text-xl text-teal-900">location_on</span>
+              <span class="material-symbols-outlined text-xl text-primary">location_on</span>
               <input
                 v-model.trim="selectedLocation"
                 type="text"
@@ -193,7 +193,7 @@
               >
               <button
                 type="button"
-                class="rounded-full bg-white px-3 py-1.5 text-xs font-bold text-teal-900 shadow-sm"
+                class="rounded-full bg-white px-3 py-1.5 text-xs font-bold text-primary shadow-sm"
                 @click="fetchTasks"
               >
                 应用
@@ -206,7 +206,7 @@
                 :key="option.value"
                 type="button"
                 class="rounded-full px-4 py-2 text-sm font-semibold transition-all"
-                :class="availableTime === option.value ? 'bg-teal-900 text-white shadow-sm' : 'bg-surface-container-low text-on-surface-variant hover:bg-cyan-50/70'"
+                :class="availableTime === option.value ? 'bg-primary text-white shadow-sm' : 'bg-surface-container-low text-on-surface-variant hover:bg-cyan-50/70'"
                 @click="setAvailableTime(option.value)"
               >
                 {{ option.label }}
@@ -216,7 +216,7 @@
             <div class="mt-3 flex flex-wrap items-center gap-3">
               <div class="flex items-center gap-2">
                 <span class="text-xs font-bold text-on-surface-variant/70">排序:</span>
-                <select v-model="sortBy" class="rounded-full bg-surface-container-low px-3 py-2 text-sm font-semibold text-teal-900 outline-none" @change="fetchTasks">
+                <select v-model="sortBy" class="rounded-full bg-surface-container-low px-3 py-2 text-sm font-semibold text-primary outline-none" @change="fetchTasks">
                   <option value="newest">最新发布</option>
                   <option value="most_likes">最多点赞</option>
                   <option value="most_comments">最多评论</option>
@@ -230,7 +230,7 @@
                   :key="s.value"
                   type="button"
                   class="rounded-full px-3 py-1.5 text-xs font-semibold transition-all"
-                  :class="statusFilter === s.value ? 'bg-teal-900 text-white' : 'bg-surface-container-low text-on-surface-variant hover:bg-cyan-50/70'"
+                  :class="statusFilter === s.value ? 'bg-primary text-white' : 'bg-surface-container-low text-on-surface-variant hover:bg-cyan-50/70'"
                   @click="statusFilter = statusFilter === s.value ? '' : s.value; fetchTasks()"
                 >
                   {{ s.label }}
@@ -241,14 +241,14 @@
         </section>
 
         <aside class="rounded-[1.75rem] bg-surface-container-lowest p-5 shadow-sm">
-          <p class="text-xs font-bold uppercase tracking-[0.18em] text-teal-700/65">反馈入口</p>
-          <h2 class="mt-2 text-lg font-extrabold text-teal-950">发现 bug 或有建议？</h2>
+          <p class="text-xs font-bold uppercase tracking-[0.18em] text-[#5c00b3]/65">反馈入口</p>
+          <h2 class="mt-2 text-lg font-extrabold text-[#1a0033]">发现 bug 或有建议？</h2>
           <p class="mt-2 text-sm leading-6 text-on-surface-variant">
             反馈会进入管理员处理队列，回复后通过系统提醒通知你。
           </p>
           <RouterLink
             to="/feedback"
-            class="mt-4 inline-flex items-center gap-2 rounded-full bg-teal-900 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-teal-800"
+            class="mt-4 inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-bold text-white transition hover:bg-primary-dim"
           >
             提交反馈
             <span class="material-symbols-outlined text-base">arrow_forward</span>
@@ -260,8 +260,8 @@
         <section class="rounded-[1.75rem] bg-surface-container-lowest p-4 shadow-sm sm:p-5">
           <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <p class="text-sm font-bold uppercase tracking-[0.14em] text-teal-700/65">筛选话题帖</p>
-              <h2 class="mt-2 text-2xl font-extrabold text-teal-950">先分类，再搜索</h2>
+              <p class="text-sm font-bold uppercase tracking-[0.14em] text-[#5c00b3]/65">筛选话题帖</p>
+              <h2 class="mt-2 text-2xl font-extrabold text-[#1a0033]">先分类，再搜索</h2>
             </div>
             <div class="flex flex-wrap gap-3">
               <button
@@ -321,12 +321,12 @@
               <div class="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-surface-container-high">
                 <span class="material-symbols-outlined text-4xl text-on-surface-variant">inbox</span>
               </div>
-              <h2 class="text-2xl font-bold text-teal-900">当前没有可接单任务</h2>
+              <h2 class="text-2xl font-bold text-primary">当前没有可接单任务</h2>
               <p class="mt-3 text-on-surface-variant">稍后再来看看，或者自己先发一条跑腿代办或学习辅导。</p>
               <button
                 v-if="hasActiveMatchingFilters"
                 type="button"
-                class="mt-5 inline-flex items-center gap-2 rounded-full bg-teal-900 px-5 py-3 text-sm font-bold text-white transition hover:bg-teal-800"
+                class="mt-5 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-white transition hover:bg-primary-dim"
                 @click="clearMatchingFilters"
               >
                 清空筛选
@@ -356,7 +356,7 @@
                     </span>
                     <span
                       v-if="recommendationMode === 'recommended' && card.matchScore !== null"
-                      class="rounded-full border border-teal-200 bg-teal-50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-teal-800"
+                      class="rounded-full border border-[#b380ff] bg-teal-50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-[#3d007a]"
                     >
                       匹配度 {{ card.matchScore }}
                     </span>
@@ -371,7 +371,7 @@
 
                   <div class="flex flex-col gap-3">
                     <div class="flex items-start justify-between gap-4">
-                      <h2 class="min-w-0 text-xl font-extrabold leading-tight text-teal-900">
+                      <h2 class="min-w-0 text-xl font-extrabold leading-tight text-primary">
                         {{ card.title }}
                       </h2>
                       <span class="shrink-0 text-sm font-bold text-secondary">
@@ -399,7 +399,7 @@
                     <span
                       v-for="reason in card.matchReasons.slice(0, 2)"
                       :key="reason"
-                      class="inline-flex items-center gap-1 rounded-full bg-cyan-50 px-3 py-1.5 text-xs font-bold text-teal-900"
+                      class="inline-flex items-center gap-1 rounded-full bg-cyan-50 px-3 py-1.5 text-xs font-bold text-primary"
                     >
                       <span class="material-symbols-outlined text-sm">auto_awesome</span>
                       {{ reason }}
@@ -408,7 +408,7 @@
 
                   <div class="mt-6 flex items-center justify-between gap-3 border-t border-outline-variant/10 pt-4">
                     <div>
-                      <p class="text-sm font-semibold text-teal-900">{{ card.publisher }}</p>
+                      <p class="text-sm font-semibold text-primary">{{ card.publisher }}</p>
                       <p class="mt-1 text-xs text-on-surface-variant">{{ taskStatusText(card) }}</p>
                     </div>
                     <RouterLink
@@ -445,7 +445,7 @@
               <div class="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-surface-container-high">
                 <span class="material-symbols-outlined text-4xl text-on-surface-variant">forum</span>
               </div>
-              <h2 class="text-2xl font-bold text-teal-900">{{ topicEmptyTitle }}</h2>
+              <h2 class="text-2xl font-bold text-primary">{{ topicEmptyTitle }}</h2>
               <p class="mt-3 text-on-surface-variant">{{ topicEmptyDescription }}</p>
             </section>
 
@@ -465,7 +465,7 @@
                       <span class="text-xs font-semibold text-on-surface-variant">{{ card.publisher }}</span>
                     </div>
 
-                    <h2 class="text-xl font-extrabold text-teal-950">
+                    <h2 class="text-xl font-extrabold text-[#1a0033]">
                       {{ card.title }}
                     </h2>
                     <p class="mt-2 line-clamp-3 text-sm leading-7 text-on-surface-variant">
@@ -499,7 +499,7 @@
                   <div class="shrink-0 border-t border-outline-variant/10 pt-4 md:border-t-0 md:pt-0">
                     <RouterLink
                       :to="`/detail/${card.id}`"
-                      class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-teal-900 px-5 py-3 text-sm font-bold text-white transition-all hover:bg-teal-800 md:w-auto"
+                      class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-white transition-all hover:bg-primary-dim md:w-auto"
                     >
                       进入帖子
                       <span class="material-symbols-outlined text-base">arrow_forward</span>
@@ -513,10 +513,10 @@
                   第 {{ topicCurrentPage }} / {{ totalTopicPages }} 页，共 {{ filteredTopicPosts.length }} 条
                 </p>
                 <div class="flex items-center gap-2">
-                  <button type="button" class="rounded-full bg-surface-container-low px-4 py-2 text-sm font-bold text-teal-900 disabled:opacity-50" :disabled="topicCurrentPage === 1" @click="topicCurrentPage -= 1">
+                  <button type="button" class="rounded-full bg-surface-container-low px-4 py-2 text-sm font-bold text-primary disabled:opacity-50" :disabled="topicCurrentPage === 1" @click="topicCurrentPage -= 1">
                     上一页
                   </button>
-                  <button type="button" class="rounded-full bg-teal-900 px-4 py-2 text-sm font-bold text-white disabled:opacity-50" :disabled="topicCurrentPage === totalTopicPages" @click="topicCurrentPage += 1">
+                  <button type="button" class="rounded-full bg-primary px-4 py-2 text-sm font-bold text-white disabled:opacity-50" :disabled="topicCurrentPage === totalTopicPages" @click="topicCurrentPage += 1">
                     下一页
                   </button>
                 </div>
@@ -526,7 +526,7 @@
         </section>
 
         <aside class="space-y-6 self-start xl:sticky xl:top-24">
-          <section class="rounded-[1.8rem] bg-[linear-gradient(135deg,rgba(15,60,68,0.98),rgba(13,93,104,0.92),rgba(102,183,172,0.82))] p-5 text-white shadow-sm">
+          <section class="rounded-[1.8rem] bg-[linear-gradient(135deg,rgba(26,0,51,0.98),rgba(77,0,153,0.92),rgba(107,0,204,0.82))] p-5 text-white shadow-sm">
             <div class="flex flex-wrap items-center gap-2">
               <span class="rounded-full border border-white/16 bg-white/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-white/76">Pinned</span>
               <span class="rounded-full bg-white/12 px-3 py-1.5 text-[11px] font-bold text-white/78">管理员发布</span>
@@ -553,8 +553,8 @@
           <section class="rounded-[1.8rem] border border-outline-variant/12 bg-surface-container-lowest p-5 shadow-sm">
             <div class="flex items-center justify-between gap-3">
               <div>
-                <p class="text-xs font-bold uppercase tracking-[0.24em] text-teal-700/65">社区热榜</p>
-                <h2 class="mt-2 text-xl font-extrabold text-teal-950">热度最高的话题帖</h2>
+                <p class="text-xs font-bold uppercase tracking-[0.24em] text-[#5c00b3]/65">社区热榜</p>
+                <h2 class="mt-2 text-xl font-extrabold text-[#1a0033]">热度最高的话题帖</h2>
               </div>
               <span class="rounded-full bg-amber-100 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-amber-800">Top 10</span>
             </div>
@@ -572,11 +572,11 @@
               >
                 <span
                   class="mt-0.5 inline-flex h-6 min-w-6 items-center justify-center rounded-full text-[11px] font-extrabold"
-                  :class="index < 3 ? 'bg-teal-900 text-white' : 'bg-white text-teal-900'"
+                  :class="index < 3 ? 'bg-primary text-white' : 'bg-white text-primary'"
                 >
                   {{ index + 1 }}
                 </span>
-                <span class="line-clamp-2 text-sm font-semibold leading-6 text-teal-950">{{ topic.title }}</span>
+                <span class="line-clamp-2 text-sm font-semibold leading-6 text-[#1a0033]">{{ topic.title }}</span>
               </RouterLink>
             </div>
           </section>
@@ -586,7 +586,7 @@
 
     <RouterLink to="/publish" class="group fixed bottom-24 right-6 z-40 hidden h-14 w-14 items-center justify-center rounded-full bg-primary text-on-primary shadow-[0_12px_40px_rgba(0,52,57,0.15)] transition-all hover:scale-105 active:scale-95 md:flex">
       <span class="material-symbols-outlined text-3xl">add</span>
-      <span class="absolute right-full mr-4 whitespace-nowrap rounded-xl bg-teal-900 px-4 py-2 text-sm font-headline text-white opacity-0 transition-opacity group-hover:opacity-100">发布</span>
+      <span class="absolute right-full mr-4 whitespace-nowrap rounded-xl bg-primary px-4 py-2 text-sm font-headline text-white opacity-0 transition-opacity group-hover:opacity-100">发布</span>
     </RouterLink>
 
   </div>
@@ -614,6 +614,8 @@ const setTab = (tab: 'demand' | 'topic') => {
   if (activeTab.value === tab) return
   activeTab.value = tab
   const query = tab === 'topic' ? { tab: 'topic' } : {}
+  // Flag to tell router scrollBehavior to skip scrolling to top
+  sessionStorage.setItem('tab_scroll', '1')
   router.replace({ path: '/home', query })
   topicCurrentPage.value = 1
 }

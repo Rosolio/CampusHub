@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-surface font-body text-on-surface">
 
     <main class="mx-auto max-w-7xl px-6 pb-24 pt-24">
-      <section class="mb-8 overflow-hidden rounded-[2rem] bg-gradient-to-br from-teal-950 via-cyan-900 to-sky-700 p-6 text-white shadow-sm md:p-8">
+      <section class="mb-8 overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#1a0033] via-primary to-[#6B00CC] p-6 text-white shadow-sm md:p-8">
         <div class="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
           <div>
             <div class="mb-5 flex flex-wrap items-center gap-3">
@@ -38,8 +38,8 @@
       <section class="mb-6 rounded-[1.75rem] bg-surface-container-lowest p-4 shadow-sm sm:p-5">
         <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <p class="text-sm font-bold uppercase tracking-[0.14em] text-teal-700/65">筛选话题帖</p>
-            <h2 class="mt-2 text-2xl font-extrabold text-teal-950">先分类，再搜索</h2>
+            <p class="text-sm font-bold uppercase tracking-[0.14em] text-[#5c00b3]/65">筛选话题帖</p>
+            <h2 class="mt-2 text-2xl font-extrabold text-[#1a0033]">先分类，再搜索</h2>
           </div>
           <div class="flex flex-wrap gap-3">
             <button
@@ -87,7 +87,7 @@
         <div class="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-surface-container-high">
           <span class="material-symbols-outlined text-4xl text-on-surface-variant">forum</span>
         </div>
-        <h2 class="text-2xl font-bold text-teal-900">{{ emptyStateTitle }}</h2>
+        <h2 class="text-2xl font-bold text-primary">{{ emptyStateTitle }}</h2>
         <p class="mt-3 text-on-surface-variant">{{ emptyStateDescription }}</p>
       </section>
 
@@ -107,7 +107,7 @@
                 <span class="text-xs font-semibold text-on-surface-variant">{{ card.publisher }}</span>
               </div>
 
-              <h2 class="text-xl font-extrabold text-teal-950">
+              <h2 class="text-xl font-extrabold text-[#1a0033]">
                 {{ card.title }}
               </h2>
               <p class="mt-2 line-clamp-3 text-sm leading-7 text-on-surface-variant">
@@ -137,7 +137,7 @@
             <div class="shrink-0 border-t border-outline-variant/10 pt-4 md:border-t-0 md:pt-0">
               <RouterLink
                 :to="`/detail/${card.id}`"
-                class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-teal-900 px-5 py-3 text-sm font-bold text-white transition-all hover:bg-teal-800 md:w-auto"
+                class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-white transition-all hover:bg-primary-dim md:w-auto"
               >
                 进入帖子
                 <span class="material-symbols-outlined text-base">arrow_forward</span>
@@ -151,10 +151,10 @@
             第 {{ currentPage }} / {{ totalPages }} 页，共 {{ filteredTopics.length }} 条
           </p>
           <div class="flex items-center gap-2">
-            <button type="button" class="rounded-full bg-surface-container-low px-4 py-2 text-sm font-bold text-teal-900 disabled:opacity-50" :disabled="currentPage === 1" @click="currentPage -= 1">
+            <button type="button" class="rounded-full bg-surface-container-low px-4 py-2 text-sm font-bold text-primary disabled:opacity-50" :disabled="currentPage === 1" @click="currentPage -= 1">
               上一页
             </button>
-            <button type="button" class="rounded-full bg-teal-900 px-4 py-2 text-sm font-bold text-white disabled:opacity-50" :disabled="currentPage === totalPages" @click="currentPage += 1">
+            <button type="button" class="rounded-full bg-primary px-4 py-2 text-sm font-bold text-white disabled:opacity-50" :disabled="currentPage === totalPages" @click="currentPage += 1">
               下一页
             </button>
           </div>
@@ -164,7 +164,7 @@
 
     <RouterLink to="/publish" class="group fixed bottom-24 right-6 z-40 hidden h-14 w-14 items-center justify-center rounded-full bg-primary text-on-primary shadow-[0_12px_40px_rgba(0,52,57,0.15)] transition-all hover:scale-105 active:scale-95 md:flex">
       <span class="material-symbols-outlined text-3xl">add</span>
-      <span class="absolute right-full mr-4 whitespace-nowrap rounded-xl bg-teal-900 px-4 py-2 text-sm font-headline text-white opacity-0 transition-opacity group-hover:opacity-100">发布话题帖</span>
+      <span class="absolute right-full mr-4 whitespace-nowrap rounded-xl bg-primary px-4 py-2 text-sm font-headline text-white opacity-0 transition-opacity group-hover:opacity-100">发布话题帖</span>
     </RouterLink>
 
   </div>

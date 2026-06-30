@@ -2,7 +2,7 @@
   <header class="app-top-nav fixed top-0 z-50 w-full border-b border-white/55 bg-[rgba(244,247,243,0.82)] shadow-[0_8px_30px_rgba(15,23,42,0.06)] backdrop-blur-xl">
     <nav class="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
       <div class="flex items-center gap-8">
-        <RouterLink to="/" class="font-headline text-xl font-bold tracking-tight text-teal-950">
+        <RouterLink to="/" class="font-headline text-xl font-bold tracking-tight text-[#1a0033]">
           CampusHub
         </RouterLink>
         <div class="app-top-nav-links hidden items-center gap-2 rounded-full bg-white/70 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] md:flex">
@@ -11,7 +11,7 @@
             :key="item.to"
             :to="item.to"
             class="relative rounded-full px-4 py-2 text-sm font-bold tracking-tight transition-all duration-200"
-            :class="isActive(item.to) ? 'bg-teal-900 text-white shadow-sm' : 'text-teal-900/65 hover:bg-teal-50 hover:text-teal-950'"
+            :class="isActive(item.to) ? 'bg-primary text-white shadow-sm' : 'text-primary/65 hover:bg-[#f0e6ff] hover:text-[#1a0033]'"
           >
             {{ resolveItemLabel(item) }}
             <span
@@ -27,7 +27,7 @@
         <RouterLink
           v-if="!isAdmin"
           to="/leaderboard"
-          class="rounded-full p-2 text-teal-900/72 transition-all hover:bg-white hover:text-teal-950 dark:hover:bg-white/10"
+          class="rounded-full p-2 text-primary/72 transition-all hover:bg-white hover:text-[#1a0033] dark:hover:bg-white/10"
           :aria-label="'积分排行'"
         >
           <span class="material-symbols-outlined">leaderboard</span>
@@ -36,7 +36,7 @@
         <RouterLink
           v-if="!isAdmin"
           to="/search"
-          class="rounded-full p-2 text-teal-900/72 transition-all hover:bg-white hover:text-teal-950 dark:hover:bg-white/10"
+          class="rounded-full p-2 text-primary/72 transition-all hover:bg-white hover:text-[#1a0033] dark:hover:bg-white/10"
           :aria-label="'搜索'"
         >
           <span class="material-symbols-outlined">search</span>
@@ -44,14 +44,14 @@
         <RouterLink
           v-if="isAdmin"
           to="/admin"
-          class="rounded-full px-3 py-2 text-sm font-bold text-teal-900/72 transition-all hover:bg-white hover:text-teal-950 dark:hover:bg-white/10"
+          class="rounded-full px-3 py-2 text-sm font-bold text-primary/72 transition-all hover:bg-white hover:text-[#1a0033] dark:hover:bg-white/10"
         >
           管理后台
         </RouterLink>
         <RouterLink
           v-if="!isAdmin"
           to="/notifications"
-          class="relative rounded-full p-2 text-teal-900/72 transition-all hover:bg-white hover:text-teal-950 dark:hover:bg-white/10"
+          class="relative rounded-full p-2 text-primary/72 transition-all hover:bg-white hover:text-[#1a0033] dark:hover:bg-white/10"
           :aria-label="'通知中心'"
         >
           <span class="material-symbols-outlined">notifications</span>
@@ -62,7 +62,7 @@
         </RouterLink>
         <RouterLink
           to="/settings"
-          class="rounded-full p-2 text-teal-900/72 transition-all hover:bg-white hover:text-teal-950 dark:hover:bg-white/10"
+          class="rounded-full p-2 text-primary/72 transition-all hover:bg-white hover:text-[#1a0033] dark:hover:bg-white/10"
           :aria-label="t('navSettings')"
         >
           <span class="material-symbols-outlined">settings</span>

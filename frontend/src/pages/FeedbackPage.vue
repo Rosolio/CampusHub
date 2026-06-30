@@ -14,7 +14,7 @@
 
       <div class="mt-8 grid gap-8 xl:grid-cols-[0.95fr_1.05fr]">
         <section class="rounded-[2rem] bg-surface-container-lowest p-6 shadow-sm">
-          <h2 class="text-2xl font-extrabold text-teal-950">提交反馈</h2>
+          <h2 class="text-2xl font-extrabold text-[#1a0033]">提交反馈</h2>
 
           <div v-if="error" class="mt-5 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">
             {{ error }}
@@ -25,14 +25,14 @@
 
           <form class="mt-5 space-y-5" @submit.prevent="handleSubmit">
             <div>
-              <p class="text-sm font-bold text-teal-950">反馈类型</p>
+              <p class="text-sm font-bold text-[#1a0033]">反馈类型</p>
               <div class="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 <button
                   v-for="item in feedbackTypes"
                   :key="item.value"
                   type="button"
                   class="rounded-2xl px-4 py-3 text-left text-sm transition"
-                  :class="form.type === item.value ? 'bg-teal-900 text-white shadow-lg shadow-teal-900/15' : 'bg-surface-container-low text-teal-900 hover:bg-surface-container-high'"
+                  :class="form.type === item.value ? 'bg-primary text-white shadow-lg shadow-primary/15' : 'bg-surface-container-low text-primary hover:bg-surface-container-high'"
                   @click="selectFeedbackType(item.value)"
                 >
                   <p class="font-bold">{{ item.label }}</p>
@@ -44,7 +44,7 @@
             </div>
 
             <div>
-              <button type="button" class="flex items-center gap-2 text-sm font-bold text-teal-900 hover:text-teal-700 transition-colors" @click="showAdvancedOptions = !showAdvancedOptions">
+              <button type="button" class="flex items-center gap-2 text-sm font-bold text-primary hover:text-[#5c00b3] transition-colors" @click="showAdvancedOptions = !showAdvancedOptions">
                 <span class="material-symbols-outlined text-base">{{ showAdvancedOptions ? 'expand_less' : 'expand_more' }}</span>
                 高级选项
                 <span class="text-xs font-medium text-on-surface-variant ml-1">（优先级: {{ feedbackPriorityLabel(form.priority) }}）</span>
@@ -84,7 +84,7 @@
 
             <button
               type="submit"
-              class="rounded-full bg-teal-900 px-5 py-3 text-sm font-extrabold text-white transition hover:bg-teal-800 disabled:opacity-60"
+              class="rounded-full bg-primary px-5 py-3 text-sm font-extrabold text-white transition hover:bg-primary-dim disabled:opacity-60"
               :disabled="submitting"
             >
               {{ submitting ? '提交中...' : '提交反馈' }}
@@ -95,12 +95,12 @@
         <section class="rounded-[2rem] bg-surface-container-lowest p-6 shadow-sm">
           <div class="flex items-center justify-between gap-3">
             <div>
-              <h2 class="text-2xl font-extrabold text-teal-950">我的反馈记录</h2>
+              <h2 class="text-2xl font-extrabold text-[#1a0033]">我的反馈记录</h2>
               <p class="mt-2 text-sm text-on-surface-variant">管理员处理进度、回复和优先级调整都会同步展示在这里。</p>
             </div>
             <button
               type="button"
-              class="rounded-full bg-surface-container-low px-4 py-2 text-sm font-bold text-teal-900 transition hover:bg-surface-container-high"
+              class="rounded-full bg-surface-container-low px-4 py-2 text-sm font-bold text-primary transition hover:bg-surface-container-high"
               :disabled="loading"
               @click="loadFeedback"
             >
@@ -135,11 +135,11 @@
                 <span class="text-xs font-semibold text-on-surface-variant">{{ formatTime(item.createdAt) }}</span>
               </div>
 
-              <h3 class="mt-3 text-lg font-extrabold text-teal-950">{{ item.title }}</h3>
+              <h3 class="mt-3 text-lg font-extrabold text-[#1a0033]">{{ item.title }}</h3>
               <p class="mt-2 text-sm leading-7 text-on-surface">{{ item.content }}</p>
 
               <div v-if="item.adminReply" class="mt-4 rounded-2xl bg-white px-4 py-3">
-                <p class="text-sm font-bold text-teal-900">管理员回复</p>
+                <p class="text-sm font-bold text-primary">管理员回复</p>
                 <p class="mt-2 text-sm leading-7 text-on-surface-variant">{{ item.adminReply }}</p>
               </div>
 

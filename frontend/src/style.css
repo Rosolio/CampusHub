@@ -142,15 +142,13 @@ html[data-resolved-theme='dark'] .bg-surface-container-highest {
 html[data-resolved-theme='dark'] .text-on-background,
 html[data-resolved-theme='dark'] .text-on-surface,
 html[data-resolved-theme='dark'] .text-headline,
-html[data-resolved-theme='dark'] .text-teal-900,
-html[data-resolved-theme='dark'] .text-teal-950 {
-  color: #eef6f8 !important;
+html[data-resolved-theme='dark'] .text-primary {
+  color: #e2d0ff !important;
 }
 
 html[data-resolved-theme='dark'] .text-on-surface-variant,
-html[data-resolved-theme='dark'] .text-teal-900\/65,
-html[data-resolved-theme='dark'] .text-teal-900\/72,
-html[data-resolved-theme='dark'] .text-teal-800\/50 {
+html[data-resolved-theme='dark'] .text-primary\/72,
+html[data-resolved-theme='dark'] .text-primary\/50 {
   color: #9bb3bd !important;
 }
 

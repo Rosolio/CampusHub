@@ -36,6 +36,11 @@ const router = createRouter({
     if (savedPosition) {
       return savedPosition
     }
+    // Skip scroll-to-top when switching tabs on /home
+    if (_to.path === '/home' && sessionStorage.getItem('tab_scroll')) {
+      sessionStorage.removeItem('tab_scroll')
+      return false
+    }
     return { top: 0 }
   },
   routes: [

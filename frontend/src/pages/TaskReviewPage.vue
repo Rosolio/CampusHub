@@ -42,7 +42,7 @@
         <article class="rounded-[2rem] bg-surface-container-lowest p-8 shadow-sm">
           <div class="mb-5">
             <p class="text-sm font-bold uppercase tracking-widest text-on-surface-variant">提交评价</p>
-            <h2 class="mt-2 text-2xl font-extrabold text-teal-900">你的评价</h2>
+            <h2 class="mt-2 text-2xl font-extrabold text-primary">你的评价</h2>
           </div>
 
           <div v-if="canReviewTask" class="rounded-3xl border border-outline-variant/15 bg-surface-container-low p-5">
@@ -64,7 +64,7 @@
                 >star</span>
               </button>
               <div class="rounded-2xl bg-white px-4 py-3 text-sm">
-                <p class="font-bold text-teal-900">{{ selectedRating }} 星</p>
+                <p class="font-bold text-primary">{{ selectedRating }} 星</p>
                 <p class="mt-1 text-on-surface-variant">{{ ratingHint }}</p>
               </div>
             </div>
@@ -107,7 +107,7 @@
         <article class="rounded-[2rem] bg-surface-container-lowest p-8 shadow-sm">
           <div class="mb-5">
             <p class="text-sm font-bold uppercase tracking-widest text-on-surface-variant">评价概览</p>
-            <h2 class="mt-2 text-2xl font-extrabold text-teal-900">双方互评情况</h2>
+            <h2 class="mt-2 text-2xl font-extrabold text-primary">双方互评情况</h2>
           </div>
 
           <div v-if="reviews.length > 0" class="grid gap-3 md:grid-cols-3 lg:grid-cols-1">

@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-3">
-    <p class="text-sm font-bold text-teal-950">图片上传</p>
+    <p class="text-sm font-bold text-[#1a0033]">图片上传</p>
 
     <div
       class="rounded-2xl border-2 border-dashed p-6 text-center transition-all cursor-pointer"

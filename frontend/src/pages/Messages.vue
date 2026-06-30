@@ -9,17 +9,17 @@
         >
           <div class="flex shrink-0 items-center justify-between border-b border-outline-variant/10 px-4 py-3 sm:px-5">
             <div>
-              <h1 class="text-lg font-extrabold text-teal-900">消息</h1>
+              <h1 class="text-lg font-extrabold text-primary">消息</h1>
               <p class="m-0 text-xs text-on-surface-variant">{{ filteredConversations.length }} 个会话</p>
             </div>
             <div class="flex items-center gap-2">
               <button
                 class="rounded-full px-3 py-1.5 text-xs font-bold transition-colors"
-                :class="showUnreadOnly ? 'bg-teal-900 text-white' : 'bg-surface-container-low text-teal-900 hover:bg-surface-container-high'"
+                :class="showUnreadOnly ? 'bg-primary text-white' : 'bg-surface-container-low text-primary hover:bg-surface-container-high'"
                 @click="showUnreadOnly = !showUnreadOnly"
               >{{ showUnreadOnly ? '全部' : '未读' }}</button>
               <button
-                class="flex h-8 w-8 items-center justify-center rounded-full bg-surface-container-low text-teal-900 hover:bg-surface-container-high disabled:opacity-45"
+                class="flex h-8 w-8 items-center justify-center rounded-full bg-surface-container-low text-primary hover:bg-surface-container-high disabled:opacity-45"
                 :disabled="loading"
                 @click="handleRefreshMessages"
               >
@@ -69,7 +69,7 @@
               <!-- Info -->
               <div class="flex min-w-0 flex-1 flex-col justify-center">
                 <div class="flex min-w-0 items-center justify-between gap-2 leading-5">
-                  <p class="m-0 min-w-0 truncate text-sm font-extrabold leading-5 text-teal-900">{{ conv.counterpartName }}</p>
+                  <p class="m-0 min-w-0 truncate text-sm font-extrabold leading-5 text-primary">{{ conv.counterpartName }}</p>
                   <span class="shrink-0 text-[11px] leading-5 text-on-surface-variant/60">{{ formatTime(conv.lastCreatedAt) }}</span>
                 </div>
                 <p class="m-0 truncate text-xs leading-5 text-on-surface-variant">{{ conv.taskTitle }}</p>
@@ -112,13 +112,13 @@
               ></div>
             </div>
             <div class="min-w-0 flex-1">
-              <p class="m-0 truncate text-sm font-extrabold text-teal-900">{{ selectedConversation.counterpartName }}</p>
+              <p class="m-0 truncate text-sm font-extrabold text-primary">{{ selectedConversation.counterpartName }}</p>
               <p class="m-0 truncate text-xs text-on-surface-variant">{{ selectedConversation.taskTitle }}</p>
             </div>
             <RouterLink
               v-if="canViewSelectedTaskDetail"
               :to="`/detail/${selectedConversation!.taskId}`"
-              class="shrink-0 rounded-full bg-teal-900 px-3 py-1.5 text-xs font-bold text-white hover:bg-teal-800 sm:px-4"
+              class="shrink-0 rounded-full bg-primary px-3 py-1.5 text-xs font-bold text-white hover:bg-primary-dim sm:px-4"
             >查看帖子</RouterLink>
           </div>
 
@@ -161,7 +161,7 @@
                   <div
                     class="rounded-2xl px-4 py-2.5 text-sm leading-relaxed"
                     :class="msg.direction === 'outgoing'
-                      ? 'bg-teal-900 text-white rounded-br-md'
+                      ? 'bg-primary text-white rounded-br-md'
                       : 'bg-white text-on-surface rounded-bl-md shadow-sm border border-outline-variant/10'"
                   >{{ msg.content }}</div>
                   <p class="m-0 mt-0.5 text-[10px] text-on-surface-variant/50" :class="msg.direction === 'outgoing' ? 'text-right' : 'text-left'">
@@ -192,7 +192,7 @@
               ></textarea>
               <EmojiPicker :disabled="sending" align="right" @select="insertComposerEmoji" />
               <button
-                class="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full bg-teal-900 text-white transition hover:bg-teal-800 disabled:opacity-40"
+                class="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full bg-primary text-white transition hover:bg-primary-dim disabled:opacity-40"
                 :disabled="sending || !composer.trim()"
                 @click="handleSendMessage"
               >
@@ -209,7 +209,7 @@
               <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-[2rem] bg-surface-container-low shadow-sm">
                 <span class="material-symbols-outlined text-4xl text-on-surface-variant/30">forum</span>
               </div>
-              <h3 class="mt-6 text-lg font-extrabold text-teal-900">选择一个会话</h3>
+              <h3 class="mt-6 text-lg font-extrabold text-primary">选择一个会话</h3>
               <p class="m-0 mt-2 text-sm leading-relaxed text-on-surface-variant/60">从左侧会话列表中选择一个联系人，即可在这里查看和发送消息</p>
             </div>
           </div>

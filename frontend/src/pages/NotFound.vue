@@ -15,14 +15,14 @@
       <div class="mt-10 flex flex-wrap items-center justify-center gap-4">
         <RouterLink
           to="/"
-          class="inline-flex items-center gap-2 rounded-full bg-teal-900 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-teal-800"
+          class="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-primary-dim"
         >
           <span class="material-symbols-outlined text-base">home</span>
           返回首页
         </RouterLink>
         <button
           type="button"
-          class="inline-flex items-center gap-2 rounded-full bg-surface-container-low px-6 py-3 text-sm font-bold text-teal-900 transition-colors hover:bg-surface-container-high"
+          class="inline-flex items-center gap-2 rounded-full bg-surface-container-low px-6 py-3 text-sm font-bold text-primary transition-colors hover:bg-surface-container-high"
           @click="goBack"
         >
           <span class="material-symbols-outlined text-base">arrow_back</span>

@@ -3,7 +3,7 @@
     <main class="mx-auto max-w-3xl px-6 pb-24 pt-24">
       <!-- Header -->
       <div class="mb-8 text-center">
-        <h1 class="text-4xl font-extrabold tracking-tight text-teal-950">积分排行榜</h1>
+        <h1 class="text-4xl font-extrabold tracking-tight text-[#1a0033]">积分排行榜</h1>
         <p class="mt-3 text-on-surface-variant">积极参与互助、发布话题帖、获得点赞都能累积积分，看看谁最活跃</p>
       </div>
 
@@ -102,14 +102,14 @@
             <div class="flex-1 min-w-0">
               <p class="font-bold text-on-surface truncate">
                 {{ user.name }}
-                <span v-if="isCurrentUser(user.id)" class="ml-1 text-xs font-semibold text-teal-700">(你)</span>
+                <span v-if="isCurrentUser(user.id)" class="ml-1 text-xs font-semibold text-[#5c00b3]">(你)</span>
               </p>
               <div class="flex items-center gap-2 mt-0.5">
                 <span class="text-xs text-on-surface-variant">信用 {{ formatScore(user.score) }}</span>
               </div>
             </div>
             <div class="text-right">
-              <p class="text-lg font-extrabold text-teal-900">{{ user.points }}</p>
+              <p class="text-lg font-extrabold text-primary">{{ user.points }}</p>
               <p class="text-[10px] font-semibold text-on-surface-variant/60 uppercase">积分</p>
             </div>
           </div>
@@ -117,7 +117,7 @@
 
         <!-- Current user not in top N hint -->
         <div v-if="currentUserNotInList" class="mt-6 rounded-2xl bg-teal-50 px-5 py-4 text-center">
-          <p class="text-sm text-teal-800">
+          <p class="text-sm text-[#3d007a]">
             你的排名暂未进入前 {{ limit }} 名，当前积分 <span class="font-extrabold">{{ currentUserPoints }}</span>，继续参与互助提升排名吧
           </p>
         </div>

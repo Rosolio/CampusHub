@@ -5,7 +5,7 @@
       :key="item.to"
       :to="item.to"
       class="flex min-w-[4.5rem] flex-col items-center justify-center rounded-2xl px-3 py-2 text-[11px] font-semibold tracking-[0.12em] transition-all duration-200"
-      :class="isActive(item.to) ? 'bg-teal-900 text-white shadow-sm' : 'text-teal-900/50'"
+      :class="isActive(item.to) ? 'bg-primary text-white shadow-sm' : 'text-primary/50'"
     >
       <span class="material-symbols-outlined mb-1 text-[1.35rem]" :data-weight="isActive(item.to) ? 'fill' : 'regular'">
         {{ item.icon }}

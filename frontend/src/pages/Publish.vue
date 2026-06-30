@@ -4,7 +4,7 @@
     <main class="mx-auto max-w-4xl px-6 pb-12 pt-24">
       <PageBackHeader to="/" label="返回社区" />
 
-      <section class="mb-8 overflow-hidden rounded-[2rem] bg-gradient-to-br from-teal-900 via-teal-800 to-cyan-700 p-8 text-white shadow-lg">
+      <section class="mb-8 overflow-hidden rounded-[2rem] bg-gradient-to-br from-primary via-[#3d007a] to-[#5c00b3] p-8 text-white shadow-lg">
         <p class="mb-3 text-xs font-bold uppercase tracking-[0.3em] text-cyan-100/80">发布模式</p>
         <h1 class="mb-3 text-3xl font-extrabold">{{ activeConfig.mode === 'task' ? '发布接单任务' : '发布话题帖' }}</h1>
         <p class="max-w-2xl text-sm leading-7 text-cyan-50/85">
@@ -16,7 +16,7 @@
             :key="category.value"
             type="button"
             class="rounded-full border px-4 py-2 text-sm font-semibold transition-all"
-            :class="form.category === category.value ? 'border-white bg-white text-teal-900' : 'border-white/20 bg-white/10 text-white hover:bg-white/20'"
+            :class="form.category === category.value ? 'border-white bg-white text-primary' : 'border-white/20 bg-white/10 text-white hover:bg-white/20'"
             @click="handleCategoryChange(category.value)"
           >
             {{ category.label }}
@@ -76,13 +76,13 @@
             <FormField :label="activeConfig.timeLabel">
               <div v-if="activeConfig.mode === 'topic'" class="mb-3 flex items-center justify-between rounded-2xl border border-cyan-100 bg-cyan-50/60 px-4 py-3 text-sm">
                 <div>
-                  <p class="font-semibold text-teal-900">长期有效</p>
-                  <p class="mt-1 text-xs leading-5 text-teal-800/75">开启后帖子不会自动截止，也不会因为到期而隐藏。</p>
+                  <p class="font-semibold text-primary">长期有效</p>
+                  <p class="mt-1 text-xs leading-5 text-[#3d007a]/75">开启后帖子不会自动截止，也不会因为到期而隐藏。</p>
                 </div>
                 <button
                   type="button"
                   class="rounded-full px-4 py-2 text-sm font-semibold transition-all"
-                  :class="form.topicLongTerm ? 'bg-teal-900 text-white' : 'bg-white text-teal-900 shadow-sm hover:bg-cyan-50'"
+                  :class="form.topicLongTerm ? 'bg-primary text-white' : 'bg-white text-primary shadow-sm hover:bg-cyan-50'"
                   @click="form.topicLongTerm = !form.topicLongTerm"
                 >
                   {{ form.topicLongTerm ? '已开启' : '去开启' }}
@@ -142,8 +142,8 @@
                 <span class="material-symbols-outlined">forum</span>
               </div>
               <div>
-                    <h2 class="text-lg font-bold text-teal-900">话题帖互动规则</h2>
-                    <p class="mt-2 text-sm leading-6 text-teal-800/80">
+                    <h2 class="text-lg font-bold text-primary">话题帖互动规则</h2>
+                    <p class="mt-2 text-sm leading-6 text-[#3d007a]/80">
                   这类内容不会进入接单流程，而是以帖子形式展开讨论。用户可以评论和回复，发布一条评论即可获得 5 积分；你可以设置截止时间，也可以直接设为长期有效。
                     </p>
                   </div>

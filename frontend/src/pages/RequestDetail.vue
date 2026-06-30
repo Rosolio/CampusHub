@@ -35,7 +35,7 @@
                 <span class="rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.24em] text-white">
                   {{ request.category || '校园互助' }}
                 </span>
-                <span class="rounded-full bg-white px-4 py-1.5 text-xs font-bold uppercase tracking-[0.24em] text-teal-900">
+                <span class="rounded-full bg-white px-4 py-1.5 text-xs font-bold uppercase tracking-[0.24em] text-primary">
                   评论 / 回复
                 </span>
               </div>
@@ -106,7 +106,7 @@
 
               <div class="mt-6 rounded-[1.75rem] bg-white/10 p-5 text-white">
                 <div class="flex items-start gap-3">
-                  <div class="rounded-2xl bg-white p-3 text-teal-900">
+                  <div class="rounded-2xl bg-white p-3 text-primary">
                     <span class="material-symbols-outlined">workspace_premium</span>
                   </div>
                   <div>
@@ -153,7 +153,7 @@
                   </div>
 
                   <div class="mt-6 grid gap-4 md:grid-cols-3">
-                    <div class="rounded-[1.75rem] bg-teal-900 px-5 py-5 text-white shadow-sm">
+                    <div class="rounded-[1.75rem] bg-primary px-5 py-5 text-white shadow-sm">
                       <p class="text-xs font-bold uppercase tracking-[0.22em] text-white/65">{{ request.rewardTitle || '任务奖励' }}</p>
                       <p class="mt-3 text-2xl font-extrabold leading-tight">{{ request.rewardText || '待补充' }}</p>
                     </div>
@@ -178,9 +178,9 @@
                       <p class="text-xs font-bold uppercase tracking-[0.22em] text-on-surface-variant">当前进度</p>
                       <div class="mt-4 flex items-center gap-3">
                         <div class="h-3 flex-1 overflow-hidden rounded-full bg-surface-container-low">
-                          <div class="h-full rounded-full bg-gradient-to-r from-teal-700 to-emerald-500" :style="{ width: `${taskProgressPercent}%` }"></div>
+                          <div class="h-full rounded-full bg-gradient-to-r from-[#5c00b3] to-emerald-500" :style="{ width: `${taskProgressPercent}%` }"></div>
                         </div>
-                        <span class="text-sm font-bold text-teal-900">{{ taskProgressPercent }}%</span>
+                        <span class="text-sm font-bold text-primary">{{ taskProgressPercent }}%</span>
                       </div>
                       <p class="mt-3 text-sm leading-7 text-on-surface-variant">{{ progressSummaryText }}</p>
                     </div>
@@ -238,7 +238,7 @@
             </div>
 
             <div class="rounded-[1.75rem] border border-outline-variant/15 bg-surface-container-low p-5">
-              <div v-if="replyTarget" class="mb-4 flex items-center justify-between gap-3 rounded-2xl bg-cyan-50 px-4 py-3 text-sm text-teal-900">
+              <div v-if="replyTarget" class="mb-4 flex items-center justify-between gap-3 rounded-2xl bg-cyan-50 px-4 py-3 text-sm text-primary">
                 <span>正在回复 {{ replyTarget.authorName || `用户 #${replyTarget.authorId}` }}</span>
                 <button type="button" class="font-bold text-primary" @click="cancelReply">取消回复</button>
               </div>
@@ -429,11 +429,11 @@
                 <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <div class="rounded-2xl bg-surface-container-low px-5 py-4 text-center">
                     <p class="text-xs font-bold uppercase tracking-[0.18em] text-on-surface-variant">点赞数</p>
-                    <p class="mt-2 text-2xl font-extrabold text-teal-900">{{ topicLikeCount }}</p>
+                    <p class="mt-2 text-2xl font-extrabold text-primary">{{ topicLikeCount }}</p>
                   </div>
                   <div class="rounded-2xl bg-surface-container-low px-5 py-4 text-center">
                     <p class="text-xs font-bold uppercase tracking-[0.18em] text-on-surface-variant">评论数</p>
-                    <p class="mt-2 text-2xl font-extrabold text-teal-900">{{ topicCommentCount }}</p>
+                    <p class="mt-2 text-2xl font-extrabold text-primary">{{ topicCommentCount }}</p>
                   </div>
                 </div>
                 <p class="mt-3 text-sm text-on-surface-variant">当前帖子累计点赞与评论互动数据。</p>

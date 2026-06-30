@@ -66,12 +66,12 @@
           <section class="rounded-[2rem] bg-surface-container-lowest p-6 shadow-sm">
             <div class="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <p class="text-[11px] font-extrabold uppercase tracking-[0.24em] text-teal-700/65">Announcement Desk</p>
-                <h2 class="mt-2 text-2xl font-extrabold text-teal-950">发布社区公告</h2>
+                <p class="text-[11px] font-extrabold uppercase tracking-[0.24em] text-[#5c00b3]/65">Announcement Desk</p>
+                <h2 class="mt-2 text-2xl font-extrabold text-[#1a0033]">发布社区公告</h2>
               </div>
               <button
                 type="button"
-                class="inline-flex items-center gap-2 rounded-full bg-surface-container-low px-4 py-2 text-sm font-bold text-teal-900 transition hover:bg-surface-container-high"
+                class="inline-flex items-center gap-2 rounded-full bg-surface-container-low px-4 py-2 text-sm font-bold text-primary transition hover:bg-surface-container-high"
                 :disabled="creatingAnnouncement"
                 @click="loadHome"
               >
@@ -98,13 +98,13 @@
                 placeholder="公告内容会展示在所有普通用户首页顶部。"
               ></textarea>
               <div class="flex flex-wrap items-center justify-between gap-3">
-                <label class="inline-flex items-center gap-3 rounded-full bg-surface-container-low px-4 py-2 text-sm font-medium text-teal-900">
-                  <input v-model="announcementForm.pinned" type="checkbox" class="h-4 w-4 accent-teal-900" />
+                <label class="inline-flex items-center gap-3 rounded-full bg-surface-container-low px-4 py-2 text-sm font-medium text-primary">
+                  <input v-model="announcementForm.pinned" type="checkbox" class="h-4 w-4 accent-primary" />
                   置顶展示
                 </label>
                 <button
                   type="submit"
-                  class="rounded-full bg-teal-900 px-5 py-3 text-sm font-extrabold text-white transition hover:bg-teal-800 disabled:opacity-60"
+                  class="rounded-full bg-primary px-5 py-3 text-sm font-extrabold text-white transition hover:bg-primary-dim disabled:opacity-60"
                   :disabled="creatingAnnouncement"
                 >
                   {{ creatingAnnouncement ? '发布中...' : '发布公告' }}
@@ -125,7 +125,7 @@
                   </div>
                   <span class="text-xs font-semibold text-on-surface-variant">{{ announcement.authorName || '管理员' }}</span>
                 </div>
-                <h3 class="mt-3 text-lg font-extrabold text-teal-950">{{ announcement.title }}</h3>
+                <h3 class="mt-3 text-lg font-extrabold text-[#1a0033]">{{ announcement.title }}</h3>
                 <p class="mt-2 text-sm leading-7 text-on-surface-variant">{{ announcement.content }}</p>
               </article>
             </div>
@@ -134,10 +134,10 @@
           <section class="rounded-[2rem] bg-surface-container-lowest p-6 shadow-sm">
             <div class="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <p class="text-[11px] font-extrabold uppercase tracking-[0.24em] text-teal-700/65">Community Pulse</p>
-                <h2 class="mt-2 text-2xl font-extrabold text-teal-950">最新社区动态</h2>
+                <p class="text-[11px] font-extrabold uppercase tracking-[0.24em] text-[#5c00b3]/65">Community Pulse</p>
+                <h2 class="mt-2 text-2xl font-extrabold text-[#1a0033]">最新社区动态</h2>
               </div>
-              <RouterLink to="/admin/community" class="inline-flex items-center gap-2 rounded-full bg-cyan-50 px-4 py-2 text-sm font-bold text-teal-900 transition hover:bg-cyan-100">
+              <RouterLink to="/admin/community" class="inline-flex items-center gap-2 rounded-full bg-cyan-50 px-4 py-2 text-sm font-bold text-primary transition hover:bg-cyan-100">
                 进入独立页面
                 <span class="material-symbols-outlined text-base">arrow_forward</span>
               </RouterLink>
@@ -150,10 +150,10 @@
                 class="rounded-[1.5rem] border border-outline-variant/12 bg-surface-container-low p-4 transition hover:-translate-y-0.5 hover:bg-cyan-50/70"
               >
                 <div class="flex flex-wrap items-center gap-2">
-                  <span class="rounded-full bg-white px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-teal-900">{{ item.modeLabel }}</span>
+                  <span class="rounded-full bg-white px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-primary">{{ item.modeLabel }}</span>
                   <span class="rounded-full bg-white px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-on-surface-variant">{{ item.category }}</span>
                 </div>
-                <h3 class="mt-3 text-lg font-extrabold text-teal-950">{{ item.title }}</h3>
+                <h3 class="mt-3 text-lg font-extrabold text-[#1a0033]">{{ item.title }}</h3>
                 <p class="mt-2 line-clamp-3 text-sm leading-7 text-on-surface-variant">{{ item.description }}</p>
                 <div class="mt-4 flex items-center justify-between text-xs font-semibold text-on-surface-variant">
                   <span>{{ item.requesterName || '社区用户' }}</span>
@@ -167,8 +167,8 @@
         <section id="feedback-queue" class="rounded-[2rem] bg-surface-container-lowest p-6 shadow-sm">
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p class="text-[11px] font-extrabold uppercase tracking-[0.24em] text-teal-700/65">Feedback Queue</p>
-              <h2 class="mt-2 text-2xl font-extrabold text-teal-950">用户反馈处理</h2>
+              <p class="text-[11px] font-extrabold uppercase tracking-[0.24em] text-[#5c00b3]/65">Feedback Queue</p>
+              <h2 class="mt-2 text-2xl font-extrabold text-[#1a0033]">用户反馈处理</h2>
             </div>
             <div class="rounded-full bg-rose-50 px-4 py-2 text-sm font-bold text-rose-700">
               待处理 {{ pendingFeedbackCount }} 条
@@ -191,7 +191,7 @@
                       {{ feedbackStatusLabel(item.status) }}
                     </span>
                   </div>
-                  <h3 class="mt-3 text-lg font-extrabold text-teal-950">{{ item.title }}</h3>
+                  <h3 class="mt-3 text-lg font-extrabold text-[#1a0033]">{{ item.title }}</h3>
                   <p class="mt-2 text-sm text-on-surface-variant">{{ item.userName }} · {{ item.userStudentId }}</p>
                 </div>
                 <span class="text-xs font-semibold text-on-surface-variant">{{ formatTime(item.createdAt) }}</span>
@@ -226,7 +226,7 @@
               </div>
 
               <div v-if="item.adminReply" class="mt-4 rounded-2xl bg-white px-4 py-3 text-sm text-on-surface">
-                <p class="font-bold text-teal-900">当前回复</p>
+                <p class="font-bold text-primary">当前回复</p>
                 <p class="mt-2 leading-7 text-on-surface-variant">{{ item.adminReply }}</p>
               </div>
             </article>
