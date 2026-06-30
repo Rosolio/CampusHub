@@ -7,7 +7,7 @@
         推荐尺寸：1920×600px，放 frontend/public/images/nju-hero.jpg
         示例：bg-[url('/images/nju-hero.jpg')]
       -->
-      <section class="relative mb-8 overflow-hidden rounded-2xl bg-cover bg-center bg-[url('/images/nju-hero.jpg')] p-6 shadow-sm md:p-8 before:absolute before:inset-0 before:bg-gradient-to-r before:from-black/60 before:to-black/20 before:content-['']">
+      <section class="relative mb-8 overflow-hidden rounded-2xl bg-cover bg-bottom bg-[url('/images/nju-hero.jpg')] p-6 shadow-sm md:p-8 before:absolute before:inset-0 before:bg-gradient-to-r before:from-black/60 before:to-black/20 before:content-['']">
         <div class="relative z-10 grid gap-6 xl:grid-cols-[1.1fr_0.9fr] xl:items-start">
           <div>
             <div class="mb-4 flex flex-wrap items-center gap-3">
