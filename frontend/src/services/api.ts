@@ -247,6 +247,7 @@ export const adminApi = {
   reviewTask: (taskId: number, data: { reviewStatus: 'approved' | 'rejected' | 'pending_review'; reviewNote?: string }) => requestData(api.put(`/admin/tasks/${taskId}/review`, data)),
   getAnnouncements: () => requestData(api.get('/admin/announcements')),
   createAnnouncement: (data: { title: string; content: string; pinned?: boolean }) => requestData(api.post('/admin/announcements', data)),
+  deleteAnnouncement: (id: number) => requestData(api.delete(`/admin/announcements/${id}`)),
   getFeedback: () => requestData(api.get('/admin/feedback')),
   updateFeedback: (feedbackId: number, data: { status: 'open' | 'in_progress' | 'resolved'; priority?: 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT'; adminReply?: string }) => requestData(api.put(`/admin/feedback/${feedbackId}`, data)),
   batchUpdateUserStatus: (data: { userIds: number[]; status: string; disabledReason?: string }) => requestData(api.put('/admin/users/batch-status', data)),

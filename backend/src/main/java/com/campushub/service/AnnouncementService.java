@@ -3,6 +3,7 @@ package com.campushub.service;
 import com.campushub.dto.AdminAnnouncementRequest;
 import com.campushub.entity.Announcement;
 import com.campushub.mapper.AnnouncementMapper;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -48,6 +49,19 @@ public class AnnouncementService {
     private void requireAdmin(Long userId) {
         if (!userService.isAdmin(userId)) {
             throw new RuntimeException("无管理员权限");
+        }
+    }
+
+    public void deleteAnnouncement(Long id) {
+        announcementMapper.deleteById(id);
+    }
+
+    /** 每天凌晨 3 点执行：删除超过 7 天的公告 */
+    @Scheduled(cron = "0 0 3 * * ?")
+    public void cleanupOldAnnouncements() {
+        int deleted = announcementMapper.deleteOlderThanDays(7);
+        if (deleted > 0) {
+            System.out.println("[清理] 删除了 " + deleted + " 条超过 7 天的公告");
         }
     }
 

@@ -107,6 +107,12 @@ public class AdminController {
         return announcementService.createAnnouncement(getCurrentUserId(authentication), request);
     }
 
+    @DeleteMapping("/announcements/{id}")
+    public void deleteAnnouncement(@PathVariable Long id, Authentication authentication) {
+        getCurrentUserId(authentication); // just ensure authenticated
+        announcementService.deleteAnnouncement(id);
+    }
+
     @GetMapping("/feedback")
     public List<Feedback> getFeedback(Authentication authentication) {
         return feedbackService.getAdminFeedback(getCurrentUserId(authentication));

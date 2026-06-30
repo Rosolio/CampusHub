@@ -22,6 +22,16 @@
         ORDER BY a.pinned DESC, a.created_at DESC
     </select>
 
+    <delete id="deleteById">
+        DELETE FROM announcements WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteOlderThanDays">
+        DELETE FROM announcements
+        WHERE created_at IS NOT NULL
+          AND created_at <![CDATA[<]]> DATE_SUB(NOW(), INTERVAL #{days} DAY)
+    </delete>
+
     <select id="selectById" resultMap="AnnouncementResultMap">
         SELECT a.*,
                u.name AS author_name

@@ -125,8 +125,15 @@
                   </div>
                   <span class="text-xs font-semibold text-on-surface-variant">{{ announcement.authorName || '管理员' }}</span>
                 </div>
-                <h3 class="mt-3 text-lg font-extrabold text-[#1a0033]">{{ announcement.title }}</h3>
-                <p class="mt-2 text-sm leading-7 text-on-surface-variant">{{ announcement.content }}</p>
+                <div class="mt-2 flex justify-end">
+                  <button
+                    type="button"
+                    class="rounded-full bg-rose-100 px-4 py-1.5 text-xs font-bold text-rose-700 transition hover:bg-rose-200"
+                    @click="deleteAnnouncement(announcement)"
+                  >
+                    删除
+                  </button>
+                </div>
               </article>
             </div>
           </section>
@@ -326,6 +333,16 @@ const handleCreateAnnouncement = async () => {
     error.value = err?.response?.data?.message || '公告发布失败'
   } finally {
     creatingAnnouncement.value = false
+  }
+}
+
+const deleteAnnouncement = async (announcement: any) => {
+  if (!window.confirm(`确认删除公告「${announcement.title}」？`)) return
+  try {
+    await adminApi.deleteAnnouncement(announcement.id)
+    await loadHome()
+  } catch (err: any) {
+    console.error('删除公告失败:', err)
   }
 }
 
