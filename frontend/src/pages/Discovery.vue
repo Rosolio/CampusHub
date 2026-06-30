@@ -614,15 +614,12 @@ const setTab = (tab: 'demand' | 'topic') => {
   if (activeTab.value === tab) return
   activeTab.value = tab
   const query = tab === 'topic' ? { tab: 'topic' } : {}
-  // Flag to tell router scrollBehavior to skip scrolling to top
-  sessionStorage.setItem('tab_scroll', '1')
   router.replace({ path: '/home', query })
   topicCurrentPage.value = 1
 }
 
 const switchToTab = async (tab: 'demand' | 'topic') => {
   setTab(tab)
-  // Router's scrollBehavior handles scrolling to #tab-bar
 }
 
 const scrollToTabBar = async () => {
