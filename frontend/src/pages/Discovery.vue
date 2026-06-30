@@ -121,7 +121,7 @@
         </div>
       </section>
 
-      <div ref="tabBarRef" class="sticky top-16 z-30 mb-8 flex justify-center gap-3">
+      <div ref="tabBarRef" id="tab-bar" class="sticky top-16 z-30 mb-8 flex justify-center gap-3">
         <button
           type="button"
           class="flex items-center gap-2 rounded-2xl px-6 py-3 text-sm font-bold transition-all shadow-sm"
@@ -622,8 +622,7 @@ const setTab = (tab: 'demand' | 'topic') => {
 
 const switchToTab = async (tab: 'demand' | 'topic') => {
   setTab(tab)
-  await nextTick()
-  tabBarRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  // Router's scrollBehavior handles scrolling to #tab-bar
 }
 
 const scrollToTabBar = async () => {
