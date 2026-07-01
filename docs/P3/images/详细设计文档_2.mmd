@@ -1,0 +1,13 @@
+stateDiagram-v2
+    [*] --> pending: 创建任务
+    pending --> approved: 审核通过
+    pending --> rejected: 审核驳回
+    approved --> open: 发布成功
+    open --> accepted: 被接单
+    accepted --> completion_pending: 一方确认完成
+    completion_pending --> completed: 双方确认完成
+    completed --> [*]: 进入评价
+    open --> canceled: 发布者取消
+    accepted --> canceled: 取消接单/取消任务
+    pending --> canceled: 审核超时取消
+    open --> expired: 超时未接单自动取消

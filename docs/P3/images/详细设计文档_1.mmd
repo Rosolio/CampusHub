@@ -1,0 +1,64 @@
+graph TB
+    subgraph 前端["前端 (Vue 3 + Vite)"]
+        A[Auth.vue]
+        D[Discovery.vue]
+        RD[RequestDetail.vue]
+        M[Messages.vue]
+        N[Notifications.vue]
+        P[Profile.vue]
+        S[SearchResults.vue]
+        PB[Publish.vue]
+        F[FeedbackPage.vue]
+        V[VerificationPage.vue]
+        SET[Settings.vue]
+        ADMIN["Admin Pages"]
+    end
+
+    subgraph 后端["后端 (Spring Boot 3.2)"]
+        subgraph Controller["Controller 层"]
+            AC[AuthController]
+            UC[UserController]
+            TC[TaskController]
+            TCC[TaskCommentController]
+            TRC[TaskReviewController]
+            MC[MessageController]
+            NC[NotificationController]
+            SC[SearchController]
+            FC[FileController]
+            VC[VerificationController]
+            TRBC[TaskReviewBatchController]
+            FBC[FeedbackController]
+            ADC[AdminController]
+        end
+
+        subgraph Service["Service 层"]
+            AS[AuthService]
+            US[UserService]
+            TS[TaskService]
+            TCS[TaskCommentService]
+            TRS[TaskReviewService]
+            MS[MessageService]
+            NS[NotificationService]
+            TRECS[TaskRecommendationService]
+            VS[VerificationService]
+            FS[FeedbackService]
+            ADS[AdminService]
+            ANS[AnnouncementService]
+        end
+
+        subgraph Data["数据层"]
+            MySQL[(MySQL)]
+            Redis[(Redis)]
+        end
+    end
+
+    subgraph 外部["外部"]
+        CDN[CDN / 静态资源]
+    end
+
+    前端 -->|HTTP /api/*| Controller
+    Controller --> Service
+    Service --> MySQL
+    Service --> Redis
+    前端 -->|/files/*| FC
+    FC --> CDN

@@ -1,0 +1,241 @@
+classDiagram
+    class AuthController {
+        +register(RegisterRequest)
+        +login(LoginRequest)
+        +refreshToken(Map)
+    }
+    class UserController {
+        +getCurrentUser()
+        +updateCurrentUser(User)
+        +getUserSetting()
+        +updateUserSetting(UserSetting)
+        +getLeaderboard(int)
+    }
+    class TaskController {
+        +getTasks(TaskRecommendationQuery)
+        +createTask(TaskCreateRequest)
+        +getTaskById(Long)
+        +acceptTask(Long)
+        +unacceptTask(Long)
+        +completeTask(Long)
+        +cancelTask(Long)
+        +likeTask(Long)
+        +unlikeTask(Long)
+        +favoriteTask(Long)
+        +unfavoriteTask(Long)
+    }
+    class TaskCommentController {
+        +getComments(Long)
+        +createComment(Long, TaskCommentCreateRequest)
+        +likeComment(Long)
+        +unlikeComment(Long)
+    }
+    class TaskReviewController {
+        +createReview(Long, TaskReviewCreateRequest)
+        +getTaskReviews(Long)
+    }
+    class TaskReviewBatchController {
+        +getTaskReviewCounts(String)
+    }
+    class MessageController {
+        +getMessages()
+        +sendMessage(MessageRequest)
+        +markRead(Long)
+    }
+    class NotificationController {
+        +getNotifications()
+        +getUnreadCount()
+        +markAsRead(Long)
+        +markAllRead()
+    }
+    class SearchController {
+        +search(String, String, int, int)
+    }
+    class FileController {
+        +uploadFile(MultipartFile)
+        +serveFile(String)
+    }
+    class VerificationController {
+        +submitVerification(List, String, String)
+        +getMyVerification()
+        +getVerificationImage(String)
+    }
+    class FeedbackController {
+        +createFeedback(FeedbackCreateRequest)
+        +getMyFeedback()
+    }
+    class AdminController {
+        +getDashboard()
+        +getUsers()
+        +updateUserStatus(Long, AdminUserStatusUpdateRequest)
+        +reviewTask(Long, AdminTaskReviewRequest)
+        +updateFeedback(Long, AdminFeedbackUpdateRequest)
+        +reviewVerification(Long, AdminVerificationReviewRequest)
+        +batchReviewTasks(Map)
+    }
+
+    class AuthService
+    class UserService
+    class TaskService
+    class TaskCommentService
+    class TaskReviewService
+    class MessageService
+    class NotificationService
+    class VerificationService
+    class FeedbackService
+    class AdminService
+    class AnnouncementService
+    class TaskMapper
+
+    class User {
+        +id: Long
+        +studentId: String
+        +name: String
+        +email: String
+        +password: String
+        +role: String
+        +status: String
+        +verifiedStatus: String
+        +score: Decimal
+        +points: Integer
+    }
+    class UserSetting {
+        +id: Long
+        +userId: Long
+        +notificationEnabled: Boolean
+        +theme: String
+        +language: String
+    }
+    class UserVerification {
+        +id: Long
+        +userId: Long
+        +type: String
+        +realName: String
+        +studentId: String
+        +imageUrls: String
+        +status: String
+    }
+    class Task {
+        +id: Long
+        +requesterId: Long
+        +title: String
+        +description: String
+        +category: String
+        +taskMode: String
+        +contactInfo: String
+        +imageUrls: String
+        +reviewStatus: String
+        +status: String
+        +likeCount: Integer
+        +expiresAt: DateTime
+    }
+    class TaskParticipant {
+        +id: Long
+        +taskId: Long
+        +participantId: Long
+        +role: String
+        +status: String
+    }
+    class TaskComment {
+        +id: Long
+        +taskId: Long
+        +authorId: Long
+        +parentId: Long
+        +content: String
+        +likeCount: Integer
+    }
+    class TaskLike {
+        +id: Long
+        +taskId: Long
+        +userId: Long
+    }
+    class TaskFavorite {
+        +id: Long
+        +userId: Long
+        +taskId: Long
+    }
+    class TaskReview {
+        +id: Long
+        +taskId: Long
+        +reviewerId: Long
+        +revieweeId: Long
+        +reviewerRole: String
+        +rating: Integer
+        +content: String
+    }
+    class Message {
+        +id: Long
+        +senderId: Long
+        +receiverId: Long
+        +taskId: Long
+        +content: String
+        +status: String
+    }
+    class Notification {
+        +id: Long
+        +userId: Long
+        +type: String
+        +title: String
+        +content: String
+        +referenceType: String
+        +referenceId: Long
+        +isRead: Boolean
+    }
+    class Feedback {
+        +id: Long
+        +userId: Long
+        +type: String
+        +title: String
+        +content: String
+        +status: String
+    }
+    class Announcement {
+        +id: Long
+        +authorId: Long
+        +title: String
+        +content: String
+        +pinned: Boolean
+    }
+
+    AuthController --> AuthService
+    UserController --> UserService
+    TaskController --> TaskService
+    TaskCommentController --> TaskCommentService
+    TaskReviewController --> TaskReviewService
+    TaskReviewBatchController --> TaskReviewService
+    MessageController --> MessageService
+    NotificationController --> NotificationService
+    SearchController --> TaskMapper
+    VerificationController --> VerificationService
+    FeedbackController --> FeedbackService
+    AdminController --> AdminService
+    AdminController --> AnnouncementService
+    AdminController --> VerificationService
+    AdminController --> FeedbackService
+
+    AuthService --> User
+    UserService --> User
+    UserService --> UserSetting
+    TaskService --> Task
+    TaskService --> TaskParticipant
+    TaskService --> TaskLike
+    TaskService --> TaskFavorite
+    TaskCommentService --> TaskComment
+    TaskReviewService --> TaskReview
+    MessageService --> Message
+    NotificationService --> Notification
+    VerificationService --> UserVerification
+    FeedbackService --> Feedback
+    AnnouncementService --> Announcement
+
+    User "1" --> "1" UserSetting : owns
+    User "1" --> "0..*" UserVerification : applies
+    User "1" --> "0..*" Task : publishes
+    User "1" --> "0..*" Notification : receives
+    User "1" --> "0..*" Feedback : submits
+    Task "1" --> "0..*" TaskParticipant : contains
+    Task "1" --> "0..*" TaskComment : contains
+    Task "1" --> "0..*" TaskLike : contains
+    Task "1" --> "0..*" TaskFavorite : bookmarked
+    Task "1" --> "0..*" TaskReview : contains
+    Task "1" --> "0..*" Message : context
